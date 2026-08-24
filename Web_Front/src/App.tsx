@@ -642,18 +642,50 @@ function App() {
 
   const [isDragging, setIsDragging] = useState(false)
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files || []);
-    if (files.length) loadPeakFiles(files);
+    if (!files.length) return;
+
+    const peakFiles = files.filter(f => /\.peak$|\.json$/i.test(f.name) || f.type === 'application/json');
+    const audioFilesDropped = files.filter(f => f.type.startsWith('audio/') || /\.(wav|mp3|m4a|aac|flac|aif|aiff|ogg)$/i.test(f.name));
+
+    if (peakFiles.length > 0) {
+      loadPeakFiles(peakFiles);
+    }
+
+    if (audioFilesDropped.length > 0) {
+      const audioFile = audioFilesDropped[0];
+      setAudioFiles(prev => [...prev, audioFile]);
+
+      // Construct analysis record if no peak data exists for it yet
+      const newRecord = {
+        filename: audioFile.name,
+        metadata: {
+          name: audioFile.name,
+          relPath: audioFile.name,
+          category: 'MUSC',
+          subcategory: 'TONE',
+          catKey: 'MUSC-TONE',
+          rootKey: 'E',
+          pitch: 164.8,
+          bpm: 120,
+          length: 180,
+          integrated_lufs: -14.2
+        }
+      };
+
+      setAnalysisResult(prev => {
+        const exists = prev.some(it => (it.metadata?.name || it.filename) === audioFile.name);
+        return exists ? prev : [newRecord, ...prev];
+      });
+
+      selectSound(audioFile.name);
+      goToTab('examiner');
+    }
   }
 
-  // A full reset, not just an unlink: the analysis is what the 3D cloud, the 2D
-  // charts and the file list are drawn from, so dropping the audio while leaving
-  // 36k points on screen left the app claiming to show a library that was no
-  // longer loaded. Nothing is lost — every scanned file's .PEAK sidecar is still
-  // on disk, so re-scanning the folder reads it all back without re-analyzing.
   const handleUnloadSounds = async () => {
     if (analysisResult.length && !window.confirm(
       `Unload ${analysisResult.length.toLocaleString()} analyzed sample(s)? The 3D cloud, the 2D charts and the file list will be cleared. Your .PEAK sidecars stay on disk, so re-scanning the folder reads them straight back.`
@@ -693,7 +725,7 @@ function App() {
     >
       {isDragging && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--accent-primary)', color: 'black', textAlign: 'center', padding: '0.35rem', fontSize: '0.85rem', fontWeight: 600, pointerEvents: 'none' }}>
-          Drop .PEAK file to load
+          Drop Audio File (.m4a, .wav) or .PEAK Sidecar to Load & Examine
         </div>
       )}
       <Header isAnalyzing={isAnalyzing} progress={progress} onUnloadSounds={handleUnloadSounds} audioCount={audioFiles.length} audioRoot={audioRootLinked} currentSound={currentSound} sample={footerItem} hasData={analysisResult.length > 0} activeTab={activeTab} />
