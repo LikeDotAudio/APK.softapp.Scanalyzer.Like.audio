@@ -19,14 +19,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WebAssembly Crates
+        run: |
+          cd Web_Front/wasm_analyzer && wasm-pack build --target web --out-dir pkg
+          cd ../wasm_extractor && wasm-pack build --target web --out-dir pkg
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Dependencies
         working-directory: ./Web_Front
-        run: npm ci || npm install
+        run: npm install
 
       - name: Build Web Application
         working-directory: ./Web_Front
