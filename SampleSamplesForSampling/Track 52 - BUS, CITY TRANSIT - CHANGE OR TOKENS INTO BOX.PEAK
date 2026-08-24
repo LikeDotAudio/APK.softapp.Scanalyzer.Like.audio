@@ -1,0 +1,291 @@
+{
+  "metadata": {
+    "analyzer_version": "20260728.2125-155e412706ef2aec",
+    "name": "Track 52 - BUS, CITY TRANSIT - CHANGE OR TOKENS INTO BOX.mp3",
+    "folder": "SampleSamplesForSampling",
+    "sub": "SampleSamplesForSampling",
+    "path": "/home/anthony/Documents/GitProjects/Scanalyzer.like.audio/Web_Front/public/SampleSamplesForSampling/Track 52 - BUS, CITY TRANSIT - CHANGE OR TOKENS INTO BOX.mp3",
+    "length_seconds": 4.440816326530612,
+    "sample_rate": 44100,
+    "bit_depth": 0,
+    "channels": 2,
+    "source_format": "MP3",
+    "lossy_source": true,
+    "dc_offset": -0.002682254368027194,
+    "trailing_silence_ms": 0.0,
+    "analysis_depth": "full"
+  },
+  "classification": {
+    "group": "Loops/Patterns",
+    "reason": [
+      "1) 6 transients (>1), no drum/instrument name → loop",
+      "2) envelope Multi (6 transients — loudest of 6 slices: attack 40 ms, sustain 1%)",
+      "3) Inharmonic · high-band 59% · root A2"
+    ],
+    "timbre": "Loop",
+    "length_class": "Loop",
+    "subgroup": "Loop",
+    "audit": false,
+    "acoustic_types": [
+      "Inharmonic"
+    ],
+    "sound_design_roles": [],
+    "instrument_family": [
+      "Percussion",
+      "Idiophone"
+    ]
+  },
+  "envelope": {
+    "transient_count": 6,
+    "attack_seconds": 3.117142857142857,
+    "sustain_ratio": 0.04119850187265917,
+    "sustained": false,
+    "envelope_attack_seconds": null,
+    "envelope_decay_seconds": null,
+    "envelope_sustain_level": null,
+    "envelope_release_seconds": null,
+    "envelope_temporal_centroid": null,
+    "envelope_skewness": null,
+    "envelope_kurtosis": null,
+    "envelope_shape": "Multi",
+    "decay_time_seconds_60db": null,
+    "slices": [
+      {
+        "index": 0,
+        "start_seconds": 0.0,
+        "end_seconds": 0.783219954648526,
+        "relative_level": 0.8345416307417761,
+        "envelope_attack_seconds": 0.18458049886621314,
+        "envelope_decay_seconds": 0.029931972789115645,
+        "envelope_sustain_level": 0.34391196248608064,
+        "envelope_release_seconds": 0.02494331065759637,
+        "envelope_temporal_centroid": 0.8890446879900512,
+        "envelope_skewness": 2.8649325852109078,
+        "envelope_kurtosis": 8.73728589318603,
+        "envelope_shape": "Swell",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 1,
+        "start_seconds": 0.783219954648526,
+        "end_seconds": 2.2848072562358275,
+        "relative_level": 0.7254956291876227,
+        "envelope_attack_seconds": 0.044897959183673466,
+        "envelope_decay_seconds": 0.039909297052154194,
+        "envelope_sustain_level": 0.19789283256258522,
+        "envelope_release_seconds": 0.10975056689342404,
+        "envelope_temporal_centroid": 0.4059933870120728,
+        "envelope_skewness": 4.771615918463129,
+        "envelope_kurtosis": 31.57815591801897,
+        "envelope_shape": "Decaying",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 2,
+        "start_seconds": 2.2848072562358275,
+        "end_seconds": 3.0331065759637186,
+        "relative_level": 0.31258804296133424,
+        "envelope_attack_seconds": 0.09977324263038548,
+        "envelope_decay_seconds": 0.10975056689342404,
+        "envelope_sustain_level": 0.427040485606788,
+        "envelope_release_seconds": 0.0,
+        "envelope_temporal_centroid": 0.3990115563680452,
+        "envelope_skewness": 0.9945172430162194,
+        "envelope_kurtosis": 0.42868656594274546,
+        "envelope_shape": "Decaying",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 3,
+        "start_seconds": 3.0331065759637186,
+        "end_seconds": 3.23265306122449,
+        "relative_level": 0.7767124927085992,
+        "envelope_attack_seconds": 0.08480725623582766,
+        "envelope_decay_seconds": 0.029931972789115645,
+        "envelope_sustain_level": 0.24238630388965823,
+        "envelope_release_seconds": 0.04988662131519274,
+        "envelope_temporal_centroid": 0.41639632402905724,
+        "envelope_skewness": 1.8311650659579894,
+        "envelope_kurtosis": 2.815318863319633,
+        "envelope_shape": "Decaying",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 4,
+        "start_seconds": 3.23265306122449,
+        "end_seconds": 3.566893424036281,
+        "relative_level": 0.5267554762949408,
+        "envelope_attack_seconds": 0.10476190476190476,
+        "envelope_decay_seconds": 0.044897959183673466,
+        "envelope_sustain_level": 0.3889573376821643,
+        "envelope_release_seconds": 0.05986394557823129,
+        "envelope_temporal_centroid": 0.4189633008342568,
+        "envelope_skewness": 1.3603100719566925,
+        "envelope_kurtosis": 1.5024781249306942,
+        "envelope_shape": "Decaying",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 5,
+        "start_seconds": 3.566893424036281,
+        "end_seconds": 4.444897959183673,
+        "relative_level": 1.0,
+        "envelope_attack_seconds": 0.039909297052154194,
+        "envelope_decay_seconds": 0.33424036281179137,
+        "envelope_sustain_level": 0.009355956869093534,
+        "envelope_release_seconds": 0.1346938775510204,
+        "envelope_temporal_centroid": 0.08197933081243183,
+        "envelope_skewness": 3.7934996034659556,
+        "envelope_kurtosis": 16.387714979428036,
+        "envelope_shape": "Decaying",
+        "decay_time_seconds_60db": 1.1753554565907096
+      }
+    ],
+    "onset_periodicity": 0.22029051363928612,
+    "onset_rate_per_second": 1.3511029411764706
+  },
+  "spectral_features": {
+    "root_mean_square_level": 0.08001704196046532,
+    "crest_factor": 11.141504688772175,
+    "zero_crossings_per_second": 1754.407169117647,
+    "complexity": 3442.6894864566093,
+    "spectral_centroid_hz": 3911.8284127117677,
+    "spectral_rolloff_hz": 8057.977941176471,
+    "spectral_flatness": 0.1351638477076386,
+    "low_band_energy": 0.06285846287673721,
+    "mid_band_energy": 0.34720429136177006,
+    "high_band_energy": 0.5899372457614928,
+    "spectral_flux": 0.19782833249355633,
+    "harmonicity": 0.29866794546757375,
+    "inharmonicity": 0.4669802573473732,
+    "partial_count": 12,
+    "mel_frequency_cepstral_coefficients": [
+      -23.991783999378367,
+      23.97692970193057,
+      -6.383097641414638,
+      7.3595161913624265,
+      -4.6359090155539135,
+      4.787222597372917,
+      -1.8295830367023016,
+      1.3299558315110698,
+      -0.31785932499469133,
+      0.911974917286923,
+      -0.4880647429406252,
+      0.6222176541320164,
+      0.29024541263923614
+    ],
+    "spectral_centroid_mean_hz": 1555.9124916926066,
+    "spectral_centroid_deviation_hz": 1192.0256118528334,
+    "total_harmonic_distortion": 1.732425950650329,
+    "clipping_density": 0.0,
+    "distortion": "Clean",
+    "stationarity": 0.06631075896280347,
+    "spectral_entropy": 0.40601332285512776,
+    "spectral_slope_db_per_octave": -4.531914717526284,
+    "band_limit_high_hz": 13070.654296875,
+    "spectral_centroid_slope_hz_per_second": -167.80898183866998,
+    "syllabic_modulation_energy": 0.3942385552536596,
+    "voicing_ratio": 0.4486486486486487,
+    "mid_rms": 0.08001704194508104,
+    "side_rms": 0.03200437162115806,
+    "lufs": -16.310556825765616
+  },
+  "musicality": {
+    "pitch_hz": 2004.5454545454545,
+    "pitch_slope_semitones_per_second": null,
+    "root_note_name": "A2",
+    "root_frequency_hz": 111.7571205363279,
+    "root_cents_offset": 27.43587721917322,
+    "beats_per_minute": 120.0,
+    "root_midi_note": -1,
+    "chromagram": [
+      0.7235095771735385,
+      0.7772221766466199,
+      0.6094918590023647,
+      0.5345039460290286,
+      0.6885915030227744,
+      0.4788035259659966,
+      0.5507395189293698,
+      0.7153122319162034,
+      0.9148114586131789,
+      0.6668999322186565,
+      0.770873882088416,
+      1.0
+    ]
+  },
+  "unsupervised": {
+    "cluster": 13,
+    "principal_components": [
+      2.481447319951152,
+      -1.46439654613341,
+      0.11203620762356027
+    ]
+  },
+  "ucs": {
+    "category": "VEHICLES",
+    "subcategory": "BUS",
+    "id": "VEHBus",
+    "confidence": 0.2603407076570953,
+    "alternatives": [
+      {
+        "category": "TRAINS",
+        "subcategory": "SUBWAY",
+        "id": "TRNSbwy",
+        "probability": 0.198,
+        "synonyms": [
+          "city",
+          "transit"
+        ]
+      },
+      {
+        "category": "OBJECTS",
+        "subcategory": "CONTAINER",
+        "id": "OBJCont",
+        "probability": 0.075,
+        "synonyms": [
+          "box"
+        ]
+      },
+      {
+        "category": "OBJECTS",
+        "subcategory": "PACKAGING",
+        "id": "OBJPack",
+        "probability": 0.075,
+        "synonyms": [
+          "box"
+        ]
+      }
+    ],
+    "synonyms": [
+      "bus",
+      "city",
+      "transit"
+    ],
+    "reason": "name matched [bus, city, transit]; signal 0.61, tier semantic_only, 25 candidates in contention; lossy source — brightness and clipping gates relaxed; gate ruled out AIRBrst (length_seconds 4.4408 > max 4.0000)"
+  },
+  "regions": {
+    "count": 1,
+    "detection_threshold_decibels": -40.0,
+    "minimum_silence_seconds": 0.15,
+    "minimum_region_seconds": 0.05,
+    "regions": [
+      {
+        "index": 0,
+        "start_seconds": 0.4988662131519274,
+        "end_seconds": 3.931065759637188,
+        "duration_seconds": 3.432199546485261,
+        "peak_amplitude": 0.46232262717783174,
+        "name": "",
+        "analysis": null
+      }
+    ]
+  },
+  "preview": {
+    "preview_version": 1,
+    "samples_per_bin": 256,
+    "bin_count": 765,
+    "bits_per_value": 8,
+    "channel_mode": "mono_mixdown",
+    "peak_data_base64": "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"
+  }
+}

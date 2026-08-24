@@ -1,0 +1,258 @@
+{
+  "metadata": {
+    "analyzer_version": "20260728.2125-155e412706ef2aec",
+    "name": "Track 67 - TRAIN, STEAM - CONDUCTOR CALL 'ALL ABOARD'.mp3",
+    "folder": "SampleSamplesForSampling",
+    "sub": "SampleSamplesForSampling",
+    "path": "/home/anthony/Documents/GitProjects/Scanalyzer.like.audio/Web_Front/public/SampleSamplesForSampling/Track 67 - TRAIN, STEAM - CONDUCTOR CALL 'ALL ABOARD'.mp3",
+    "length_seconds": 2.2987755102040817,
+    "sample_rate": 44100,
+    "bit_depth": 0,
+    "channels": 2,
+    "source_format": "MP3",
+    "lossy_source": true,
+    "dc_offset": -0.0004993486412294411,
+    "trailing_silence_ms": 0.0,
+    "analysis_depth": "full"
+  },
+  "classification": {
+    "group": "Loops/Patterns",
+    "reason": [
+      "1) 4 transients (>1), no drum/instrument name → loop",
+      "2) envelope Multi (4 transients — loudest of 4 slices: attack 45 ms, sustain 0%)",
+      "3) Inharmonic · mid-band 74% · root C4"
+    ],
+    "timbre": "Loop",
+    "length_class": "Loop",
+    "subgroup": "Loop",
+    "audit": false,
+    "acoustic_types": [
+      "Inharmonic"
+    ],
+    "sound_design_roles": [],
+    "instrument_family": [
+      "Percussion",
+      "Idiophone"
+    ]
+  },
+  "envelope": {
+    "transient_count": 4,
+    "attack_seconds": 1.677596371882086,
+    "sustain_ratio": 0.10144927536231885,
+    "sustained": false,
+    "envelope_attack_seconds": null,
+    "envelope_decay_seconds": null,
+    "envelope_sustain_level": null,
+    "envelope_release_seconds": null,
+    "envelope_temporal_centroid": null,
+    "envelope_skewness": null,
+    "envelope_kurtosis": null,
+    "envelope_shape": "Multi",
+    "decay_time_seconds_60db": null,
+    "slices": [
+      {
+        "index": 0,
+        "start_seconds": 0.0,
+        "end_seconds": 1.2820861678004536,
+        "relative_level": 0.3702261234322767,
+        "envelope_attack_seconds": 0.3492063492063492,
+        "envelope_decay_seconds": 0.039909297052154194,
+        "envelope_sustain_level": 0.8087318072037446,
+        "envelope_release_seconds": 0.004988662131519274,
+        "envelope_temporal_centroid": 0.7961804014967248,
+        "envelope_skewness": 0.5144583291718486,
+        "envelope_kurtosis": -1.381657093522933,
+        "envelope_shape": "Swell",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 1,
+        "start_seconds": 1.2820861678004536,
+        "end_seconds": 1.4317460317460318,
+        "relative_level": 0.41326507536867646,
+        "envelope_attack_seconds": 0.08979591836734693,
+        "envelope_decay_seconds": 0.019954648526077097,
+        "envelope_sustain_level": 0.9468864445879452,
+        "envelope_release_seconds": 0.0,
+        "envelope_temporal_centroid": 0.6072930409647498,
+        "envelope_skewness": -0.10491460638756844,
+        "envelope_kurtosis": -1.367279686295847,
+        "envelope_shape": "Sustained",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 2,
+        "start_seconds": 1.4317460317460318,
+        "end_seconds": 1.58140589569161,
+        "relative_level": 0.7699348292443458,
+        "envelope_attack_seconds": 0.11473922902494331,
+        "envelope_decay_seconds": 0.014965986394557823,
+        "envelope_sustain_level": 0.9762189667730199,
+        "envelope_release_seconds": 0.0,
+        "envelope_temporal_centroid": 0.6127819541012489,
+        "envelope_skewness": 0.41184114904869856,
+        "envelope_kurtosis": -0.7110854608117174,
+        "envelope_shape": "Sustained",
+        "decay_time_seconds_60db": null
+      },
+      {
+        "index": 3,
+        "start_seconds": 1.58140589569161,
+        "end_seconds": 2.2997732426303856,
+        "relative_level": 1.0,
+        "envelope_attack_seconds": 0.044897959183673466,
+        "envelope_decay_seconds": 0.18458049886621314,
+        "envelope_sustain_level": 0.0049336357185396475,
+        "envelope_release_seconds": 0.03492063492063492,
+        "envelope_temporal_centroid": 0.1014746806309887,
+        "envelope_skewness": 1.6992830212023786,
+        "envelope_kurtosis": 1.1880575490022363,
+        "envelope_shape": "Decaying",
+        "decay_time_seconds_60db": null
+      }
+    ],
+    "onset_periodicity": 0.3304984903930339,
+    "onset_rate_per_second": 1.7400568181818181
+  },
+  "spectral_features": {
+    "root_mean_square_level": 0.032156110231371667,
+    "crest_factor": 7.0714493317652165,
+    "zero_crossings_per_second": 1089.2755681818182,
+    "complexity": 1414.9512694625,
+    "spectral_centroid_hz": 1501.3630607360974,
+    "spectral_rolloff_hz": 2942.87109375,
+    "spectral_flatness": 0.008807353539125398,
+    "low_band_energy": 0.007630735314392423,
+    "mid_band_energy": 0.7410381145031434,
+    "high_band_energy": 0.25133115018246466,
+    "spectral_flux": 0.13367259253724362,
+    "harmonicity": 0.6031729537433889,
+    "inharmonicity": 0.42720350282265446,
+    "partial_count": 12,
+    "mel_frequency_cepstral_coefficients": [
+      -68.57777173893236,
+      26.065583420265295,
+      -4.643866830578165,
+      2.8118823369926056,
+      -2.984698593402251,
+      2.52948213173568,
+      -3.881774671578633,
+      0.3157948148907462,
+      1.5886568441777031,
+      0.7776827143195985,
+      0.5211799757164809,
+      -1.1082010896013677,
+      1.2932696666931736
+    ],
+    "spectral_centroid_mean_hz": 948.035970164671,
+    "spectral_centroid_deviation_hz": 796.0123609639023,
+    "total_harmonic_distortion": 0.0,
+    "clipping_density": 0.0,
+    "distortion": "Clean",
+    "stationarity": 0.0,
+    "spectral_entropy": 0.21471180385173527,
+    "spectral_slope_db_per_octave": -3.073881257617407,
+    "band_limit_high_hz": 8893.212890625,
+    "spectral_centroid_slope_hz_per_second": 6.480146440214509,
+    "syllabic_modulation_energy": 0.1543016955051023,
+    "voicing_ratio": 1.0,
+    "mid_rms": 0.032156110232332266,
+    "side_rms": 0.0015582301442755037,
+    "lufs": -24.45226174706387
+  },
+  "musicality": {
+    "pitch_hz": 621.1267605633802,
+    "pitch_slope_semitones_per_second": null,
+    "root_note_name": "C4",
+    "root_frequency_hz": 262.31977904524103,
+    "root_cents_offset": 4.587681476047578,
+    "beats_per_minute": 99.0,
+    "root_midi_note": -1,
+    "chromagram": [
+      0.3366448896172439,
+      0.3822866665146159,
+      0.605991322137603,
+      0.6615694086960866,
+      1.0,
+      0.36217537848032,
+      0.27233855202791646,
+      0.29257560775812425,
+      0.2610806280885196,
+      0.3203828273176835,
+      0.5124315328379208,
+      0.42936076031364856
+    ]
+  },
+  "unsupervised": {
+    "cluster": 11,
+    "principal_components": [
+      1.557677279987718,
+      0.2703263900621132,
+      -0.06082060951762207
+    ]
+  },
+  "ucs": {
+    "category": "TOYS",
+    "subcategory": "ELECTRONIC",
+    "id": "TOYElec",
+    "confidence": 0.2717356573544232,
+    "alternatives": [
+      {
+        "category": "TRAINS",
+        "subcategory": "DOOR",
+        "id": "TRNDoor",
+        "probability": 0.15,
+        "synonyms": [
+          "train"
+        ]
+      },
+      {
+        "category": "TRAINS",
+        "subcategory": "SUBWAY",
+        "id": "TRNSbwy",
+        "probability": 0.141,
+        "synonyms": [
+          "train"
+        ]
+      },
+      {
+        "category": "CARTOON",
+        "subcategory": "ANIMAL",
+        "id": "TOONAnml",
+        "probability": 0.13,
+        "synonyms": [
+          "call"
+        ]
+      }
+    ],
+    "synonyms": [
+      "train"
+    ],
+    "reason": "name matched [train]; signal 0.82, tier semantic_only, 22 candidates in contention; lossy source — brightness and clipping gates relaxed; gate ruled out AEROHeli (onset_periodicity 0.3305 < min 0.3500)"
+  },
+  "regions": {
+    "count": 1,
+    "detection_threshold_decibels": -40.0,
+    "minimum_silence_seconds": 0.15,
+    "minimum_region_seconds": 0.05,
+    "regions": [
+      {
+        "index": 0,
+        "start_seconds": 0.5238095238095237,
+        "end_seconds": 1.8058956916099773,
+        "duration_seconds": 1.2820861678004536,
+        "peak_amplitude": 0.11600497638653356,
+        "name": "",
+        "analysis": null
+      }
+    ]
+  },
+  "preview": {
+    "preview_version": 1,
+    "samples_per_bin": 256,
+    "bin_count": 396,
+    "bits_per_value": 8,
+    "channel_mode": "mono_mixdown",
+    "peak_data_base64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wH+Av4D/gP9BP0E/Qb7B/sF+gf7BvsF+wX8BfwF+wb7BvwG/Ab9BPwE/AP9A/0C/gH/Af8B/wH/Af8B/wH/Af8B/wH/AP8A/wD/AP8A/wD/AP8B/gL9A/wF/AX8BfsF+wb8BfwE/AX7B/sH+gf6B/kI+An4CfcJ9wv3C/gL+Qz6DPoM+Qv5DPkL+Qv5C/kK+Qr5CfkJ+Qr4C/cM9w32DfYN9g32DfYM9gz2DfYN9w33DPcM9gz2DfYN9g33DfcO+A74DfkM+Qz5C/kM+Qv5DPkM+Qz4DfcM9gz2C/YL9gz2DPYM9gz2DfcN9gz2DfYL9wv3CvcK+An4CPgI+Aj5B/kH+Qf5B/kG+gb6BvoG+wb7BfoG+gf6B/oH9wj3CPcI9wj2CfYK9gr2CvUL9Qv1DPcL9gv3C/gK9wn4CvcK9wr2CvYK9Qv0DPQM8wzxDvEN8g3yDfIM8gzxDPIM8QzvDe0P7BHtE+4T8BXxFfMS9A/yDPAM7w3sDOsN6BDmE+UV5hboF+0V7hXtFukb6B3sHPAa7hLuFe0W7hXyD/kK+gb6BPwE/AT9A/4B/wH/AAAA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+}
