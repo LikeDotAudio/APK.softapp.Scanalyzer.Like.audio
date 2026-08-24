@@ -91,6 +91,8 @@ pub mod pca;
 pub mod peak;
 #[path = "Scananalyzers/Musical/pitch.rs"]
 pub mod pitch;
+#[path = "Scananalyzers/Musical/note_map.rs"]
+pub mod note_map;
 #[path = "Pipeline/preview.rs"]
 pub mod preview;
 #[path = "Scananalyzers/Musical/root.rs"]

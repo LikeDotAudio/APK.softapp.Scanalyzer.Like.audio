@@ -301,6 +301,10 @@ fn analyze_core(
         format!("3) {} · {}-band {:.0}%{}", acoustic.join("+"), band.0, band.1 * 100.0, root_part),
     ];
 
+    let note_map = crate::note_map::extract_note_root_key_beat_marker_map(
+        data, sr, bpm, &root_name, root_note, &regions.regions,
+    );
+
     let mut peak = finish(Peak {
         metadata: crate::peak::Metadata {
             analyzer_version: ANALYZER_VERSION.to_string(),
@@ -408,6 +412,7 @@ fn analyze_core(
             beats_per_minute: (bpm * 10.0).round() / 10.0,
             root_midi_note: root_note,
             chromagram: spec.chromagram,
+            note_root_key_beat_marker_map: Some(note_map),
         },
         unsupervised: crate::peak::Unsupervised {
             cluster: -1,

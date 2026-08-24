@@ -206,6 +206,44 @@ pub struct SpectralFeatures {
 }
 
 #[derive(Serialize, Deserialize, Clone, Default)]
+#[serde(default)]
+pub struct BeatMarker {
+    pub index: usize,
+    pub timestamp_seconds: f64,
+    pub sample_index: u64,
+    pub is_downbeat: bool,
+    pub bar: usize,
+    pub beat: usize,
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
+#[serde(default)]
+pub struct ChunkNoteMap {
+    pub chunk_index: usize,
+    pub start_seconds: f64,
+    pub end_seconds: f64,
+    pub duration_seconds: f64,
+    pub root_note_name: String,
+    pub root_midi_note: i32,
+    pub root_frequency_hz: f64,
+    pub pitch_hz: f64,
+    pub cents_offset: f64,
+    pub peak_amplitude: f64,
+    pub nearest_beat_index: Option<usize>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
+#[serde(default)]
+pub struct NoteRootKeyBeatMarkerMap {
+    pub global_root_note: String,
+    pub global_midi_note: i32,
+    pub global_bpm: f64,
+    pub total_beats: usize,
+    pub beat_markers: Vec<BeatMarker>,
+    pub chunk_maps: Vec<ChunkNoteMap>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Default)]
 pub struct Musicality {
     pub pitch_hz: f64,
     #[serde(default)]
@@ -216,6 +254,8 @@ pub struct Musicality {
     pub beats_per_minute: f64,
     pub root_midi_note: i32,
     pub chromagram: [f64; 12],
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note_root_key_beat_marker_map: Option<NoteRootKeyBeatMarkerMap>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Default)]
