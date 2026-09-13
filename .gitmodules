@@ -1,87 +1,87 @@
 [submodule "SCANALYZER:softapps/SCANALIZER.Arrays-In-Data-Out"]
 	path = SCANALYZER:softapps/SCANALIZER.Arrays-In-Data-Out
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Arrays-In-Data-Out.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Arrays-In-Data-Out.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Data-Channels"]
 	path = SCANALYZER:softapps/SCANALIZER.Data-Channels
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Data-Channels.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Data-Channels.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Database-Schema"]
 	path = SCANALYZER:softapps/SCANALIZER.Database-Schema
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Database-Schema.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Database-Schema.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Devices"]
 	path = SCANALYZER:softapps/SCANALIZER.Devices
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Devices.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Devices.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.DroneKiln"]
 	path = SCANALYZER:softapps/SCANALIZER.DroneKiln
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.DroneKiln.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.DroneKiln.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Extractor.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor-Engine
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Extractor-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor-Engine.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Favorites"]
 	path = SCANALYZER:softapps/SCANALIZER.Favorites
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Favorites.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Favorites.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Graphing-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.Graphing-Engine
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Graphing-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Graphing-Engine.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Groups"]
 	path = SCANALYZER:softapps/SCANALIZER.Groups
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Groups.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Groups.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer"]
 	path = SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.PitchClass-SongAnalyzer.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.PitchClass-SongAnalyzer.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Rename"]
 	path = SCANALYZER:softapps/SCANALIZER.Rename
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Rename.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Rename.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.SampleAnalyzer-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.SampleAnalyzer-Engine.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.SampleConversion-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.SampleConversion-Engine
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.SampleConversion-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.SampleConversion-Engine.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Scanalyze"]
 	path = SCANALYZER:softapps/SCANALIZER.Scanalyze
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Scanalyze.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Scanalyze.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.UCS-Taxonomy"]
 	path = SCANALYZER:softapps/SCANALIZER.UCS-Taxonomy
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.UCS-Taxonomy.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.UCS-Taxonomy.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.2D-Graphs"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.2D-Graphs
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.2D-Graphs.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.2D-Graphs.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.3D-PointCloud"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.3D-PointCloud
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.3D-PointCloud.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.3D-PointCloud.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.4D-FaceBall"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.4D-FaceBall
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.4D-FaceBall.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.4D-FaceBall.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.5D-MultiVector"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.5D-MultiVector
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.5D-MultiVector.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.5D-MultiVector.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.Examiner"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.Examiner
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.Examiner.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.Examiner.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.Simple-Data-Graphing"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.Simple-Data-Graphing
-	url = https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.Simple-Data-Graphing.git
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.Simple-Data-Graphing.git
