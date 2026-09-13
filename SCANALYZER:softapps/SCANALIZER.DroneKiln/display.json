@@ -6,7 +6,7 @@
   "subGroup": "Audio Signal & Drone Generator",
   "kind": "web",
   "class": "execution",
-  "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/DroneKiln/index.html",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/SCANALIZER.DroneKiln/index.html",
   "arraysIn": [
     "input_audio_sample"
   ],

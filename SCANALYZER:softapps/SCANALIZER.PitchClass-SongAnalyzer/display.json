@@ -6,7 +6,7 @@
   "subGroup": "Measurement Probe",
   "kind": "web",
   "class": "execution",
-  "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/PitchClass-SongAnalyzer/index.html",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer/index.html",
   "arraysIn": [
     "song_pcm_buffer"
   ],
