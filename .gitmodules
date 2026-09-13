@@ -113,3 +113,6 @@
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.Simple-Data-Graphing"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.Simple-Data-Graphing
 	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.Simple-Data-Graphing.git
+[submodule "SCANALIZER:softapps/SCANALIZER.Extractor.WebScraper"]
+	path = SCANALIZER:softapps/SCANALIZER.Extractor.WebScraper
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.WebScraper.git
