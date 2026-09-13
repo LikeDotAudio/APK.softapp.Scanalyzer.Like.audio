@@ -1,6 +1,6 @@
 {
   "system": "Scanalyzer.Like.audio",
-  "softapps_count": 22,
+  "softapps_count": 29,
   "softapps": {
     "SCANALIZER.Arrays-In-Data-Out": {
       "folder": "SCANALIZER.Arrays-In-Data-Out",
@@ -177,6 +177,125 @@
         "entry": "SCANALYZER:softapps/SCANALIZER.Extractor-Engine/src/lib.rs",
         "description": "Rust engine for region detection, transient chopping, and sample slice extraction compiled to native and WebAssembly.",
         "topic": "APK.audio/Gui/Display/Extractor_Engine",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.Document": {
+      "folder": "SCANALIZER.Extractor.Document",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Document.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_Document",
+        "name": "Document & Word Extractor",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Document breakout, word structure analyzer, and DOCX/PDF parser.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_Document",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.FaceID": {
+      "folder": "SCANALIZER.Extractor.FaceID",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.FaceID.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_FaceID",
+        "name": "Face & Photo ID Extractor",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Facial recognition, bounding box detector, and photo ID metadata extractor.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_FaceID",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.FolderScanner": {
+      "folder": "SCANALIZER.Extractor.FolderScanner",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.FolderScanner.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_FolderScanner",
+        "name": "Folder Scanner & Library Classifier",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Fast multithreaded directory tree scanner, file sorter, and sidecar generator.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_FolderScanner",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.Image": {
+      "folder": "SCANALIZER.Extractor.Image",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Image.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_Image",
+        "name": "Image Extractor & Analyzer",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Scans, extracts, and classifies raster image features and acoustic graphics.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_Image",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.OCR": {
+      "folder": "SCANALIZER.Extractor.OCR",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.OCR.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_OCR",
+        "name": "OCR Text Extractor",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Optical Character Recognition engine for text extraction from scanned technical docs.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_OCR",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.Schematics": {
+      "folder": "SCANALIZER.Extractor.Schematics",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Schematics.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_Schematics",
+        "name": "Schematics & CAD Extractor",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Schematic layout finder, CAD layer parser, and circuit diagram extractor.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_Schematics",
+        "autostart": false
+      }
+    },
+    "SCANALIZER.Extractor.Vectorizer": {
+      "folder": "SCANALIZER.Extractor.Vectorizer",
+      "repo_url": "https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Vectorizer.git",
+      "display": {
+        "id": "SCANALIZER_Extractor_Vectorizer",
+        "name": "SVG Vectorizer Extractor",
+        "icon": "\ud83d\udd0d",
+        "group": "Scanalyzer",
+        "subGroup": "1 \u00b7 Scan",
+        "stage": "10",
+        "kind": "extractor",
+        "class": "execution",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Raster-to-vector tracer and SVG line-drawing extraction engine.",
+        "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_Vectorizer",
         "autostart": false
       }
     },

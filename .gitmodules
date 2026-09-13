@@ -26,6 +26,34 @@
 	path = SCANALYZER:softapps/SCANALIZER.Extractor-Engine
 	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor-Engine.git
 
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Document"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.Document
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Document.git
+
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.FaceID"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.FaceID
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.FaceID.git
+
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.FolderScanner"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.FolderScanner
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.FolderScanner.git
+
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Image"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.Image
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Image.git
+
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.OCR"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.OCR
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.OCR.git
+
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Schematics"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.Schematics
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Schematics.git
+
+[submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Vectorizer"]
+	path = SCANALYZER:softapps/SCANALIZER.Extractor.Vectorizer
+	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Vectorizer.git
+
 [submodule "SCANALYZER:softapps/SCANALIZER.Favorites"]
 	path = SCANALYZER:softapps/SCANALIZER.Favorites
 	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Favorites.git
