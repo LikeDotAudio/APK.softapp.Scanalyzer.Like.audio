@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apk.audio/schemas/peak-lens-sidecar/1.2.0",
+  "title": "peak-lens-sidecar — the Scanalyzer's downloaded .PEAK",
+  "description": "The artifact written by `exportPeakSidecar` in `SAMPLE and PLAY/libControl/MusicChart/LensesView.jsx` and downloaded by a person as `<name>.PEAK`. THE EXTENSION `.PEAK` NAMES FOUR DOCUMENTS IN THIS REPOSITORY AND THIS IS ONE OF THEM; the other three are the analyzer's per-file sidecar, the analyzer's aggregate `sample_cloud_data.PEAK` (an ARRAY of exactly those, which is what peakSchema.ts beside this file reads), and `extract_note_root_beat_map.py`'s partial write — all three typed by `analyzerPeakSchema.json` beside this file since PLAN-907.01, and enumerated in its `$comment`. Nothing in the extension distinguishes any of them, so the `format` field does; it exists for exactly the reason the sibling .PERF's does. THIS SCHEMA TYPES WHAT THE EXPORT WRITES, AND UNTIL PLAN-1067.02 NOTHING TYPED WHAT THE IMPORT READS: `handleImportFile`'s whole gate was `if (parsed.musicality || parsed.beat_markers)`, which the analyzer's per-file .PEAK passes, so it imported and reported success. `identifyPeakDocument` in that same file is now the read-side counterpart of this document \u2014 it branches on `format` and `metadata.analyzer_version` and on nothing else, and it is where the version policy is written down: an unknown MAJOR refuses, an unknown MINOR imports, and a version-less file predates 1.0.0 and is still read on its keys.",
+  "$comment": "IT SHIPPED WITH NO VERSION AT ALL, WHICH IS THE OMISSION peakSchema.ts IS AN ACCOUNT OF. That file is 115 lines of migration for a format that changed shape and broke its reader, and its own header argues that two fields would have prevented it — while the export beside it went on writing neither. `format` and `schema_version` are those two fields. Written off four real exports driven through test/harness.mjs, not off a reading of the source, and held by .apk.scripts/check_lens_exports.py: `additionalProperties: false` with a complete `required` list is what turns a renamed key into a red lane instead of a silent shape change. 1.1.0 SNAKE_CASED THE NINE KEYS INSIDE `musicality` AND `loudness_ebu_r128`, WHICH WERE THE ONLY camelCase IN THE DOCUMENT. They carried the scan's in-memory spelling because those two objects were handed through verbatim from oaScanMeasure.js; `exportPeakSidecar` now maps them through one table per group, and `handleImportFile` reads BOTH spellings off that same table so a 1.0.0 file a visitor already downloaded still imports — a version bump with no migration is exactly the omission peakSchema.ts is 115 lines of aftermath from (PLAN-1067.01). THE ANALYZER'S NAMES WERE NOT ADOPTED: its `musicality` says root_note_name/root_frequency_hz/beats_per_minute for three of these measurements, and taking those would have made one app write `key` in the .PERF.json and `root_note_name` in the .PEAK it downloads beside it. The vocabulary chosen is the one lensPerfExportSchema.json beside this file has pinned since PLAN-802.01. TWO GROUP NAMES COLLIDE WITH THE ANALYZER'S FORMAT AND SHARE EXACTLY ONE FIELD: `musicality` is {key, key_confidence, pitch_hz, cents_offset, bpm} here and {pitch_hz, root_note_name, root_frequency_hz, root_cents_offset, beats_per_minute, root_midi_note, chromagram, ...} there; `ucs` is {cat_key, creator_id, source_id} here and {category, subcategory, id, confidence, alternatives, synonyms, reason} there. A reader that branches on a group NAME therefore reads the wrong document and gets plausible numbers with no error, which is why `format` and `metadata.analyzer_version` are the only two things anything may branch on. The one shared name is `musicality.pitch_hz`, it is the same measurement on both sides, and `.apk.scripts/check_peak_formats.py` holds the overlap at EXACTLY that one field — an allowlist, so a second accidental share is still a red lane. `ucs` remains disjoint.",
+  "type": "object",
+  "required": ["format", "schema_version", "filename", "ucs", "musicality", "beat_markers", "loudness_ebu_r128", "archival_aes", "spatial_aes69", "lyrics"],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "peak-lens-sidecar",
+      "description": "The discriminator between this and the analyzer's .PEAK. The analyzer's carries no `format` and does carry `metadata.analyzer_version`; a reader that finds neither is holding something older than both."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "const": "1.2.0",
+      "description": "Semver, and a `const` so a bump must move this file with it. 1.0.0 was the first version this format ever announced; every file written before it is version-less and identifiable only by its keys. 1.1.0 snake_cased the nine keys inside `musicality` and `loudness_ebu_r128` (PLAN-1067.01), and `handleImportFile` reads a 1.0.0 file's camelCase as well as this one's — the version is how a READER of a file, which cannot see the exporter, tells which spelling to look for. 1.2.0 MADE FOUR FIELDS NULLABLE: `bext_time_reference` and the three `spatial_aes69` numbers, which were constants standing in for measurements nothing takes (PLAN-908.01). A MINOR on purpose — no key was renamed and none was removed — so every 1.0.0 and 1.1.0 file already on a visitor's disk still imports: `identifyPeakDocument` refuses an unknown MAJOR only."
+    },
+    "filename": { "type": "string", "description": "The source audio's name as the page received it, container extension and all." },
+    "ucs": {
+      "type": "object",
+      "description": "Universal Category System identity, as typed into the taxonomy lens. Strings the operator owns; the schema does not judge them.",
+      "required": ["cat_key", "creator_id", "source_id"],
+      "additionalProperties": false,
+      "properties": {
+        "cat_key": { "type": "string", "description": "UCS CatID, e.g. MUSC-TONE." },
+        "creator_id": { "type": "string" },
+        "source_id": { "type": "string" }
+      }
+    },
+    "musicality": {
+      "type": ["object", "null"],
+      "description": "Mapped out of the scan's in-memory shape through `PEAK_MUSICALITY_KEYS`, not handed through verbatim \u2014 which is what it was until 1.1.0, and why these five keys were camelCase in a snake_case document. null only if a scan somehow carried none; every key inside is present with a null value when unmeasurable.",
+      "required": ["key", "key_confidence", "pitch_hz", "cents_offset", "bpm"],
+      "additionalProperties": false,
+      "properties": {
+        "key": { "type": ["string", "null"], "description": "The Krumhansl-Schmuckler winner, e.g. `C Major`. NOT the analyzer's `root_note_name`, which is a pitch class and not a key." },
+        "key_confidence": { "type": ["number", "null"], "description": "Pearson correlation against the best-matching Krumhansl-Schmuckler profile. `keyConfidence` before 1.1.0, and the analyzer's format has no counterpart for it at all." },
+        "pitch_hz": { "type": ["number", "null"], "description": "THE ONE FIELD NAME THIS FORMAT SHARES WITH THE ANALYZER'S, and it is the same measurement on both sides: the detected fundamental in Hz. `pitchHz` before 1.1.0. check_peak_formats.py holds the overlap between the two `musicality` groups at exactly this." },
+        "cents_offset": { "type": ["number", "null"], "description": "Cents from the nearest equal-tempered note. `centsOffset` before 1.1.0; the analyzer spells its own as `root_cents_offset`, so the two do not collide." },
+        "bpm": { "type": ["number", "null"], "description": "The analyzer spells its own `beats_per_minute`. Unchanged in 1.1.0 \u2014 it was never camelCase." }
+      }
+    },
+    "beat_markers": {
+      "type": "array",
+      "description": "Onsets in file order. Empty, never absent — it was `undefined` and therefore dropped by JSON.stringify until PLAN-601.01, which is how a broken sidecar came to look like a complete one.",
+      "items": {
+        "type": "object",
+        "required": ["timestamp_seconds", "strength"],
+        "additionalProperties": false,
+        "properties": {
+          "timestamp_seconds": { "type": "number", "minimum": 0 },
+          "strength": { "type": "number" }
+        }
+      }
+    },
+    "loudness_ebu_r128": {
+      "type": ["object", "null"],
+      "description": "EBU R128 / ITU-R BS.1770-4 figures, mapped through `PEAK_LOUDNESS_KEYS` rather than handed through verbatim \u2014 which is what they were until 1.1.0, and why these four keys were camelCase. These are the same four measurements the `.PERF.json` beside this file has always written as integrated_lufs / max_true_peak_dbtp / lra_lu / gating_threshold_lufs; now they agree. An unmeasurable one is null: -70 LUFS is 'too quiet to measure' and 0 LUFS is the loudest number in the unit.",
+      "required": ["integrated_lufs", "max_true_peak_dbtp", "lra_lu", "gating_threshold_lufs"],
+      "additionalProperties": false,
+      "properties": {
+        "integrated_lufs": { "type": ["number", "null"], "description": "`integratedLUFS` before 1.1.0." },
+        "max_true_peak_dbtp": { "type": ["number", "null"], "description": "`maxTruePeakdBTP` before 1.1.0." },
+        "lra_lu": { "type": ["number", "null"], "description": "`lraLU` before 1.1.0." },
+        "gating_threshold_lufs": { "type": ["number", "null"], "description": "`gatingThresholdLUFS` before 1.1.0." }
+      }
+    },
+    "archival_aes": {
+      "type": "object",
+      "description": "The preservation block. Its checksum is of the DECODED SAMPLES and says so — the constant that stood here was the SHA-256 of the empty string, printed under an archival heading (PLAN-601.01).",
+      "required": ["pcm_sha256", "sha256_scope", "bext_time_reference", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "pcm_sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$", "description": "null on an insecure origin, where WebCrypto is not there to ask." },
+        "sha256_scope": { "const": "decoded-pcm" },
+        "bext_time_reference": { "type": ["integer", "null"], "minimum": 0, "description": "BWF bext timeReference, `null` and NOT `0`. A 0 here is not 'unknown' — it is the claim that this audio begins at sample zero of the timeline it was recorded against, and only the `bext` chunk carries that. The page holds a decoded AudioBuffer; the chunk did not survive the decode. Same block, same correction and the same `null` as the empty-string SHA-256 that stood in `pcm_sha256` (PLAN-601.01, PLAN-908.01)." },
+        "version": { "const": "AES60-BWF-v2" }
+      }
+    },
+    "spatial_aes69": {
+      "type": "object",
+      "description": "AES69 SOFA placement, and NOTHING IN THIS VIEW MEASURES ONE. The three numbers were `0.0, 0.0, 1.0`, which reads off the file as 'the source is dead ahead at one metre': no control offers a placement, no scan derives one, no importer fills one in, and `grep -n azimuth_deg` finds a single site in the component — the literal. They are `null` until something measures them, and the day one becomes real this file has to move with it. `sofa_format` stays a `const` because it is a different kind of statement: it names the vocabulary the numbers would be expressed in, the way `sha256_scope` names the scope of a `pcm_sha256` that is usually null. PLAN-908.01.",
+      "required": ["azimuth_deg", "elevation_deg", "distance_m", "sofa_format"],
+      "additionalProperties": false,
+      "properties": {
+        "azimuth_deg": { "type": ["number", "null"] },
+        "elevation_deg": { "type": ["number", "null"] },
+        "distance_m": { "type": ["number", "null"] },
+        "sofa_format": { "const": "AES69-SOFA-v1" }
+      }
+    },
+    "lyrics": {
+      "type": "object",
+      "description": "Lines a PERSON put in, normalised on the way out so the key is never absent and never an array. Called lyrics_vad until PLAN-629.01, which is a name that claimed Voice Activity Detection over a scanner that runs none.",
+      "required": ["words"],
+      "additionalProperties": false,
+      "properties": {
+        "words": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["start", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "start": { "type": "number", "minimum": 0 },
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "vadSegments": {
+          "type": "array",
+          "description": "Present only on the dictation and .LRC-import path, where it is written empty. Optional for that reason, and holding the name PLAN-629.01 left in place inside the object rather than on it.",
+          "items": { "type": "object" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "note": "Published .php endpoints under publicDir with no caller in src/. A ceiling, and it is meant to stay empty: an endpoint nothing calls is surface nothing needs. Move a hand-run script to tools/api/ rather than listing it here.",
+  "rule": "a .php file under public/ is copied into dist/ verbatim, so it is served; it must be fetched from src/",
+  "publishedCount": 3,
+  "uncalled": []
+}

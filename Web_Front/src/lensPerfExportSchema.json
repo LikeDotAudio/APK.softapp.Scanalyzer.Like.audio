@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apk.audio/schemas/perf-lens-export/1.2.0",
+  "title": "perf-lens-export — the Scanalyzer's downloaded .PERF.json",
+  "description": "The artifact written by `exportPERFData` in `SAMPLE and PLAY/libControl/MusicChart/LensesView.jsx` and downloaded by a person as `<name>.PERF.json`. NOT the file `perfSchema.json` beside this one describes: that one is a `<name>.PERF` COMMITTED beside a sample by .apk.scripts/build_perf_sidecar.py, carrying a short-term LUFS trajectory. Two formats, three shared letters, and nothing else in common — which is why both now have a schema in one folder rather than one of them having a version field pointing at nothing.",
+  "$comment": "WRITTEN OFF THE FILE THAT EXISTS. Every property here was read out of four real exports produced by driving the shipping component through test/harness.mjs — a sounding buffer and a silent one, each clicked through both export buttons — not off a reading of the source. `additionalProperties: false` and a complete `required` list at every level are the load-bearing part: they are what makes a key added, renamed or dropped in the exporter fail .apk.scripts/check_lens_exports.py instead of passing unnoticed, which is the state this format was in for its whole life. The absent-not-zero rule is inherited from perfSchema.json and the doctrine it cites: an unmeasurable scalar is null, NEVER 0 and never omitted, because 0 LUFS is the loudest number in the unit, 0 BPM is not a slow song, and 0 Hz is not a low note.",
+  "type": "object",
+  "required": ["format", "schema_version", "filename", "duration_seconds", "sample_rate", "performance_data"],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "perf-lens-export",
+      "description": "The discriminator. A reader handed a `.PERF` looks here first: this constant, or the absence of it, is how it tells this snapshot from build_perf_sidecar.py's trajectory."
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "const": "1.2.0",
+      "description": "Semver, and a `const` on purpose — a version bump must move this file too, which is the whole point of gating it. 1.0.0 threw before it reached the blob so no visitor ever held one; 1.1.0 renamed sha256_checksum to pcm_sha256 (PLAN-601.01); 1.2.0 renamed vad_vocal_events to lyric_events, because nothing here runs Voice Activity Detection (PLAN-629.01)."
+    },
+    "filename": {
+      "type": "string",
+      "description": "The source audio's name AS THE PAGE RECEIVED IT, container extension and all. The download strips the container; this does not."
+    },
+    "duration_seconds": {
+      "type": ["number", "null"],
+      "description": "Decoded length. null rather than 0 when there is no buffer to ask — 0 seconds is a claim about the audio, not an absence."
+    },
+    "sample_rate": {
+      "type": ["integer", "null"],
+      "description": "The decoded buffer's rate, or the context's if the buffer is gone. null when neither can answer."
+    },
+    "performance_data": {
+      "type": "object",
+      "description": "The scalar snapshot. Every key is ALWAYS present; an unmeasurable one is null.",
+      "required": [
+        "pitch_hz", "cents_offset", "key", "bpm",
+        "integrated_lufs", "max_true_peak_dbtp", "lra_lu", "gating_threshold_lufs",
+        "beat_markers", "lyric_events", "pcm_sha256", "sha256_scope"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "pitch_hz": { "type": ["number", "null"], "description": "Autocorrelation pitch. null on a buffer with no periodicity to find — silence has no note, and the canvas used to draw 440 through it." },
+        "cents_offset": { "type": ["number", "null"], "description": "Distance from the nearest equal-tempered semitone, in cents. null exactly when pitch_hz is." },
+        "key": { "type": ["string", "null"], "description": "Krumhansl-Schmuckler estimate, e.g. \"A minor\". null when the chromagram is flat — C major is what every zero vector correlates to if you let it." },
+        "bpm": { "type": ["number", "null"], "description": "Tempo off the onset envelope. null under about four seconds, because the autocorrelation needs several beats." },
+        "integrated_lufs": { "type": ["number", "null"], "description": "EBU R128 / ITU-R BS.1770-4 integrated loudness. null when no block clears the -70 LUFS absolute gate: that is 'too quiet to measure', not 'quiet'." },
+        "max_true_peak_dbtp": { "type": ["number", "null"], "description": "True peak from a 4x oversampler, dBTP. null for digital silence, whose true peak is negative infinity and not 0." },
+        "lra_lu": { "type": ["number", "null"], "description": "EBU Tech 3342 loudness range, LU. Reported, never gated — R128 calls it programme-dependent." },
+        "gating_threshold_lufs": { "type": ["number", "null"], "description": "The relative gate the integrated figure was computed above." },
+        "beat_markers": {
+          "type": "array",
+          "description": "Onsets in file order. Empty when nothing was detected — empty, never absent.",
+          "items": {
+            "type": "object",
+            "required": ["timestamp_seconds", "strength"],
+            "additionalProperties": false,
+            "properties": {
+              "timestamp_seconds": { "type": "number", "minimum": 0 },
+              "strength": { "type": "number", "description": "Spectral flux at the onset, normalised to the file's peak flux." }
+            }
+          }
+        },
+        "lyric_events": {
+          "type": "array",
+          "description": "Lines a PERSON put in — dictated through the browser's recogniser, or imported from a .LRC. NOT Voice Activity Detection, which nothing in this app runs; the key said vad_vocal_events until PLAN-629.01. The scan's own arithmetic seek points are vocal_section_cues and are deliberately NOT folded in here.",
+          "items": {
+            "type": "object",
+            "required": ["start", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "start": { "type": "number", "minimum": 0, "description": "Seconds from the head of the file." },
+              "text": { "type": "string" }
+            }
+          }
+        },
+        "pcm_sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the DECODED samples, and sha256_scope beside it says so. null on an insecure origin, where WebCrypto is not there to ask. The constant e3b0c442…b855 is the digest of the empty string and was printed here as a checksum until PLAN-601.01."
+        },
+        "sha256_scope": {
+          "const": "decoded-pcm",
+          "description": "What pcm_sha256 covers. A page holding an AudioBuffer cannot hash the file it came from; it can hash what it has, and name it."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "note": "FLOORS, not ceilings. scripts/check-*.mjs and test/*.test.mjs are discovered by a glob, so a deleted file is a shorter list rather than an error. These two numbers may rise freely and may not fall by accident. Raise with `node scripts/check-discovery.mjs --seed` in the commit that adds the file; lower it by hand, in the commit that retires one, and say why there.",
+  "rule": "the count of each discovered list never falls",
+  "gates": 4,
+  "tests": 7
+}

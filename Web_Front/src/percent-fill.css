@@ -1,0 +1,126 @@
+/* Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub */
+/* MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root. */
+/* A PERCENTAGE THAT IS A SHARE OF A WHOLE FILLS ITS OWN BACKGROUND.
+
+   `57%` is a glyph sequence. The sense of it — more than half, and more than
+   the 22% under it — arrives only after the reader has parsed two numbers and
+   compared them. In a tree twenty rows deep that is twenty conversions to find
+   the heavy branch, and the heavy branch is the only reason anybody opened the
+   tree. Filling the number's own background to its own value does that
+   comparison in the layout, and it costs no width at all, because the fill
+   sits BEHIND digits that were going to be there regardless.
+
+   It is CSS first, and deliberately: five stacks draw these numbers — GANTT in
+   vanilla template strings, APK:OS in DOM construction, SCAN and Machinist in
+   TSX, libControl in the widget engine — and no import reaches all five. One
+   class driven by one custom property does, with no import from any of them:
+
+       <span class="apk-pct" style="--pct:57">57%</span>
+
+   ONLY FOR A PART OF A BOUNDED WHOLE. A fill behind a number that cannot be
+   full is a lie, and this tree has four measured examples that must keep their
+   plain digits: `+38% HEM` is signed and unbounded, `0.412%` carbon equivalent
+   is a threshold figure that would read as empty, `0.003%` gear error is
+   better when it is smaller, and Re-Cycle's budget ratio is an OVERRUN above
+   1.00. The test is not "does it end in %" — it is "is there a whole, and is
+   this a part of it". PLAN-924.01 holds the argument.
+
+   THE FILL IS A BACKGROUND, NOT A CHILD: the chip is the same width at 0% and
+   at 100%, so a column of these does not reflow as values arrive, and one
+   element carries both the number and the picture of it.
+
+   THIS FILE IS MIRRORED, AND THE MIRROR IS NOT LAZINESS. It exists twice:
+   here and at `APK:Softapps/TIME/GANTT/css/percent-fill.css`. EDIT BOTH, OR
+   NEITHER — `cmp` the two and they must be byte-identical.
+
+   A shared URL was tried on paper and does not survive the hosts. The GANTT
+   page is served four ways and a relative `css/percent-fill.css` is the only
+   link that resolves under all four: its own `server.py` (which serves
+   `directory=DIRECTORY`, its own folder and nothing above it, so a `../../../`
+   link out to here 404s), the shell's `server.py`, apk.audio, and `file://`.
+   A root-absolute route — `/shared/percent-fill.css` answered by both servers
+   — fixes the first two and breaks the last two: apk.audio "serves the shell
+   and relays nothing" (mount-web-app.js) and over `file://` an absolute path
+   leaves the folder entirely. `mount-web-app.js` builds every app URL as
+   `../<file>` for exactly that reason: one URL form, four hosts.
+
+   So the fork is deliberate and the duplicate is the cheaper of two wrongs:
+   5 KB, no build step, and a page that never silently loses its stylesheet.
+   PLAN-924.03 ruled it, option 3. The gate that used to hold the two identical
+   was deleted with the script folder it lived in on 2026-09-10; the rule is
+   here instead, where whoever edits the file will read it. */
+
+:root {
+    /* The cool end of the ramp. A low value is not a fault, it is just low, so
+       this is a quiet blue-grey rather than a red — the chip reports a
+       magnitude, it does not grade one. */
+    --apk-pct-cool: #3d5162;
+
+    /* The warm end is the shell's ONE accent. A second accent would make the
+       fill an identity — "this is the progress colour" — when what it carries
+       is a magnitude. The literal fallback is theme.css's own `--accent`, so
+       the ramp survives in GANTT, which does not load theme.css at all. */
+    --apk-pct-warm: var(--accent, rgb(244, 144, 44));
+
+    /* The digits sit on BOTH halves of the track, so the wash has to read as a
+       fill and still leave the glyphs legible — and this is the one number here
+       that was MEASURED rather than reasoned about. Composited over the track
+       over the GANTT's own #1a1c1e in headless Chrome and scored against the
+       #e1e2e5 text: 11.18:1 on the unfilled half, and on the filled half a slide
+       from 9.33:1 at 0% down to 5.93:1 at 100% — the worst case, and still clear
+       of WCAG AA's 4.5:1 for normal text. Raise this and re-measure; the ramp
+       darkens fastest at the top, so the 100% chip is the one that fails first. */
+    --apk-pct-wash: 34%;
+
+    --apk-pct-track: rgba(255, 255, 255, 0.06);
+}
+
+.apk-pct {
+    /* A host that forgets `--pct` gets an empty track, never an inherited one
+       from whatever ancestor happened to set it. */
+    --pct: 0;
+
+    /* COLOUR CARRIES MAGNITUDE, NOT IDENTITY: the chip warms as it climbs, so
+       the heavy branch is findable by hue as well as by fill length. */
+    --apk-pct-hue: color-mix(in oklab,
+        var(--apk-pct-warm) calc(var(--pct) * 1%), var(--apk-pct-cool));
+
+    display: inline-block;
+    /* THE SAME WIDTH FOR EVERY VALUE — fills are only comparable down a column
+       if the tracks they sit in are. `ch` rather than `em` because the content
+       is digits, and border-box so the padding is inside the reservation.
+
+       5.2ch is MEASURED, not guessed: `100%` is the widest content the chip can
+       hold (the `%` is wider than a tabular digit) and renders 4.97ch at this
+       padding in headless Chrome, so this is that plus headroom. 4.25ch was the
+       first guess and it was wrong in both directions at once — `100%` overflowed
+       it, so the one value the chip must be able to draw was 1.5px wider than
+       every other row, and it also broke out of the GANTT's 40px progress column.
+       If this number is raised, re-measure: it has to stay under 40px, which is
+       what that column leaves after its own padding. */
+    box-sizing: border-box;
+    min-width: 5.2ch;
+    padding: 0 0.15em;
+    border-radius: 3px;
+    text-align: right;
+    /* Digits that do not shuffle sideways as a value ticks. */
+    font-variant-numeric: tabular-nums;
+
+    background-color: var(--apk-pct-track);
+    /* A HARD STOP, NOT A GRADIENT: the edge of the fill is the reading. A soft
+       ramp would put the value somewhere inside a blur. */
+    background-image: linear-gradient(to right,
+        color-mix(in srgb, var(--apk-pct-hue) var(--apk-pct-wash), transparent)
+            calc(var(--pct) * 1%),
+        transparent calc(var(--pct) * 1%));
+}
+
+/* NO DATA IS NOT ZERO, AND MUST NOT LOOK LIKE IT. A record analysed before the
+   feature existed has no value at all; an empty track reads as a measured 0%.
+   So the track goes with it and the content is an em dash — the distinction
+   `PropertyBars.tsx` already got right, lifted here so no host re-derives it. */
+.apk-pct.is-none {
+    background-color: transparent;
+    background-image: none;
+    color: var(--text-muted, #888888);
+}

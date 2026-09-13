@@ -1,0 +1,5 @@
+{
+  "note": "Components with no path from src/main.tsx. A debt list: it only shrinks. Delete a line when the component is wired up — that is what makes the fix permanent.",
+  "entry": "src/main.tsx",
+  "unmountedComponents": []
+}

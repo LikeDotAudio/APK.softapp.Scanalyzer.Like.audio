@@ -1,0 +1,92 @@
+{
+  "_source": "apkaudio_graph_layout (APK:Softapps/SCAN/graphing_rs), release build, captured 2026-08-30 before the crate was retired under PLAN-109.04",
+  "_how": "echo <input> | ./target/release/apkaudio_graph_layout   — axes.x/y/z all null selects the hierarchical-depth arm, which is the only arm deeper_sub() feeds",
+  "pairs": [
+    {
+      "group": "Perc",
+      "subgroup": "Conga"
+    },
+    {
+      "group": "Perc",
+      "subgroup": "Perc"
+    },
+    {
+      "group": "Perc",
+      "subgroup": "Perc Long"
+    },
+    {
+      "group": "Perc Long",
+      "subgroup": "Perc"
+    },
+    {
+      "group": "Perc",
+      "subgroup": "perc"
+    },
+    {
+      "group": "Perc",
+      "subgroup": "PERC LONG"
+    },
+    {
+      "group": "Perc",
+      "subgroup": ""
+    },
+    {
+      "group": "Perc",
+      "subgroup": "Tabla"
+    },
+    {
+      "group": "PercX",
+      "subgroup": "Snare"
+    },
+    {
+      "group": "Strings",
+      "subgroup": "Cello"
+    },
+    {
+      "group": "Strings",
+      "subgroup": ""
+    },
+    {
+      "group": "Ambience",
+      "subgroup": "Room Tone"
+    }
+  ],
+  "expected_deeper_sub": [
+    "Conga",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Tabla",
+    "Snare",
+    "Cello",
+    "",
+    "Room Tone"
+  ],
+  "expected_index_sequence": [
+    2,
+    1,
+    1,
+    4,
+    1,
+    1,
+    1,
+    3,
+    5,
+    7,
+    6,
+    0
+  ],
+  "expected_tick_names": [
+    "  ↳ Room Tone",
+    "Perc",
+    "  ↳ Conga",
+    "  ↳ Tabla",
+    "Perc Long",
+    "  ↳ Snare",
+    "Strings",
+    "  ↳ Cello"
+  ]
+}

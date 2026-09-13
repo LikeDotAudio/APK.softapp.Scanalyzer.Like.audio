@@ -1,0 +1,14 @@
+{
+  "id": "SCAN",
+  "name": "Scanalyzer",
+  "icon": "🌌",
+  "group": "Scanalyzer",
+  "subGroup": "0 · The Application",
+  "stage": "10",
+  "kind": "app",
+  "class": "execution",
+  "description": "SCANALYZER.Like.Audio — the sound-library analyser, whole. The Rust engine in sample_analyzer_rs/ walks a library and writes a .PEAK sidecar per file; the front end draws that library back as a 3D cloud, 2D statistics, an examiner, an extractor and a UCS renamer. Data flows walk → .PEAK sidecar → optional MySQL upload → front end. Ships twice from one codebase: Vite/React on the web, Tauri on the desktop, the same crates as WASM or as native. The nine APK:OS/Scanalyzer* displays are single screens of this application; this manifest is the application itself. Two stage vocabularies describe this application and NEITHER of them is its pipeline stage. The six-stage one (import -> analyse -> display -> graph -> output -> meta stats) is the DATA FLOW: what happens to one audio file. The four-stage one (1 Scan, 2 Views, 3 Inspect, 4 Produce) is the SCREEN GROUPING the nine APK:OS/Scanalyzer* tiles are filed under, and it collapses the six: Scan is stages 1-2, Views is 3-4, Inspect is 3 and 5, Produce is 6. The pipeline placement is the third thing, and it is written down: \"stage\": \"10\", Device Under Test, which both place_app() in APK:OS/server.py and check_display_registry.py read before they will look at the subGroup number.",
+  "topic": "APK.audio/Gui/Softapps/SCAN",
+  "autostart": false,
+  "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html"
+}

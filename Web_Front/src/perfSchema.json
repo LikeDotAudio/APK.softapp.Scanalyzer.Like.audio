@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://apk.audio/schemas/perf/1.0.0",
+  "title": "PERF — performance-over-time sidecar",
+  "description": "Written AFTER the first .PERF file existed, off that file, rather than ahead of it. Six documents described this format in the present tense while `git ls-files | grep -c '\\.PERF$'` returned 0; a schema with no writer is another decoration, so the order was: produce one, then describe what was produced. Produced by .apk.scripts/build_perf_sidecar.py; the sibling format's reader is peakSchema.ts beside this file.",
+  "$comment": "THE ABSENT-NOT-ZERO RULE IS THE WHOLE POINT OF THIS FILE, AND IT IS INHERITED FROM .PEAK THE HARD WAY. peakSchema.ts is 115 lines that exist because a format changed shape and broke its reader, and its LEGACY_MIGRATION_GAPS list records the one thing it got right: fields the old analyzer never computed stay ABSENT, so they render blank rather than as a plausible zero. A loudness window is the same trap in worse disguise -- -70 LUFS is not silence, it is 'too quiet to measure', and 0.0 LUFS is not quiet at all, it is the loudest number in the unit. So an unmeasurable window is null, NEVER 0, and never omitted from the array either: dropping it would silently shorten the timeline. See 002_🏛⚖📜 Philosophy/Doctrine/readme.Refusal over fabrication.md. A version is carried from the first byte for the same reason peakSchema.ts had to be written at all.",
+  "type": "object",
+  "required": ["schema_version", "metadata", "integrated", "short_term"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver, present from the first byte of the first file. peakSchema.ts and its migration list are the cost of not having done this.",
+      "const": "1.0.0"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["path", "name", "length_seconds", "sample_rate", "channels", "producer", "measured_by"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "description": "The audio file this describes, repository-relative." },
+        "name": { "type": "string" },
+        "length_seconds": { "type": "number", "exclusiveMinimum": 0 },
+        "sample_rate": { "type": "integer", "exclusiveMinimum": 0 },
+        "channels": { "type": "integer", "exclusiveMinimum": 0 },
+        "producer": { "type": "string", "description": "The command that wrote this file. A sidecar whose producer cannot be named is not reproducible." },
+        "measured_by": { "type": "string", "description": "The measurement implementation, named because .PEAK's is a different one: the Rust ebur128 crate. The producer cross-checks the integrated loudness across the two and fails on a disagreement over 0.15 LU." }
+      }
+    },
+    "integrated": {
+      "type": "object",
+      "description": "What the curve summarises. Reported, never gated -- check_r128.py's reasoning holds here: -23 LUFS is a PROGRAMME target and a one-shot is not a programme.",
+      "required": ["lufs_i", "lra_lu", "gating_threshold_lufs"],
+      "additionalProperties": false,
+      "properties": {
+        "lufs_i": { "type": ["number", "null"], "description": "Integrated loudness, LUFS. null when the file is too short or too quiet for one to exist -- absent, not -70, and not 0." },
+        "lra_lu": { "type": ["number", "null"], "description": "Loudness range, LU. R128 calls this programme-dependent, so nothing gates it." },
+        "gating_threshold_lufs": { "type": ["number", "null"], "description": "The relative gate the integrated figure was computed above." }
+      }
+    },
+    "short_term": {
+      "type": "object",
+      "description": "The trajectory. One short-term loudness value per interval over a sliding window, in file order.",
+      "required": ["unit", "window_seconds", "interval_seconds", "start_seconds", "first_measured_seconds", "unmeasurable_floor_lufs", "count", "measured", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "unit": { "const": "LUFS" },
+        "window_seconds": { "type": "number", "exclusiveMinimum": 0, "description": "The sliding window. 3.0 is EBU R128's short-term window." },
+        "interval_seconds": { "type": "number", "exclusiveMinimum": 0, "description": "The step between consecutive values. values[i] is at start_seconds + i * interval_seconds." },
+        "start_seconds": { "type": "number", "minimum": 0, "description": "Where values[0] sits on the timeline. NOT where the measurement begins -- see first_measured_seconds." },
+        "first_measured_seconds": { "type": ["number", "null"], "description": "Where the first NON-NULL value sits. Later than start_seconds by roughly window_seconds, because a 3-second window does not exist until three seconds of audio do. null when no window in the file was measurable." },
+        "unmeasurable_floor_lufs": { "type": "number", "description": "At or below this, a reading is not a loudness but the absence of one, and is written null." },
+        "count": { "type": "integer", "minimum": 0, "description": "len(values). Every window in the file, measured or not." },
+        "measured": { "type": "integer", "minimum": 0, "description": "How many of them are non-null. `count - measured` is the honest size of what is not known." },
+        "values": {
+          "type": "array",
+          "description": "Short-term LUFS per window, in order. A window that could not be measured is null -- never 0, and never dropped, because dropping it would silently shorten the timeline.",
+          "items": { "type": ["number", "null"] }
+        }
+      }
+    }
+  }
+}

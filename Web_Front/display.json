@@ -1,0 +1,14 @@
+{
+  "id": "SCAN_Web_Front",
+  "name": "Scanalyzer Web Front",
+  "icon": "🌌",
+  "group": "Scanalyzer",
+  "subGroup": "1 · Scan",
+  "stage": "10",
+  "kind": "web",
+  "class": "execution",
+  "app": "APK:Softapps/SCAN/Web_Front/dist/index.html",
+  "description": "The Scanalyzer user interface — eight screens over one bundle: Scanalyze, Stats, 3D Cloud, FaceBall, Examiner, Extractor, Groups, Rename. Vite/React, with the analyser and cutting DSP compiled to WASM from the crates beside it. The same bundle is the Tauri desktop app's web view, and ?solo=1#/<tab> draws one screen for an APK:OS window instead of the whole tab strip.",
+  "topic": "APK.audio/Gui/Display/Scanalyzer",
+  "autostart": false
+}
