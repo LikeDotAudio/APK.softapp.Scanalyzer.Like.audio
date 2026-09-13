@@ -1,4 +1,4 @@
 # Architecture Notes & Technical Specs — Scanalyzer.Like.audio
 
-## 🛠 Integration Details
-Housed suite of 22 SCANALIZER softapps in `SCANALYZER:softapps/` covering DSP engines, 2D/3D/4D/5D views, and data channel buses.
+## 🛠 Technical Specifications & Integration
+Central repository housing the 22 modular SCANALIZER softapps in `SCANALYZER:softapps/` (2D-Graphs, 3D-PointCloud, 4D-FaceBall, 5D-MultiVector, Examiner, Extractor, Rename, Devices, Groups, DroneKiln, PitchClass-SongAnalyzer, Rust engines).
