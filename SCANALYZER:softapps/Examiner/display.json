@@ -1,0 +1,14 @@
+{
+  "id": "Scanalyzer_Examiner",
+  "name": "Examiner",
+  "icon": "\ud83d\udd0d",
+  "group": "Scanalyzer",
+  "subGroup": "3 \u00b7 Inspect",
+  "stage": "10",
+  "kind": "web",
+  "class": "execution",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/examiner",
+  "description": "EXECUTION: DEVICE UNDER TEST \u2014 Detailed single sample inspector with waveform, FFT spectrum, LUFS meters, ADSR overlay, and transport control.",
+  "topic": "APK.audio/Gui/Display/Scanalyzer_Examiner",
+  "autostart": false
+}

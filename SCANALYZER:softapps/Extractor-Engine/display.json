@@ -1,0 +1,13 @@
+{
+  "id": "Extractor_Engine",
+  "name": "Extractor Engine",
+  "icon": "\u26a1",
+  "group": "Scanalyzer",
+  "subGroup": "DSP Core",
+  "kind": "rust",
+  "class": "execution",
+  "entry": "extractor_engine_rs/src/lib.rs",
+  "description": "Rust engine for region detection, transient chopping, and sample slice extraction compiled to native and WebAssembly.",
+  "topic": "APK.audio/Gui/Display/Extractor_Engine",
+  "autostart": false
+}

@@ -1,0 +1,13 @@
+{
+  "id": "SampleConversion_Engine",
+  "name": "Sample Conversion Engine",
+  "icon": "\ud83c\udf9b\ufe0f",
+  "group": "Scanalyzer",
+  "subGroup": "DSP Core",
+  "kind": "rust",
+  "class": "execution",
+  "entry": "Sample_Conversion_rs/src/lib.rs",
+  "description": "Rust sample rate conversion, bit depth reduction, BWF metadata chunk injection, and format transcoding library.",
+  "topic": "APK.audio/Gui/Display/SampleConversion_Engine",
+  "autostart": false
+}

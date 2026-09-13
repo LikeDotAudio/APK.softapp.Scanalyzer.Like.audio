@@ -1,0 +1,13 @@
+{
+  "id": "UCS_Taxonomy",
+  "name": "UCS Category Taxonomy",
+  "icon": "\ud83c\udff7\ufe0f",
+  "group": "Scanalyzer",
+  "subGroup": "Taxonomy",
+  "kind": "doc",
+  "class": "execution",
+  "entry": "UCS/README.md",
+  "description": "Universal Category System (UCS) 753-subcategory taxonomy mapping rules, acoustic signatures, and classification specs.",
+  "topic": "APK.audio/Gui/Display/UCS_Taxonomy",
+  "autostart": false
+}

@@ -1,0 +1,13 @@
+{
+  "id": "Database_Schema",
+  "name": "Database Schema & Migration",
+  "icon": "\ud83d\uddc4\ufe0f",
+  "group": "Scanalyzer",
+  "subGroup": "Database",
+  "kind": "sql",
+  "class": "execution",
+  "entry": "Database/schema.scanalyzer.mariadb.sql",
+  "description": "MariaDB/MySQL database schema, table definitions, and migration scripts for uploading .PEAK metadata into centralized databases.",
+  "topic": "APK.audio/Gui/Display/Database_Schema",
+  "autostart": false
+}

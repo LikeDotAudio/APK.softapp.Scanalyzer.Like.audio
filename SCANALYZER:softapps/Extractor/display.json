@@ -1,0 +1,14 @@
+{
+  "id": "Scanalyzer_Extractor",
+  "name": "Extractor",
+  "icon": "\u2702\ufe0f",
+  "group": "Scanalyzer",
+  "subGroup": "4 \u00b7 Produce",
+  "stage": "10",
+  "kind": "web",
+  "class": "execution",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/extractor",
+  "description": "EXECUTION: DEVICE UNDER TEST \u2014 Audio region extraction tool. Cuts transients, loops, or user-selected regions from sample files and writes them out.",
+  "topic": "APK.audio/Gui/Display/Scanalyzer_Extractor",
+  "autostart": false
+}

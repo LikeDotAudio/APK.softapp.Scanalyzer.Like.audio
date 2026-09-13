@@ -1,0 +1,14 @@
+{
+  "id": "Scanalyzer_2D",
+  "name": "2D Graphs",
+  "icon": "\ud83d\udcca",
+  "group": "Scanalyzer",
+  "subGroup": "2 \u00b7 Views",
+  "stage": "10",
+  "kind": "web",
+  "class": "execution",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
+  "description": "EXECUTION: DEVICE UNDER TEST \u2014 Flat read distributions and scatter plot statistics across whatever scope bar has narrowed the corpus to.",
+  "topic": "APK.audio/Gui/Display/Scanalyzer_2D",
+  "autostart": false
+}
