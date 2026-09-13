@@ -28,5 +28,5 @@ tauri-plugin-fs = "2"
 # In-process extractor: the same cutting DSP the web build runs as WASM, called natively
 # so a desktop scan/slice/analyze never leaves the process. `oa-sample-analyzer` supplies
 # the native decoder + the per-chunk UCS analysis.
-extractor_engine = { path = "../../extractor_engine_rs" }
-oa-sample-analyzer = { path = "../../sample_analyzer_rs" }
+extractor_engine = { path = "../../SCANALYZER:softapps/SCANALIZER.Extractor-Engine" }
+oa-sample-analyzer = { path = "../../SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine" }

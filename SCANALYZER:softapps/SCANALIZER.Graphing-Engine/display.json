@@ -6,7 +6,7 @@
   "subGroup": "DSP Core",
   "kind": "rust",
   "class": "execution",
-  "entry": "graphing_rs/src/lib.rs",
+  "entry": "SCANALYZER:softapps/SCANALIZER.Graphing-Engine/src/lib.rs",
   "description": "Rust high-performance graphing, PCA dimensionality reduction, and k-means clustering engine for 3D/2D point projection.",
   "topic": "APK.audio/Gui/Display/Graphing_Engine",
   "autostart": false

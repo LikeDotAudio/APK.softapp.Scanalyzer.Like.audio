@@ -354,7 +354,7 @@ fn start_analysis(
             .map(|n| n.get())
             .unwrap_or(4);
 
-        let mut cmd = Command::new("../../sample_analyzer_rs/target/release/oa_sample_analyzer");
+        let mut cmd = Command::new("../../SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine/target/release/oa_sample_analyzer");
         cmd.arg(&directory)
             .arg("--workers")
             .arg(workers.to_string())

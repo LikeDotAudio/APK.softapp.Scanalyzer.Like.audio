@@ -34,12 +34,12 @@ def build_analyzer(root_dir, env):
     would be invisible until the CLI is rebuilt by hand. `cargo build` is a no-op when
     nothing changed, so this is cheap on the common launch.
     """
-    analyzer_dir = os.path.join(root_dir, "sample_analyzer_rs")
+    analyzer_dir = os.path.join(root_dir, "SCANALYZER:softapps", "SCANALIZER.SampleAnalyzer-Engine")
     if not os.path.isdir(analyzer_dir):
         print(f"Error: Could not find the analyzer at {analyzer_dir}")
         sys.exit(1)
 
-    print("Building the analyzer engine (sample_analyzer_rs, release)...")
+    print("Building the analyzer engine (SCANALIZER.SampleAnalyzer-Engine, release)...")
     try:
         subprocess.run(
             ["cargo", "build", "--release"],

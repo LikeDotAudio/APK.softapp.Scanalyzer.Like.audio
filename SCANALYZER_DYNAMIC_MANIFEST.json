@@ -4,7 +4,7 @@
   "softapps": {
     "SCANALIZER.Arrays-In-Data-Out": {
       "folder": "SCANALIZER.Arrays-In-Data-Out",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Arrays-In-Data-Out.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Arrays-In-Data-Out.git",
       "display": {
         "id": "Scanalyzer_ArraysInDataOut",
         "name": "Arrays In & Data Out",
@@ -34,7 +34,7 @@
     },
     "SCANALIZER.Data-Channels": {
       "folder": "SCANALIZER.Data-Channels",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Data-Channels.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Data-Channels.git",
       "display": {
         "id": "Scanalyzer_DataChannels",
         "name": "Data Channels Router",
@@ -64,7 +64,7 @@
     },
     "SCANALIZER.Database-Schema": {
       "folder": "SCANALIZER.Database-Schema",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Database-Schema.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Database-Schema.git",
       "display": {
         "id": "Database_Schema",
         "name": "Database Schema & Migration",
@@ -81,7 +81,7 @@
     },
     "SCANALIZER.Devices": {
       "folder": "SCANALIZER.Devices",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Devices.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Devices.git",
       "display": {
         "id": "Scanalyzer_Devices",
         "name": "Scanalyze Devices",
@@ -110,7 +110,7 @@
     },
     "SCANALIZER.DroneKiln": {
       "folder": "SCANALIZER.DroneKiln",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.DroneKiln.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.DroneKiln.git",
       "display": {
         "id": "DroneKiln",
         "name": "Drone Kiln Paulstretch Generator",
@@ -136,7 +136,7 @@
     },
     "SCANALIZER.Extractor": {
       "folder": "SCANALIZER.Extractor",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Extractor.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Extractor.git",
       "display": {
         "id": "Scanalyzer_Extractor",
         "name": "Extractor",
@@ -165,7 +165,7 @@
     },
     "SCANALIZER.Extractor-Engine": {
       "folder": "SCANALIZER.Extractor-Engine",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Extractor-Engine.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Extractor-Engine.git",
       "display": {
         "id": "Extractor_Engine",
         "name": "Extractor Engine",
@@ -174,7 +174,7 @@
         "subGroup": "DSP Core",
         "kind": "rust",
         "class": "execution",
-        "entry": "extractor_engine_rs/src/lib.rs",
+        "entry": "SCANALYZER:softapps/SCANALIZER.Extractor-Engine/src/lib.rs",
         "description": "Rust engine for region detection, transient chopping, and sample slice extraction compiled to native and WebAssembly.",
         "topic": "APK.audio/Gui/Display/Extractor_Engine",
         "autostart": false
@@ -182,7 +182,7 @@
     },
     "SCANALIZER.Favorites": {
       "folder": "SCANALIZER.Favorites",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Favorites.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Favorites.git",
       "display": {
         "id": "Scanalyzer_Favorites",
         "name": "Favorites",
@@ -210,7 +210,7 @@
     },
     "SCANALIZER.Graphing-Engine": {
       "folder": "SCANALIZER.Graphing-Engine",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Graphing-Engine.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Graphing-Engine.git",
       "display": {
         "id": "Graphing_Engine",
         "name": "Graphing & PCA Engine",
@@ -219,7 +219,7 @@
         "subGroup": "DSP Core",
         "kind": "rust",
         "class": "execution",
-        "entry": "graphing_rs/src/lib.rs",
+        "entry": "SCANALYZER:softapps/SCANALIZER.Graphing-Engine/src/lib.rs",
         "description": "Rust high-performance graphing, PCA dimensionality reduction, and k-means clustering engine for 3D/2D point projection.",
         "topic": "APK.audio/Gui/Display/Graphing_Engine",
         "autostart": false
@@ -227,7 +227,7 @@
     },
     "SCANALIZER.Groups": {
       "folder": "SCANALIZER.Groups",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Groups.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Groups.git",
       "display": {
         "id": "Scanalyzer_Groups",
         "name": "Groups & CSV",
@@ -255,7 +255,7 @@
     },
     "SCANALIZER.PitchClass-SongAnalyzer": {
       "folder": "SCANALIZER.PitchClass-SongAnalyzer",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.PitchClass-SongAnalyzer.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.PitchClass-SongAnalyzer.git",
       "display": {
         "id": "PitchClass-SongAnalyzer",
         "name": "Pitch Class and SongAnalyzer",
@@ -282,7 +282,7 @@
     },
     "SCANALIZER.Rename": {
       "folder": "SCANALIZER.Rename",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Rename.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Rename.git",
       "display": {
         "id": "Scanalyzer_Rename",
         "name": "Rename",
@@ -312,7 +312,7 @@
     },
     "SCANALIZER.SampleAnalyzer-Engine": {
       "folder": "SCANALIZER.SampleAnalyzer-Engine",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.SampleAnalyzer-Engine.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.SampleAnalyzer-Engine.git",
       "display": {
         "id": "SampleAnalyzer_Engine",
         "name": "Sample Analyzer Rust Engine",
@@ -321,7 +321,7 @@
         "subGroup": "DSP Core",
         "kind": "rust",
         "class": "execution",
-        "entry": "sample_analyzer_rs/src/main.rs",
+        "entry": "SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine/src/main.rs",
         "description": "Rust CLI & WASM binary that walks audio libraries, calculates 40+ DSP feature dimensions (MFCCs, spectral flux, kurtosis, VAD, attack/decay), and writes .PEAK sidecars.",
         "topic": "APK.audio/Gui/Display/SampleAnalyzer_Engine",
         "autostart": false
@@ -329,7 +329,7 @@
     },
     "SCANALIZER.SampleConversion-Engine": {
       "folder": "SCANALIZER.SampleConversion-Engine",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.SampleConversion-Engine.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.SampleConversion-Engine.git",
       "display": {
         "id": "SampleConversion_Engine",
         "name": "Sample Conversion Engine",
@@ -338,7 +338,7 @@
         "subGroup": "DSP Core",
         "kind": "rust",
         "class": "execution",
-        "entry": "Sample_Conversion_rs/src/lib.rs",
+        "entry": "SCANALYZER:softapps/SCANALIZER.SampleConversion-Engine/src/lib.rs",
         "description": "Rust sample rate conversion, bit depth reduction, BWF metadata chunk injection, and format transcoding library.",
         "topic": "APK.audio/Gui/Display/SampleConversion_Engine",
         "autostart": false
@@ -346,7 +346,7 @@
     },
     "SCANALIZER.Scanalyze": {
       "folder": "SCANALIZER.Scanalyze",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Scanalyze.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Scanalyze.git",
       "display": {
         "id": "Scanalyzer_Scan",
         "name": "Scanalyze",
@@ -375,7 +375,7 @@
     },
     "SCANALIZER.UCS-Taxonomy": {
       "folder": "SCANALIZER.UCS-Taxonomy",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.UCS-Taxonomy.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.UCS-Taxonomy.git",
       "display": {
         "id": "UCS_Taxonomy",
         "name": "UCS Category Taxonomy",
@@ -392,7 +392,7 @@
     },
     "SCANALIZER.Visualizer.2D-Graphs": {
       "folder": "SCANALIZER.Visualizer.2D-Graphs",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Visualizer.2D-Graphs.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.2D-Graphs.git",
       "display": {
         "id": "Scanalyzer_2D",
         "name": "2D Graphs Visualizer",
@@ -422,7 +422,7 @@
     },
     "SCANALIZER.Visualizer.3D-PointCloud": {
       "folder": "SCANALIZER.Visualizer.3D-PointCloud",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Visualizer.3D-PointCloud.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.3D-PointCloud.git",
       "display": {
         "id": "Scanalyzer_3D",
         "name": "3D Point Cloud Visualizer",
@@ -452,7 +452,7 @@
     },
     "SCANALIZER.Visualizer.4D-FaceBall": {
       "folder": "SCANALIZER.Visualizer.4D-FaceBall",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Visualizer.4D-FaceBall.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.4D-FaceBall.git",
       "display": {
         "id": "Scanalyzer_4D",
         "name": "4D Face Ball Visualizer",
@@ -482,7 +482,7 @@
     },
     "SCANALIZER.Visualizer.5D-MultiVector": {
       "folder": "SCANALIZER.Visualizer.5D-MultiVector",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Visualizer.5D-MultiVector.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.5D-MultiVector.git",
       "display": {
         "id": "Scanalyzer_5D",
         "name": "5D MultiVector Visualizer",
@@ -513,7 +513,7 @@
     },
     "SCANALIZER.Visualizer.Examiner": {
       "folder": "SCANALIZER.Visualizer.Examiner",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Visualizer.Examiner.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.Examiner.git",
       "display": {
         "id": "Scanalyzer_Examiner",
         "name": "Examiner Visualizer",
@@ -543,7 +543,7 @@
     },
     "SCANALIZER.Visualizer.Simple-Data-Graphing": {
       "folder": "SCANALIZER.Visualizer.Simple-Data-Graphing",
-      "repo_url": "https://github.com/LikeDotAudio/APK.audio.Softapp.SCANALIZER.Visualizer.Simple-Data-Graphing.git",
+      "repo_url": "https://github.com/LikeDotAudio/APK.Softapp.SCANALIZER.Visualizer.Simple-Data-Graphing.git",
       "display": {
         "id": "Scanalyzer_SimpleGraphing",
         "name": "Simple Data Graphing Visualizer",

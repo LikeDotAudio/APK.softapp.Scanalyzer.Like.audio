@@ -25,18 +25,22 @@ fn sorted_files(dir: &Path, ext: &str) -> Vec<PathBuf> {
 
 fn main() {
     println!("cargo:rerun-if-changed=src");
-    println!("cargo:rerun-if-changed=../UCS/categories");
-    println!("cargo:rerun-if-changed=../UCS/producer_synonyms.json");
+    println!("cargo:rerun-if-changed=../../UCS/categories");
+    println!("cargo:rerun-if-changed=../../UCS/producer_synonyms.json");
 
-    let ucs_dir = Path::new("../UCS/categories");
-    let cat_files: Vec<PathBuf> = sorted_files(ucs_dir, "json")
+    let ucs_dir_path = if Path::new("../../UCS/categories").exists() {
+        Path::new("../../UCS/categories")
+    } else {
+        Path::new("../UCS/categories")
+    };
+    let cat_files: Vec<PathBuf> = sorted_files(ucs_dir_path, "json")
         .into_iter()
         .filter(|p| p.file_name().and_then(|x| x.to_str()) != Some("index.json"))
         .collect();
     assert!(
         !cat_files.is_empty(),
         "no UCS category files under {} — the analyzer cannot classify without them",
-        ucs_dir.display()
+        ucs_dir_path.display()
     );
 
     // Splice the per-category files into a single JSON array, MINIFIED.
@@ -67,7 +71,11 @@ fn main() {
     // OBJECTS/FASHION. A music library therefore has no UCS words to match on. The overlay
     // adds those words, keyed by UCS category_id, and is merged here rather than edited
     // into UCS/categories/ so the vendored spec stays pristine and upgradeable.
-    let overlay_path = Path::new("../UCS/producer_synonyms.json");
+    let overlay_path = if Path::new("../../UCS/producer_synonyms.json").exists() {
+        Path::new("../../UCS/producer_synonyms.json")
+    } else {
+        Path::new("../UCS/producer_synonyms.json")
+    };
     let overlay: serde_json::Value = {
         let text = fs::read_to_string(overlay_path)
             .unwrap_or_else(|e| panic!("read {}: {e}", overlay_path.display()));

@@ -6,7 +6,7 @@
   "subGroup": "DSP Core",
   "kind": "rust",
   "class": "execution",
-  "entry": "extractor_engine_rs/src/lib.rs",
+  "entry": "SCANALYZER:softapps/SCANALIZER.Extractor-Engine/src/lib.rs",
   "description": "Rust engine for region detection, transient chopping, and sample slice extraction compiled to native and WebAssembly.",
   "topic": "APK.audio/Gui/Display/Extractor_Engine",
   "autostart": false
