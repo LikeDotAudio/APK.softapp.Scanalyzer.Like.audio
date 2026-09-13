@@ -1,11 +1,11 @@
 {
   "id": "Scanalyzer_3D",
-  "name": "3D Point Cloud",
+  "name": "3D Point Cloud Visualizer",
   "icon": "\ud83e\uddca",
   "group": "Scanalyzer",
   "subGroup": "2 \u00b7 Views",
   "stage": "10",
-  "kind": "web",
+  "kind": "visualizer",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/cloud",
   "arraysIn": [

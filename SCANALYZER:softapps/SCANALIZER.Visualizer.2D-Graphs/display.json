@@ -1,11 +1,11 @@
 {
   "id": "Scanalyzer_2D",
-  "name": "2D Graphs",
+  "name": "2D Graphs Visualizer",
   "icon": "\ud83d\udcca",
   "group": "Scanalyzer",
   "subGroup": "2 \u00b7 Views",
   "stage": "10",
-  "kind": "web",
+  "kind": "visualizer",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
   "arraysIn": [

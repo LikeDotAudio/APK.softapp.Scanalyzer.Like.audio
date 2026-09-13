@@ -1,11 +1,11 @@
 {
   "id": "Scanalyzer_5D",
-  "name": "5D MultiVector",
+  "name": "5D MultiVector Visualizer",
   "icon": "\ud83c\udf0c",
   "group": "Scanalyzer",
   "subGroup": "2 \u00b7 Views",
   "stage": "10",
-  "kind": "web",
+  "kind": "visualizer",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/cloud",
   "arraysIn": [

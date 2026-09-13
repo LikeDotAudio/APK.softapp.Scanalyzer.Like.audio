@@ -1,11 +1,11 @@
 {
   "id": "Scanalyzer_4D",
-  "name": "4D Face Ball",
+  "name": "4D Face Ball Visualizer",
   "icon": "\ud83e\ude90",
   "group": "Scanalyzer",
   "subGroup": "2 \u00b7 Views",
   "stage": "10",
-  "kind": "web",
+  "kind": "visualizer",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/faceball",
   "arraysIn": [
