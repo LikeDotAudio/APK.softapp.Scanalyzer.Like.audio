@@ -8,6 +8,18 @@
   "kind": "web",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/faceball",
+  "arraysIn": [
+    "time_series_trajectories",
+    "envelope_points"
+  ],
+  "dataOut": [
+    "trajectory_frame",
+    "active_sample_node"
+  ],
+  "dataChannels": [
+    "APK.audio/Gui/Display/Scanalyzer_4D",
+    "apkos/scanalyzer/handoff"
+  ],
   "description": "EXECUTION: DEVICE UNDER TEST \u2014 Animated time-dimension spatial cloud. Samples move through space by acoustic envelope trajectory over time.",
   "topic": "APK.audio/Gui/Display/Scanalyzer_4D",
   "autostart": false

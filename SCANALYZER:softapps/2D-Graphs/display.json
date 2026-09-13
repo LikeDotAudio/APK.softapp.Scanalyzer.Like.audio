@@ -8,7 +8,19 @@
   "kind": "web",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
-  "description": "EXECUTION: DEVICE UNDER TEST \u2014 Flat read distributions and scatter plot statistics across whatever scope bar has narrowed the corpus to.",
+  "arraysIn": [
+    "feature_vectors",
+    "peak_records"
+  ],
+  "dataOut": [
+    "scatter_selection",
+    "distribution_stats"
+  ],
+  "dataChannels": [
+    "APK.audio/Gui/Display/Scanalyzer_2D",
+    "apkos/scanalyzer/handoff"
+  ],
+  "description": "EXECUTION: DEVICE UNDER TEST \u2014 Flat read distributions and 2D scatter plot statistics across whatever scope bar has narrowed the corpus to.",
   "topic": "APK.audio/Gui/Display/Scanalyzer_2D",
   "autostart": false
 }

@@ -1,0 +1,26 @@
+{
+  "id": "Scanalyzer_SimpleGraphing",
+  "name": "Simple Data Graphing",
+  "icon": "\ud83d\udcc8",
+  "group": "Scanalyzer",
+  "subGroup": "2 \u00b7 Views",
+  "stage": "10",
+  "kind": "web",
+  "class": "execution",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
+  "arraysIn": [
+    "raw_numeric_arrays",
+    "time_value_pairs"
+  ],
+  "dataOut": [
+    "graph_render_canvas",
+    "range_filter_bounds"
+  ],
+  "dataChannels": [
+    "APK.audio/Gui/Display/SimpleGraphing",
+    "apkos/scanalyzer/graphing"
+  ],
+  "description": "EXECUTION: DEVICE UNDER TEST \u2014 Lightweight data graphing component for plotting 2-variable numeric arrays, RMS levels, and spectral centroid trends.",
+  "topic": "APK.audio/Gui/Display/SimpleGraphing",
+  "autostart": false
+}

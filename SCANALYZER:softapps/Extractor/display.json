@@ -8,6 +8,17 @@
   "kind": "web",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/extractor",
+  "arraysIn": [
+    "region_crop_bounds",
+    "source_audio_buffer"
+  ],
+  "dataOut": [
+    "extracted_sample_files"
+  ],
+  "dataChannels": [
+    "APK.audio/Gui/Display/Scanalyzer_Extractor",
+    "apkos/scanalyzer/handoff"
+  ],
   "description": "EXECUTION: DEVICE UNDER TEST \u2014 Audio region extraction tool. Cuts transients, loops, or user-selected regions from sample files and writes them out.",
   "topic": "APK.audio/Gui/Display/Scanalyzer_Extractor",
   "autostart": false

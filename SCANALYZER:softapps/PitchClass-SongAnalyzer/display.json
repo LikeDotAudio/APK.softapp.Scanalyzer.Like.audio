@@ -1,12 +1,22 @@
 {
   "id": "PitchClass-SongAnalyzer",
   "name": "Pitch Class and SongAnalyzer",
-  "icon": "🎵",
+  "icon": "\ud83c\udfb5",
   "group": "Scanalyzer",
   "subGroup": "Measurement Probe",
   "kind": "web",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/PitchClass-SongAnalyzer/index.html",
+  "arraysIn": [
+    "song_pcm_buffer"
+  ],
+  "dataOut": [
+    "chromagram_12bin_array",
+    "key_bpm_detection"
+  ],
+  "dataChannels": [
+    "APK.audio/Gui/Display/PitchClass-SongAnalyzer"
+  ],
   "description": "Standalone audio measurement probe and song analyzer. Features 12-bin Pitch-Class chromagram profiling, Krumhansl-Schmuckler key detection, spectral centroid, spectral flatness, crest factor, stereo correlation, and onset autocorrelation tempo (BPM) detection.",
   "topic": "APK.audio/Gui/Display/PitchClass-SongAnalyzer",
   "autostart": false

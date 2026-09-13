@@ -8,6 +8,18 @@
   "kind": "web",
   "class": "execution",
   "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/rename",
+  "arraysIn": [
+    "rename_token_rules",
+    "target_sample_list"
+  ],
+  "dataOut": [
+    "bash_rename_script",
+    "powershell_rename_script"
+  ],
+  "dataChannels": [
+    "APK.audio/Gui/Display/Scanalyzer_Rename",
+    "apkos/scanalyzer/handoff"
+  ],
   "description": "EXECUTION: DEVICE UNDER TEST \u2014 UCS-shaped batch renaming and folder tree composer with token prepends, appends, and ffmpeg resampling scripts.",
   "topic": "APK.audio/Gui/Display/Scanalyzer_Rename",
   "autostart": false
