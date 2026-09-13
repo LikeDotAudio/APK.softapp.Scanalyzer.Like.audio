@@ -6,7 +6,7 @@
   "subGroup": "Audio Signal & Drone Generator",
   "kind": "web",
   "class": "execution",
-  "app": "APK:Softapps/Scanalyzer.Like.audio/DroneKiln/index.html",
+  "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/DroneKiln/index.html",
   "description": "Browser-based Paulstretch extreme audio time-stretcher and spectral drone generator. Performs per-bin phase scattering, FFT 2048 Hann overlap-add synthesis, and real-time spectral assay measurement.",
   "topic": "APK.audio/Gui/Display/DroneKiln",
   "autostart": false
