@@ -1,62 +1,62 @@
 [submodule "SCANALYZER:softapps/SCANALIZER.Arrays-In-Data-Out"]
 	path = SCANALYZER:softapps/SCANALIZER.Arrays-In-Data-Out
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Arrays-In-Data-Out.git
+	url = https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.Arrays-In-Data-Out.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Data-Channels"]
 	path = SCANALYZER:softapps/SCANALIZER.Data-Channels
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Data-Channels.git
+	url = https://github.com/LikeDotAudio/APK.softapp.DATABASE.Data-Channels.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Database-Schema"]
 	path = SCANALYZER:softapps/SCANALIZER.Database-Schema
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Database-Schema.git
+	url = https://github.com/LikeDotAudio/APK.softapp.DATABASE.Schema.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Devices"]
 	path = SCANALYZER:softapps/SCANALIZER.Devices
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Devices.git
+	url = https://github.com/LikeDotAudio/APK.softapp.HARDWARE.Devices.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.DroneKiln"]
 	path = SCANALYZER:softapps/SCANALIZER.DroneKiln
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.DroneKiln.git
+	url = https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.DroneKiln.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor-Engine
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor-Engine.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Document"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.Document
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Document.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Document.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.FaceID"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.FaceID
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.FaceID.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.FaceID.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.FolderScanner"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.FolderScanner
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.FolderScanner.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.FolderScanner.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Image"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.Image
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Image.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Image.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.OCR"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.OCR
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.OCR.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.OCR.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Schematics"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.Schematics
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Schematics.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Schematics.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Extractor.Vectorizer"]
 	path = SCANALYZER:softapps/SCANALIZER.Extractor.Vectorizer
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.Vectorizer.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Vectorizer.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Favorites"]
 	path = SCANALYZER:softapps/SCANALIZER.Favorites
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Favorites.git
+	url = https://github.com/LikeDotAudio/APK.softapp.DATABASE.Favorites.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Graphing-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.Graphing-Engine
@@ -64,23 +64,23 @@
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Groups"]
 	path = SCANALYZER:softapps/SCANALIZER.Groups
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Groups.git
+	url = https://github.com/LikeDotAudio/APK.softapp.DATABASE.Groups.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer"]
 	path = SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.PitchClass-SongAnalyzer.git
+	url = https://github.com/LikeDotAudio/APK.softapp.AUDIO.PitchClass-SongAnalyzer.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Rename"]
 	path = SCANALYZER:softapps/SCANALIZER.Rename
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Rename.git
+	url = https://github.com/LikeDotAudio/APK.softapp.UTILITY.Rename.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.SampleAnalyzer-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.SampleConversion-Engine"]
 	path = SCANALYZER:softapps/SCANALIZER.SampleConversion-Engine
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.SampleConversion-Engine.git
+	url = https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleConversion.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Scanalyze"]
 	path = SCANALYZER:softapps/SCANALIZER.Scanalyze
@@ -88,31 +88,31 @@
 
 [submodule "SCANALYZER:softapps/SCANALIZER.UCS-Taxonomy"]
 	path = SCANALYZER:softapps/SCANALIZER.UCS-Taxonomy
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.UCS-Taxonomy.git
+	url = https://github.com/LikeDotAudio/APK.softapp.DATABASE.UCS-Taxonomy.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.2D-Graphs"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.2D-Graphs
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.2D-Graphs.git
+	url = https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.2D-Graphs.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.3D-PointCloud"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.3D-PointCloud
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.3D-PointCloud.git
+	url = https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.3D-PointCloud.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.4D-FaceBall"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.4D-FaceBall
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.4D-FaceBall.git
+	url = https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.4D-FaceBall.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.5D-MultiVector"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.5D-MultiVector
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.5D-MultiVector.git
+	url = https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.5D-MultiVector.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.Examiner"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.Examiner
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.Examiner.git
+	url = https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Examiner.git
 
 [submodule "SCANALYZER:softapps/SCANALIZER.Visualizer.Simple-Data-Graphing"]
 	path = SCANALYZER:softapps/SCANALIZER.Visualizer.Simple-Data-Graphing
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Visualizer.Simple-Data-Graphing.git
+	url = https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Simple-Data-Graphing.git
 [submodule "SCANALIZER:softapps/SCANALIZER.Extractor.WebScraper"]
 	path = SCANALIZER:softapps/SCANALIZER.Extractor.WebScraper
-	url = https://github.com/LikeDotAudio/APK.softapp.SCANALIZER.Extractor.WebScraper.git
+	url = https://github.com/LikeDotAudio/APK.softapp.CAPTURE.WebScraper.git
