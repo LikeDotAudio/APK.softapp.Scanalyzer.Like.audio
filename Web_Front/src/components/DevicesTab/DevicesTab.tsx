@@ -297,7 +297,7 @@ export default function DevicesTab() {
           {/* The whole checkout path, because this one is meant to be pasted:
               APK:OS has not been at the repository root since the DOCKERS reorg,
               and `python3 "APK:OS/server.py"` fails on paste from it. PLAN-333.01. */}
-          {' '}<code>python3 "APK:DOCKERS/APK:audio:WebPortal/SRC/APK:OS/server.py"</code>
+          {' '}<code>python3 "APK:PODS/APK:audio:WebPortal/SRC/APK:OS/server.py"</code>
         </p>
       )}
 
