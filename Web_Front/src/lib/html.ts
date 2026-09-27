@@ -1,6 +1,7 @@
-/** Escape text for use inside HTML markup built from template strings. */
+/** Escape text for use inside HTML markup built from template strings,
+ *  including inside a double-quoted attribute value. */
 export function escapeHTML(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 /** Render an OPTIONAL reading. The engine returns null where it read nothing,

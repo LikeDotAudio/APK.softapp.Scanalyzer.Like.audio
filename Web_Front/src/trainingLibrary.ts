@@ -1,5 +1,6 @@
 import { FileItem } from './types';
 import { formatBytes } from './tree';
+import { escapeHTML } from './lib/html';
 
 export interface TrainingAnnotation {
   id: string;
@@ -328,8 +329,4 @@ function exportTrainingDatasetJSON() {
   a.download = 'training_library_dataset.json';
   a.click();
   URL.revokeObjectURL(url);
-}
-
-function escapeHTML(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

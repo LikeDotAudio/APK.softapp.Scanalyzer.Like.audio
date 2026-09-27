@@ -3,6 +3,7 @@ import { FileItem } from './types';
 import { classifyImage, ImageClassification } from './imageClassifier';
 import { convertImageToSVG } from './svgConverter';
 import { apiUrl } from './apiBase';
+import { escapeHTML } from './lib/html';
 
 let worker1: any = null; // Engine 1: PSM 11 Sparse Text
 let worker2: any = null; // Engine 2: PSM 3 Auto Block Text
@@ -757,8 +758,4 @@ function extractWordsFromText(text: string): string[] {
     .split(/[^a-zA-Z0-9_-]+/)
     .map(w => w.trim())
     .filter(w => w.length > 1);
-}
-
-function escapeHTML(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

@@ -1,5 +1,6 @@
 import { FileItem } from './types';
 import { formatBytes } from './tree';
+import { escapeHTML } from './lib/html';
 
 interface TagEntry {
   tag: string;
@@ -228,8 +229,4 @@ function getCategoryEmoji(cat: TagEntry['category']): string {
     case 'GPS': return '📍';
     case 'TOKEN': return '🏷️';
   }
-}
-
-function escapeHTML(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

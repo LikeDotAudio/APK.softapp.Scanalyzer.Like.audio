@@ -3,6 +3,7 @@ import { FileItem } from './types';
 import { formatBytes } from './tree';
 import { runOCR } from './ocr';
 import { analyzeImage } from './imageAnalyzer';
+import { escapeHTML } from './lib/html';
 
 export const KNOBS_HIGH_DETAIL_PRESET = {
   ltres: 0.1,
@@ -213,8 +214,4 @@ function switchTab(tabId: string) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
   document.getElementById(tabId)?.classList.add('active');
-}
-
-function escapeHTML(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
