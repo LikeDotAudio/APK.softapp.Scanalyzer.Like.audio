@@ -14,7 +14,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/scanalyze",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/scanalyze",
         "arraysIn": [
           "file_handle_array",
           "wav_pcm_buffer_array"
@@ -44,7 +44,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/devices",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/devices",
         "arraysIn": [
           "inbound_topic_messages",
           "mqtt_payload_stream"
@@ -91,7 +91,7 @@
         "stage": "01",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/devices",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/devices",
         "arraysIn": [
           "is04_nmos_nodes",
           "mdns_discovered_devices"
@@ -119,7 +119,7 @@
         "subGroup": "Audio Signal & Drone Generator",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/SCANALIZER.DroneKiln/index.html",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/SCANALYZER:softapps/SCANALIZER.DroneKiln/index.html",
         "arraysIn": [
           "input_audio_sample"
         ],
@@ -146,7 +146,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/extractor",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/extractor",
         "arraysIn": [
           "region_crop_bounds",
           "source_audio_buffer"
@@ -311,7 +311,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/favorites",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/favorites",
         "arraysIn": [
           "starred_sample_list"
         ],
@@ -356,7 +356,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/groups",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/groups",
         "arraysIn": [
           "category_taxonomy_tree"
         ],
@@ -383,7 +383,7 @@
         "subGroup": "Measurement Probe",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer/index.html",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/SCANALYZER:softapps/SCANALIZER.PitchClass-SongAnalyzer/index.html",
         "arraysIn": [
           "song_pcm_buffer"
         ],
@@ -411,7 +411,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/rename",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/rename",
         "arraysIn": [
           "rename_token_rules",
           "target_sample_list"
@@ -475,7 +475,7 @@
         "stage": "10",
         "kind": "web",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/scanalyze",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/scanalyze",
         "arraysIn": [
           "folder_file_handles"
         ],
@@ -521,7 +521,7 @@
         "stage": "10",
         "kind": "visualizer",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
         "arraysIn": [
           "feature_vectors",
           "peak_records"
@@ -551,7 +551,7 @@
         "stage": "10",
         "kind": "visualizer",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/cloud",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/cloud",
         "arraysIn": [
           "spatial_3d_coords",
           "group_color_palette"
@@ -581,7 +581,7 @@
         "stage": "10",
         "kind": "visualizer",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/faceball",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/faceball",
         "arraysIn": [
           "time_series_trajectories",
           "envelope_points"
@@ -611,7 +611,7 @@
         "stage": "10",
         "kind": "visualizer",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/cloud",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/cloud",
         "arraysIn": [
           "multi_dimensional_vectors",
           "spectral_flux_arrays",
@@ -642,7 +642,7 @@
         "stage": "10",
         "kind": "visualizer",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/examiner",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/examiner",
         "arraysIn": [
           "selected_sample_record",
           "audio_pcm_waveform"
@@ -672,7 +672,7 @@
         "stage": "10",
         "kind": "visualizer",
         "class": "execution",
-        "app": "APK:Softapps/Scanalyzer.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
+        "app": "APK:Softapps/SCANALYZER.Like.audio/Web_Front/dist/index.html?solo=1#/stats",
         "arraysIn": [
           "raw_numeric_arrays",
           "time_value_pairs"
