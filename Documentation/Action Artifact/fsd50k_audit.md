@@ -329,8 +329,11 @@ In the other direction the evidence is thinner but no longer empty: 7 pairs touc
 lift is a weak statistic. The other three are WATER pairs at moderate baselines that
 the probe cannot split at all — WATRBubl/WATRFlow 0.80 vs 0.80, WATRBubl/WATRSurf
 0.76 vs 0.76, WATRDrip/WATRPour 0.69 vs 0.70 — so the `signal_separable` tier on
-WATRBubl and WATRDrip is the one claim this data puts in doubt. Otherwise the tiers
-err in one direction: pessimism.
+WATRBubl and WATRDrip was the one claim this data refuted. **Acted on:** both were
+demoted to `signal_narrowable` in DATATYPE.soundfx.UCS (`3caea50`), and
+`validate_signatures.py` now reads `fsd50k_separability.json` and refuses any
+`signal_separable` tier the probe measures at chance (baseline < 0.85, lift < 0.05).
+Otherwise the tiers err in one direction: pessimism.
 
 Full table: `fsd50k_separability.json` in DATATYPE.soundfx.UCS
 (`PODS/POD.THIN/Softapps/DATATYPE/DATATYPE.soundfx.UCS/`, written by
