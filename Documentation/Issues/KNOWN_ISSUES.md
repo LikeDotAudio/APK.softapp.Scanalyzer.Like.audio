@@ -20,8 +20,8 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
 - **13 of 44 `npm test` cases fail** (depth-axis, percent-fill, puck, sense-warning,
   stall-notice consumers): source-text assertions that no longer match the components.
   The synonym tests pass.
-- **The front end's UCS mirrors are hand-regenerated.** `ucsIndex.ts` (778 ids) and
-  `categoryEmoji.ts` name generators that are not in the repo; only
-  `scripts/gen-ucs-synonyms.mjs` is. `ucsIndex.ts` is a back-compat shim for legacy
-  string runner-ups, so the 8.2.APK music ids are missing from it by design only if no
-  legacy record carries them.
+- **The front end's UCS mirrors are hand-regenerated.** `ucsIndex.ts` and `categoryEmoji.ts`
+  say "GENERATED" but their generators are not in the repo (only
+  `scripts/gen-ucs-synonyms.mjs` is). `ucsIndex.ts` has no `8.2.APK` instrument ids
+  (no DRUMS, GUITAR, …); it is only consulted for legacy packed-string runner-ups, which
+  predate those categories, so nothing is known to resolve wrongly today.
