@@ -24,6 +24,13 @@ This repository contains technical documentation, architecture notes, roadmap pl
 ### Audit
 - [Database Architecture](Audit/Database_Architecture.md)
 
+### Features
+- [Manifest Cache Loader](Features/manifest-cache-loader/README.md)
+- UCS synonym search — documented in the [root README](../README.md#ucs-synonyms--searching-by-any-word-for-the-sound-web_frontsrcucssynonymsts)
+
+### Fixes
+- `Fixes/fix_voice.py`, `Fixes/patch_stats.py` — one-off patch scripts, kept for the record
+
 ### Issues
 - [Known Issues](Issues/KNOWN_ISSUES.md)
 
