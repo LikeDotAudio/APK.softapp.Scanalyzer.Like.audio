@@ -226,7 +226,7 @@
         "stage": "10",
         "kind": "extractor",
         "class": "execution",
-        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Fast multithreaded directory tree scanner, file sorter, and sidecar generator.",
+        "description": "EXECUTION: DEVICE UNDER TEST \u2014 Directory tree scanner (one walk, rayon-parallel per-file pass and name sort), file sorter, and sidecar generator.",
         "topic": "APK.audio/Gui/Display/SCANALIZER_Extractor_FolderScanner",
         "autostart": false
       }

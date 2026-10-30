@@ -63,8 +63,17 @@ def is_sidecar_up_to_date(source_path: Path, sidecar_path: Path) -> bool:
     except Exception:
         return False
 
+# What stages 2 and 3 write beside a source. Only these are skipped; any other
+# .json in the corpus is a source like any other file and gets its own sidecar.
+SIDECAR_SUFFIXES = ('.exif.json', '.meta.json', '.ocr.json')
+
+
+def is_sidecar(path: Path) -> bool:
+    return path.name.endswith(SIDECAR_SUFFIXES)
+
+
 def process_single_file(path: Path) -> str:
-    if path.name.endswith('.json') or path.name.endswith('.ocr.json') or path.name.endswith('.exif.json') or path.name.endswith('.meta.json'):
+    if is_sidecar(path):
         return "skip"
 
     extension = path.suffix.lower()
@@ -157,7 +166,7 @@ def generate_all_sidecars(target_directory: str):
     print("Scanning directory tree for all files...")
     all_files = [
         p for p in root.rglob('*')
-        if p.is_file() and not (p.name.endswith('.json') or p.name.endswith('.ocr.json') or p.name.endswith('.exif.json') or p.name.endswith('.meta.json'))
+        if p.is_file() and not is_sidecar(p)
     ]
     print(f"Found {len(all_files)} target source files.")
 

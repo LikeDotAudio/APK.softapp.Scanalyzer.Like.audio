@@ -14,9 +14,13 @@
 // CLAUDE.md §5 names as the cause of three production outages. Both the target
 // and the catalog destination are required arguments and neither is guessed.
 //
-// Skips its own output: the sidecar suffixes stage 2 writes (.exif.json,
-// .meta.json, .ocr.json) are excluded from the walk, so re-running after a
-// sidecar pass does not count the sidecars as corpus.
+// Skips its own output: the sidecar suffixes stages 2 and 3 write (.exif.json,
+// .meta.json, .ocr.json) and the catalog file itself are excluded from the
+// walk, so re-running after a sidecar pass does not count the sidecars as
+// corpus. Any other .json is corpus and is catalogued like every other file.
+//
+// Threads: the directory walk itself is one walkdir iterator; the per-file
+// pass (stat, flags, tokens) runs on rayon's pool, as does the name sort.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -24,7 +28,15 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
 use std::time::Instant;
-use walkdir::WalkDir;
+use rayon::prelude::*;
+use walkdir::{DirEntry, WalkDir};
+
+/// What stages 2 and 3 write beside a source file. Only these are skipped.
+const SIDECAR_SUFFIXES: [&str; 3] = [".exif.json", ".meta.json", ".ocr.json"];
+
+fn is_sidecar(file_name: &str) -> bool {
+    SIDECAR_SUFFIXES.iter().any(|suffix| file_name.ends_with(suffix))
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileRecord {
@@ -72,7 +84,7 @@ fn main() {
     println!("==================================================");
 
     let start_time = Instant::now();
-    let mut records = scan_directory(Path::new(target_directory));
+    let mut records = scan_directory(Path::new(target_directory), Path::new(out_path));
     println!("Scanned {} files in {:.2?}", records.len(), start_time.elapsed());
 
     let manual_count = records.iter().filter(|r| r.is_manual).count();
@@ -132,49 +144,50 @@ fn main() {
     }
 }
 
-fn scan_directory(root: &Path) -> Vec<FileRecord> {
-    let mut records = Vec::new();
-    for entry in WalkDir::new(root).into_iter().filter_map(|e| e.ok()) {
-        if entry.file_type().is_file() {
-            let path = entry.path();
-            let file_name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+fn scan_directory(root: &Path, catalog: &Path) -> Vec<FileRecord> {
+    // The catalog may be written inside the tree it describes; never catalogue it.
+    let catalog = catalog.canonicalize().ok();
+    let entries: Vec<DirEntry> = WalkDir::new(root)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+        .filter(|e| !is_sidecar(&e.file_name().to_string_lossy()))
+        .filter(|e| catalog.is_none() || e.path().canonicalize().ok() != catalog)
+        .collect();
+    entries.par_iter().map(|entry| file_record(root, entry)).collect()
+}
 
-            // Skip sidecars in scanning
-            if file_name.ends_with(".json") || file_name.ends_with(".ocr.json") || file_name.ends_with(".exif.json") || file_name.ends_with(".meta.json") {
-                continue;
-            }
+fn file_record(root: &Path, entry: &DirEntry) -> FileRecord {
+    let path = entry.path();
+    let file_name = path.file_name().unwrap_or_default().to_string_lossy().to_string();
+    let relative_path = path.strip_prefix(root).unwrap_or(path).to_string_lossy().to_string();
+    let extension = path.extension().unwrap_or_default().to_string_lossy().to_lowercase();
+    let size_bytes = entry.metadata().map(|m| m.len()).unwrap_or(0);
+    let is_image = matches!(
+        extension.as_str(),
+        "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "tif" | "tiff" | "svg"
+    );
 
-            let relative_path = path.strip_prefix(root).unwrap_or(path).to_string_lossy().to_string();
-            let extension = path.extension().unwrap_or_default().to_string_lossy().to_lowercase();
-            let size_bytes = entry.metadata().map(|m| m.len()).unwrap_or(0);
-            let is_image = matches!(
-                extension.as_str(),
-                "jpg" | "jpeg" | "png" | "gif" | "webp" | "bmp" | "tif" | "tiff" | "svg"
-            );
+    let lower_name = file_name.to_lowercase();
+    let is_manual = lower_name.contains("manual") || lower_name.contains("manuals");
+    let special_flag = if is_manual {
+        Some("MANUAL_DOCUMENT".to_string())
+    } else {
+        None
+    };
 
-            let lower_name = file_name.to_lowercase();
-            let is_manual = lower_name.contains("manual") || lower_name.contains("manuals");
-            let special_flag = if is_manual {
-                Some("MANUAL_DOCUMENT".to_string())
-            } else {
-                None
-            };
+    let word_tokens = extract_word_tokens(&file_name);
 
-            let word_tokens = extract_word_tokens(&file_name);
-
-            records.push(FileRecord {
-                file_name,
-                relative_path,
-                extension,
-                size_bytes,
-                is_image,
-                is_manual,
-                special_flag,
-                word_tokens,
-            });
-        }
+    FileRecord {
+        file_name,
+        relative_path,
+        extension,
+        size_bytes,
+        is_image,
+        is_manual,
+        special_flag,
+        word_tokens,
     }
-    records
 }
 
 fn extract_word_tokens(name: &str) -> Vec<String> {
@@ -265,4 +278,35 @@ fn compute_word_frequencies(records: &[FileRecord]) -> Vec<(String, usize)> {
     let mut freqs: Vec<(String, usize)> = map.into_iter().collect();
     freqs.sort_by(|a, b| b.1.cmp(&a.1));
     freqs
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_sidecar_suffixes_are_skipped() {
+        assert!(is_sidecar("photo.jpg.exif.json"));
+        assert!(is_sidecar("manual.pdf.meta.json"));
+        assert!(is_sidecar("scan.png.ocr.json"));
+        assert!(!is_sidecar("package.json"));
+        assert!(!is_sidecar("dataset.json"));
+    }
+
+    #[test]
+    fn corpus_json_is_catalogued_and_sidecars_and_catalog_are_not() {
+        let dir = std::env::temp_dir().join(format!("folder_scanner_test_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("sub")).unwrap();
+        for name in ["a.wav", "sub/settings.json", "a.wav.meta.json", "b.png.exif.json", "catalog.json"] {
+            std::fs::write(dir.join(name), b"x").unwrap();
+        }
+        let mut names: Vec<String> = scan_directory(&dir, &dir.join("catalog.json"))
+            .into_iter()
+            .map(|r| r.relative_path)
+            .collect();
+        names.sort();
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert_eq!(names, vec!["a.wav".to_string(), "sub/settings.json".to_string()]);
+    }
 }
