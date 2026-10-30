@@ -7,7 +7,10 @@ pub struct FaceBoundingBox {
     pub y: u32,
     pub width: u32,
     pub height: u32,
-    pub confidence: f32,
+    /// Always `None` (JSON `null`): a skin-colour cluster that passes the size and aspect
+    /// gates is a candidate, and nothing here measures how likely it is to be a face.
+    /// Refusal over fabrication — no constant stands in for a measurement.
+    pub confidence: Option<f32>,
     pub embedding_hash: u64,
 }
 
@@ -104,7 +107,7 @@ impl FaceDetector {
                             y: min_y,
                             width: fw,
                             height: fh,
-                            confidence: 0.85,
+                            confidence: None,
                             embedding_hash: face_crop_hash,
                         });
                     }

@@ -48,7 +48,7 @@ export async function identifyPhotoAndWords(fileItem: FileItem, container: HTMLE
       <div class="data-card">
         <h4>🖼️ Photo Classification & Traits</h4>
         <table class="meta-table">
-          <tr><th>Category</th><td><strong>${rustPhotoRes.primary_category}</strong> (${(rustPhotoRes.confidence * 100).toFixed(0)}% Confidence)</td></tr>
+          <tr><th>Category</th><td><strong>${rustPhotoRes.primary_category}</strong> (${rustPhotoRes.confidence == null ? 'rule-based — no confidence measured' : `${(rustPhotoRes.confidence * 100).toFixed(0)}% confidence`})</td></tr>
           <tr><th>Color Palette</th><td>${rustPhotoRes.color_palette_type}</td></tr>
           <tr><th>Visual Traits</th><td>${rustPhotoRes.detected_traits.join(', ')}</td></tr>
           <tr><th>Perceptual Fingerprint</th><td><code>${rustPhotoRes.fingerprint_hash}</code></td></tr>

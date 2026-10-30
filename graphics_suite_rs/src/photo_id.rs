@@ -5,7 +5,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PhotoIdentification {
     pub primary_category: String,
-    pub confidence: f32,
+    /// Always `None` (JSON `null`): the category comes from threshold rules, which yield a
+    /// label but no measured likelihood. Refusal over fabrication — no per-branch constant.
+    pub confidence: Option<f32>,
     pub detected_traits: Vec<String>,
     pub color_palette_type: String,
     pub fingerprint_hash: String,
@@ -53,16 +55,16 @@ impl PhotoIdentifier {
         }
 
         // Categorization heuristics
-        let (category, confidence) = if face_report.faces_detected > 0 {
-            ("👤 Human Portrait / Person Photo", 0.94)
+        let category = if face_report.faces_detected > 0 {
+            "👤 Human Portrait / Person Photo"
         } else if report.luminance > 190.0 && report.contrast > 50.0 {
-            ("Document / Text Scan", 0.92)
+            "Document / Text Scan"
         } else if report.contrast > 75.0 {
-            ("Line Art / Graphic Diagram", 0.88)
+            "Line Art / Graphic Diagram"
         } else if report.mean_red > 100.0 && report.mean_green > 90.0 && report.mean_blue > 80.0 {
-            ("Photographic Scene / Real World Photo", 0.85)
+            "Photographic Scene / Real World Photo"
         } else {
-            ("Digital Graphic / Iconography", 0.80)
+            "Digital Graphic / Iconography"
         };
 
         let palette_type = if (report.mean_red - report.mean_green).abs() < 10.0 && (report.mean_green - report.mean_blue).abs() < 10.0 {
@@ -73,7 +75,7 @@ impl PhotoIdentifier {
 
         PhotoIdentification {
             primary_category: category.to_string(),
-            confidence,
+            confidence: None,
             detected_traits: traits,
             color_palette_type: palette_type,
             fingerprint_hash: report.dhash_hex,

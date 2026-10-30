@@ -1,6 +1,6 @@
 import { createWorker } from 'tesseract.js';
 import { FileItem } from './types';
-import { classifyImage, ImageClassification } from './imageClassifier';
+import { classifyImage, formatConfidence, ImageClassification } from './imageClassifier';
 import { convertImageToSVG } from './svgConverter';
 import { apiUrl } from './apiBase';
 import { escapeHTML } from './lib/html';
@@ -38,10 +38,17 @@ interface TextLine {
 interface EngineResult {
   engineName: string;
   wordCount: number;
-  confidence: number;
+  /** null = the engine measures no confidence; never a stand-in number. */
+  confidence: number | null;
   text: string;
   lines: TextLine[];
+  /** true = layout skeleton (shape labels), not recognised text: it never wins an angle
+   *  and its tokens never enter the vocabulary. */
+  layoutOnly?: boolean;
 }
+
+/** A recognition engine's result: Tesseract reports a measured confidence. */
+type MeasuredResult = EngineResult & { confidence: number };
 
 interface OCRRotationResult {
   angle: number;
@@ -258,7 +265,10 @@ function renderOCRCanvas(
 }
 
 /**
- * Engine 3: Calls Rust Micro-API Backend or fallback connected component binarization.
+ * Engine 3: the Rust pass (POST /api/ocr). It boxes glyphs and labels each by shape alone
+ * (I, -, O/A/E by ink density), so its text is a layout skeleton, not a reading. It reports
+ * how many glyph-words it laid out, with no confidence, and is marked layoutOnly so it can
+ * neither win an angle nor add pseudo-words to the vocabulary (Refusal over fabrication).
  */
 async function runEngine3Rust(_fileItem: FileItem, dataUrl: string): Promise<EngineResult> {
   try {
@@ -276,11 +286,12 @@ async function runEngine3Rust(_fileItem: FileItem, dataUrl: string): Promise<Eng
       const words = extractWordsFromText(text);
 
       return {
-        engineName: '🦀 Engine 3 (Rust Micro-API)',
+        engineName: '🦀 Engine 3 (Rust layout pass)',
         wordCount: words.length,
-        confidence: 85,
+        confidence: null,
         text,
-        lines: []
+        lines: [],
+        layoutOnly: true
       };
     }
   } catch (err) {
@@ -288,15 +299,16 @@ async function runEngine3Rust(_fileItem: FileItem, dataUrl: string): Promise<Eng
   }
 
   return {
-    engineName: '🦀 Engine 3 (Rust Binarization)',
+    engineName: '🦀 Engine 3 (Rust layout pass — offline)',
     wordCount: 0,
-    confidence: 0,
+    confidence: null,
     text: '',
-    lines: []
+    lines: [],
+    layoutOnly: true
   };
 }
 
-function parseTesseractResult(ret: any, engineName: string): EngineResult {
+function parseTesseractResult(ret: any, engineName: string): MeasuredResult {
   const lines: TextLine[] = (ret.data.lines || []).map((l: any) => ({
     text: l.text.trim(),
     confidence: Math.round(l.confidence),
@@ -368,17 +380,15 @@ export async function runOCR(fileItem: FileItem, container: HTMLElement): Promis
 
       const engineResults = [res1, res2, res3];
 
-      // Multi-Engine Consensus: Find winning engine for this angle
-      let winningEngineRes = res1;
+      // Consensus between the two recognising engines only: the Rust layout pass is shown
+      // beside them but cannot win (its shape labels are not words).
+      let winningEngineRes: MeasuredResult = res1;
       if (res2.wordCount > winningEngineRes.wordCount || (res2.wordCount === winningEngineRes.wordCount && res2.confidence > winningEngineRes.confidence)) {
         winningEngineRes = res2;
       }
-      if (res3.wordCount > winningEngineRes.wordCount) {
-        winningEngineRes = res3;
-      }
 
-      // Append unique words from ALL 3 parallel engines to growing word vocabulary
-      [res1, res2, res3].forEach(engRes => {
+      // Unique words from the recognising engines grow the vocabulary
+      [res1, res2].forEach(engRes => {
         const words = extractWordsFromText(engRes.text);
         words.forEach(w => {
           const key = w.toLowerCase();
@@ -479,13 +489,13 @@ function renderInteractiveOCRUI(
   const photoVsScanBanner = classification.type === 'REAL_PHOTOGRAPH'
     ? `
       <div class="recommendation-banner" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24;">
-        <span>📷 Image Classification: <strong>Camera Photo of Document</strong> (${(classification.confidence * 100).toFixed(0)}% Confidence)</span>
+        <span>📷 Image Classification: <strong>Camera Photo of Document</strong> (${formatConfidence(classification.confidence)} confidence)</span>
         <span style="font-size:0.78rem; opacity:0.9;">⚡ 3 Parallel Engines active across 0° ➔ 90° ➔ 180° ➔ 270°.</span>
       </div>
     `
     : `
       <div class="recommendation-banner" style="background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">
-        <span>${classification.emoji} Image Classification: <strong>${classification.label}</strong> (${(classification.confidence * 100).toFixed(0)}% Confidence)</span>
+        <span>${classification.emoji} Image Classification: <strong>${classification.label}</strong> (${formatConfidence(classification.confidence)} confidence)</span>
         <span style="font-size:0.78rem; opacity:0.9;">⚡ 3 Parallel Engines active with PSM 11 Sparse Text Pre-Processing.</span>
       </div>
     `;
@@ -538,7 +548,9 @@ function renderInteractiveOCRUI(
           return `
             <div class="engine-card ${isWinner ? 'winner' : ''}">
               <strong>${eng.engineName} ${isWinner ? '👑' : ''}</strong>
-              <span>Words: <strong>${eng.wordCount}</strong> (${eng.confidence}% Confidence)</span>
+              <span>${eng.layoutOnly
+                ? `Glyph-words laid out: <strong>${eng.wordCount}</strong> (layout only — no confidence measured)`
+                : `Words: <strong>${eng.wordCount}</strong> (${eng.confidence}% Confidence)`}</span>
             </div>
           `;
         }).join('')}

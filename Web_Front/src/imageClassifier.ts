@@ -1,12 +1,15 @@
 import { FileItem } from './types';
 
 export interface ImageClassification {
-  type: 'SCHEMATIC_DIAGRAM' | 'REAL_PHOTOGRAPH' | 'TEXT_DOCUMENT' | 'VECTOR_ARTWORK';
+  /** UNMEASURED = the pixels could not be read, so no class was decided. */
+  type: 'SCHEMATIC_DIAGRAM' | 'REAL_PHOTOGRAPH' | 'TEXT_DOCUMENT' | 'VECTOR_ARTWORK' | 'UNMEASURED';
   label: string;
   emoji: string;
-  confidence: number;
+  /** null when nothing was measured — never a stand-in number. */
+  confidence: number | null;
   traits: string[];
-  metrics: {
+  /** null when nothing was measured. */
+  metrics: null | {
     uniqueColorBins: number;
     dominantColorPercent: number;
     grayscalePercent: number;
@@ -35,7 +38,7 @@ export async function classifyImage(fileItem: FileItem): Promise<ImageClassifica
 
       const ctx = canvas.getContext('2d');
       if (!ctx) {
-        return resolve(getDefaultClassification(fileItem.name));
+        return resolve(unmeasured('no 2D canvas context'));
       }
 
       ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
@@ -197,27 +200,27 @@ export async function classifyImage(fileItem: FileItem): Promise<ImageClassifica
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      resolve(getDefaultClassification(fileItem.name));
+      resolve(unmeasured('the image could not be decoded'));
     };
 
     img.src = url;
   });
 }
 
-function getDefaultClassification(_name: string): ImageClassification {
+/** When the pixels cannot be read the classifier says so (Refusal over fabrication):
+ *  no class, no confidence, no metrics — rather than answering REAL_PHOTOGRAPH at 0.5. */
+function unmeasured(why: string): ImageClassification {
   return {
-    type: 'REAL_PHOTOGRAPH',
-    label: '📷 Image File',
+    type: 'UNMEASURED',
+    label: '🖼️ Not classified',
     emoji: '🖼️',
-    confidence: 0.5,
-    traits: ['Standard Image File'],
-    metrics: {
-      uniqueColorBins: 0,
-      dominantColorPercent: 0,
-      grayscalePercent: 0,
-      edgeDensityPercent: 0,
-      avgLuminance: 0,
-      contrastStdDev: 0
-    }
+    confidence: null,
+    traits: [`Not measured: ${why}`],
+    metrics: null
   };
+}
+
+/** "87%" for a measured confidence, "not measured" for null. */
+export function formatConfidence(confidence: number | null): string {
+  return confidence === null ? 'not measured' : `${(confidence * 100).toFixed(0)}%`;
 }

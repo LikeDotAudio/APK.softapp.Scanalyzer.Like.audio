@@ -18,6 +18,7 @@ with an empty `ocr_text`. A corpus that has been walked with no OCR available is
 a corpus with sidecars saying so, not a corpus with no sidecars.
 """
 
+import argparse
 import sys
 import os
 import json
@@ -74,12 +75,11 @@ def process_image_ocr(image_path: str) -> str:
 
 def run_relentless_ocr(target_directory: str):
     root = Path(target_directory)
-    if not root.exists():
-        print(f"Error: Path '{target_directory}' does not exist.")
-        return
+    if not root.is_dir():
+        sys.exit(f"Error: '{target_directory}' is not a directory.")
 
     print("==================================================")
-    print("🔥 RELENTLESS BATCH OCR ENGINE (Multi-Core Processing)")
+    print("🔥 RELENTLESS BATCH OCR ENGINE (single-threaded: one EasyOCR reader, reused)")
     print(f"Target Directory: {root.resolve()}")
     print("==================================================")
 
@@ -126,7 +126,17 @@ def run_relentless_ocr(target_directory: str):
     print(f"Total Time      : {elapsed:.2f} seconds")
     print("==========================================")
 
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        prog="ocr_sidecar.py",
+        description="Write <image>.ocr.json beside every image under TARGET_DIR "
+                    "(EasyOCR, English, CPU, single-threaded; skips images whose sidecar is newer). "
+                    "Without easyocr the sidecars are still written, with an empty ocr_text.")
+    # required, no default: the walk never guesses its target (see the contract above)
+    parser.add_argument("target_dir", metavar="TARGET_DIR", help="folder to walk for images")
+    args = parser.parse_args(argv)
+    run_relentless_ocr(args.target_dir)
+
+
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        sys.exit("usage: ocr_sidecar.py <TARGET_DIR>   (no default — see the contract above)")
-    run_relentless_ocr(sys.argv[1])
+    main()

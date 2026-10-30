@@ -1,5 +1,6 @@
 import { FileItem } from './types';
-import { classifyImage, ImageClassification } from './imageClassifier';
+import { classifyImage, formatConfidence, ImageClassification } from './imageClassifier';
+import { escapeHTML } from './lib/html';
 import { formatBytes } from './tree';
 import { runOCR } from './ocr';
 import { convertImageToSVG } from './svgConverter';
@@ -61,9 +62,9 @@ export async function renderSchematicsTab(
 
     div.innerHTML = `
       <span class="tree-icon">📐</span>
-      <span class="tree-name">${item.name}</span>
+      <span class="tree-name">${escapeHTML(item.name)}</span>
       <span class="tag-badge" style="font-size:0.7rem; padding:0.1rem 0.35rem;">
-        ${(classification.confidence * 100).toFixed(0)}% Schematic
+        ${formatConfidence(classification.confidence)} schematic
       </span>
       <span class="tree-size">${formatBytes(item.size)}</span>
     `;
@@ -94,16 +95,16 @@ function inspectSchematic(
   const url = URL.createObjectURL(fileItem.file);
 
   const traitsHTML = classification.traits
-    .map(t => `<li style="margin-left: 1.2rem;">${t}</li>`)
+    .map(t => `<li style="margin-left: 1.2rem;">${escapeHTML(t)}</li>`)
     .join('');
 
   containerOutput.innerHTML = `
     <div class="inspector-detail">
       <div class="preview-box">
-        <img src="${url}" alt="${fileItem.name}" />
+        <img src="${url}" alt="${escapeHTML(fileItem.name)}" />
       </div>
 
-      <h3>📐 Technical Schematic Diagram: ${fileItem.name}</h3>
+      <h3>📐 Technical Schematic Diagram: ${escapeHTML(fileItem.name)}</h3>
 
       <!-- Interactive Quick Action Buttons -->
       <div class="button-group">
@@ -118,7 +119,7 @@ function inspectSchematic(
       <h4>🔍 Schematic Classification Verdict</h4>
       <div class="recommendation-banner">
         Classification: <strong>${classification.label}</strong>
-        (${(classification.confidence * 100).toFixed(0)}% Confidence)
+        (${formatConfidence(classification.confidence)} confidence)
       </div>
       <ul style="color: var(--text-main); font-size:0.88rem; display:flex; flex-direction:column; gap:0.3rem;">
         ${traitsHTML}
@@ -126,13 +127,13 @@ function inspectSchematic(
 
       <h4>📊 Drawing Metrics & Contour Properties</h4>
       <table class="meta-table">
-        <tr><th>Schematic File</th><td>${fileItem.name}</td></tr>
-        <tr><th>Relative Path</th><td>${fileItem.relativePath}</td></tr>
+        <tr><th>Schematic File</th><td>${escapeHTML(fileItem.name)}</td></tr>
+        <tr><th>Relative Path</th><td>${escapeHTML(fileItem.relativePath)}</td></tr>
         <tr><th>File Size</th><td>${formatBytes(fileItem.size)}</td></tr>
-        <tr><th>Background Dominance</th><td>${classification.metrics.dominantColorPercent}% single background</td></tr>
-        <tr><th>Line Edge Density</th><td>${classification.metrics.edgeDensityPercent}% high-contrast contour edges</td></tr>
-        <tr><th>Monochrome Ratio</th><td>${classification.metrics.grayscalePercent}% grayscale</td></tr>
-        <tr><th>Color Palette Depth</th><td>${classification.metrics.uniqueColorBins} color bins</td></tr>
+        <tr><th>Background Dominance</th><td>${classification.metrics ? classification.metrics.dominantColorPercent : '—'}% single background</td></tr>
+        <tr><th>Line Edge Density</th><td>${classification.metrics ? classification.metrics.edgeDensityPercent : '—'}% high-contrast contour edges</td></tr>
+        <tr><th>Monochrome Ratio</th><td>${classification.metrics ? classification.metrics.grayscalePercent : '—'}% grayscale</td></tr>
+        <tr><th>Color Palette Depth</th><td>${classification.metrics ? classification.metrics.uniqueColorBins : '—'} color bins</td></tr>
       </table>
 
       <div id="schematicActionOutput" style="margin-top: 1rem;"></div>

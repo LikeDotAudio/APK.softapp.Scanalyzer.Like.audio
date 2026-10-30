@@ -127,7 +127,7 @@ export function photoCard(ctx: CardContext): string {
     <div class="data-card">
       <h4>🏷️ PHOTO CLASSIFICATION & TRAITS</h4>
       <table class="meta-table">
-        <tr><th>Category</th><td><strong>${rustPhoto.primary_category}</strong> (${(rustPhoto.confidence * 100).toFixed(0)}%)</td></tr>
+        <tr><th>Category</th><td><strong>${rustPhoto.primary_category}</strong> (${rustPhoto.confidence == null ? 'rule-based — no confidence measured' : `${(rustPhoto.confidence * 100).toFixed(0)}%`})</td></tr>
         <tr><th>Palette Type</th><td>${rustPhoto.color_palette_type}</td></tr>
         <tr><th>Traits</th><td>${rustPhoto.detected_traits.join(', ')}</td></tr>
       </table>
