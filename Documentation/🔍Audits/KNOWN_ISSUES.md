@@ -25,3 +25,9 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
   in `ucsIndex.ts` and `categoryEmoji.ts` from DATATYPE.soundfx.UCS. `ucsIndex.ts` now carries
   the 8.2.APK instrument ids (828 subcategories in 94 categories) and keeps the 43 retired
   MUSICAL/MUSICPROD ids, since legacy packed runner-ups still name them.
+
+## Found while writing the wiki (2026-10-30)
+- **Record upload is not opt-in.** The browser scan posts every analysed record to
+  `./api/upload_peak.php` (`ScanalyzeTab.tsx` `flushDbBatch`), and the desktop always passes
+  `--db-url`, so the engine posts to scanalyzer.like.audio (`Encoders/db.rs`). The README's
+  "100% private / opt-in upload" holds for the audio, not for its analysis.

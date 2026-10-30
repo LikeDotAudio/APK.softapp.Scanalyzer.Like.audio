@@ -7,5 +7,6 @@ How to use it and how it is built.
 <!-- wiki:index -->
 | Page | What |
 |---|---|
-| [ARCHITECTURE_NOTES.md](ARCHITECTURE_NOTES.md) | Architecture Notes & Technical Specs — Scanalyzer.Like.audio |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Architecture — SCANALYZER.Like.audio |
+| [SMOKE.md](SMOKE.md) | Smoke test — SCANALYZER.Like.audio |
 <!-- /wiki:index -->

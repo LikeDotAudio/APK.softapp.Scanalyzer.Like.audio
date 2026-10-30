@@ -2,6 +2,8 @@
 
 A self-contained audio-sample analyzer and file-management tool.
 
+**Wiki:** [Documentation/README.md](Documentation/README.md) — principles, architecture, delivery, audits.
+
 ### The Elevator Pitch
 At its core, **scanalyzer** is a smart, automated librarian for your audio files. If you have a massive, unorganized folder full of thousands of random audio samples, finding the exact sound you need can be a nightmare. This software "listens" to every single file, figures out what it actually sounds like, and visually organizes your entire collection so you can browse it instantly.
 
