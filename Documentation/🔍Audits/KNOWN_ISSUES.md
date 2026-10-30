@@ -27,7 +27,8 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
   MUSICAL/MUSICPROD ids, since legacy packed runner-ups still name them.
 
 ## Found while writing the wiki (2026-10-30)
-- **Record upload is not opt-in.** The browser scan posts every analysed record to
+- ~~**Record upload is not opt-in.**~~ — fixed 2026-10-30: the "Contribute the analysis" box
+  (`cloudShare.ts`, off by default) gates all three upload paths. Was: the browser scan posts every analysed record to
   `./api/upload_peak.php` (`ScanalyzeTab.tsx` `flushDbBatch`), and the desktop always passes
   `--db-url`, so the engine posts to scanalyzer.like.audio (`Encoders/db.rs`). The README's
   "100% private / opt-in upload" holds for the audio, not for its analysis.

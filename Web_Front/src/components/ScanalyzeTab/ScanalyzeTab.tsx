@@ -8,6 +8,8 @@ import { normalizePeakRecords } from '../../peakSchema';
 import { MANIFEST_FILE, buildManifest } from '../../manifest';
 import { slimForUpload, UPLOAD_CHUNK_SIZE } from '../../peakUpload';
 import TauriScan from './TauriScan';
+import CloudShareToggle from './CloudShareToggle';
+import { getCloudShare } from '../../cloudShare';
 
 /** The folder a record is filed under — the file's parent path, or '' at the root.
  *  Never a placeholder word: the UCS classifier reads this field as *text evidence*,
@@ -386,13 +388,15 @@ export default function ScanalyzeTab({
     let completed = 0;
 
     let dbBatch: any[] = [];
+    const uploadOn = getCloudShare();
     const dbUploads: Promise<void>[] = [];
     setDbStored(0);
     setDbSkipped(0);
     setDbError('');
     const flushDbBatch = async (records: any[]) => {
-      // Only upload if running in browser (Tauri app handles its own DB sync in Rust)
-      if (isTauri()) return;
+      // Only upload if running in browser (Tauri app handles its own DB sync in Rust),
+      // and only when the person opted in — the analysis stays local otherwise.
+      if (isTauri() || !uploadOn) return;
 
       try {
         const baseUrl = isTauri() ? 'https://scanalyzer.like.audio' : '.';
@@ -711,6 +715,8 @@ export default function ScanalyzeTab({
             </div>
           )}
         </div>
+
+        <CloudShareToggle />
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {withSidecar > 0 && (

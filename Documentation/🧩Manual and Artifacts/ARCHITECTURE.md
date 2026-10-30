@@ -60,10 +60,11 @@ fails if a screen component exists that none of these can reach.
 counts audio and existing `.PEAK` files, absorbs sidecars whose `analyzer_version` matches the
 loaded WASM engine, and sends the rest to a pool of `wasmWorker.ts` workers. Each result is
 written as `<file>.PEAK` beside the audio (where the browser allows writes), batched to
-`./api/upload_peak.php`, and appended to `analysisResult` in `App`, which every view reads.
+`./api/upload_peak.php` only when the opt-in box is ticked (`cloudShare.ts`), and appended to `analysisResult` in `App`, which every view reads.
 
 **Desktop scan.** `TauriScan.tsx` invokes `start_analysis` (`lib.rs`), which spawns
-`oa_sample_analyzer <dir> --workers <cores> --db-url <upload URL>` (binary from
+`oa_sample_analyzer <dir> --workers <cores>`, plus `--db-url <upload URL>` only when the
+opt-in box is ticked (`upload`) (binary from
 `analyzer_binary()`: `SCAN_ANALYZER_BIN`, set by `main.py` after it asks `cargo metadata`
 where cargo built it). The CLI streams one JSON line per file; `lib.rs` batches results into
 `analyzer-batch` events (1,000 at a time) and progress into `analyzer-progress`. The engine

@@ -366,6 +366,7 @@ fn start_analysis(
     directory: String,
     stride: Option<usize>,
     force: Option<bool>,
+    upload: Option<bool>,
 ) -> Result<(), String> {
     std::thread::spawn(move || {
         // One worker per core. This used to be hardcoded to 30, which oversubscribed
@@ -378,9 +379,12 @@ fn start_analysis(
         let mut cmd = Command::new(analyzer_binary());
         cmd.arg(&directory)
             .arg("--workers")
-            .arg(workers.to_string())
-            .arg("--db-url")
-            .arg(cloud_db_url());
+            .arg(workers.to_string());
+        // Upload is opt-in (the front end's "Contribute the analysis" box). Without
+        // `--db-url` the engine writes its sidecars and sends nothing anywhere.
+        if upload.unwrap_or(false) {
+            cmd.arg("--db-url").arg(cloud_db_url());
+        }
         if let Some(s) = stride {
             cmd.arg("--stride").arg(s.to_string());
         }

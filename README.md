@@ -134,7 +134,8 @@ publishes `Web_Front/dist/` under
 APK:OS Scanalyzer tiles open it. <https://scanalyzer.like.audio> is the app's public home.
 
 **Backend services.** Analysis is 100% local. The optional **cloud database** ("Load from
-Database", and the desktop scan's `--db-url`) shares `.PEAK` records across machines
+Database", and — only when the "Contribute the analysis" box is ticked before a scan, off
+by default — the browser scan's batches and the desktop scan's `--db-url`) shares `.PEAK` records across machines
 through PHP endpoints (`Web_Front/public/api/*.php`, with migration/debug copies in
 `Web_Front/tools/api/`) over MariaDB/MySQL. The credentials live only server-side (`SCAN_DB_*`,
 or the deploy's secret substitution); the desktop's `--db-url` only switches the upload on, and

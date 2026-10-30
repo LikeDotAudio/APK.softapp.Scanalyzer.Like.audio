@@ -6,6 +6,8 @@ import { open } from '@tauri-apps/plugin-dialog';
 import initWasm, { analyzer_version } from 'wasm_analyzer';
 import { setAudioRoot, getAudioRoot } from '../../audioLinking';
 import { normalizePeakRecords } from '../../peakSchema';
+import { getCloudShare } from '../../cloudShare';
+import CloudShareToggle from './CloudShareToggle';
 
 /** What survey_directory reports — see src-tauri/src/lib.rs. */
 interface Survey {
@@ -280,7 +282,7 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
     setTotal(0);
     setProgress(0);
     setStartTime(null);
-    invoke('start_analysis', { directory: dir, stride: strideRef.current, force });
+    invoke('start_analysis', { directory: dir, stride: strideRef.current, force, upload: getCloudShare() });
   };
 
   // "Just open what I already have" — read the sidecars, analyze nothing.
@@ -309,8 +311,10 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
       await invoke('close_peak_file');
       setLoaded(null);
       if (!fromManifest) void invoke('build_manifest', { directory: dir }).catch(() => {});
-      // Also sync to the SQL database using our new Tauri command
-      void invoke('sync_to_db', { directory: dir }).catch((e) => console.error('DB sync error:', e));
+      // Contribute to the shared database only when the person opted in.
+      if (getCloudShare()) {
+        void invoke('sync_to_db', { directory: dir }).catch((e) => console.error('DB sync error:', e));
+      }
 
       if (all.length) {
         setAnalysisResult((prev: any[]) => mergeResults(prev, all));
@@ -453,6 +457,8 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
             </div>
           )}
         </div>
+
+        <CloudShareToggle />
 
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {survey.with_sidecar > 0 && (

@@ -81,12 +81,11 @@ pushes sideways to the window that owns the next screen instead of switching its
 
 ## Where the code breaks these
 
-- **"Your audio never leaves your machine" is not true of the records.** The README's
-  *100% private, opt-in upload* does not match the code: the browser scan posts every
-  analysed record to `./api/upload_peak.php` (`ScanalyzeTab.tsx` `flushDbBatch`, no setting
-  gates it), and the desktop `start_analysis` always passes `--db-url`, so the engine POSTs to
-  `https://scanalyzer.like.audio/api/upload_peak.php` (`Encoders/db.rs` `UPLOAD_URL`). The audio
-  stays local; its analysis (name, folder, UCS, features) does not.
+- ~~"Your audio never leaves your machine" is not true of the records~~ — fixed 2026-10-30:
+  upload is opt-in. One box before every scan ("Contribute the analysis…",
+  `CloudShareToggle.tsx`, stored by `cloudShare.ts`, off by default) gates the browser
+  `flushDbBatch`, the desktop `start_analysis` (`upload`; without it `--db-url` is not passed)
+  and the desktop `sync_to_db` on open. Unticked, nothing but the audio's own sidecars is written.
 - **A database password is in git history** (committed until 2026-10-30 in `describe_db.py`
   and `lib.rs`). The source no longer carries it; rotating it is the owner's step
   (`Documentation/🔍Audits/KNOWN_ISSUES.md`).
