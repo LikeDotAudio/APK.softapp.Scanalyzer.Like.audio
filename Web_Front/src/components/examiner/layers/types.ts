@@ -1,5 +1,5 @@
 // The Examiner layer contract — the Sonic Visualiser Layer::paint() contract in
-// TypeScript (see Documentation/Audit/examiner_layer_overlays_audit.md §2).
+// TypeScript (see Documentation/🔍Audits/examiner_layer_overlays_audit.md §2).
 // A layer never owns its canvas or geometry: both arrive on every draw call, so
 // the same layer renders into the top pane, the bottom pane, or a private row
 // lane unchanged.

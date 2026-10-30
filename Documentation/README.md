@@ -1,50 +1,23 @@
-# Documentation Index — Scanalyzer.Like.audio
+# 📚 SCANALYZER.Like.audio — Wiki
 
-## 📌 Documentation Overview
-This repository contains technical documentation, architecture notes, roadmap plans, and issue tracking for `Scanalyzer.Like.audio`, aligned with `APK:Documentation` standards.
+The documentation for `SCANALYZER.Like.audio`, in the same lanes as the APK.audio monorepo's root `Documentation/`. The front door is the repo's [README](../README.md); the depth is here.
 
-## 📁 Document Categories
+<!-- wiki:lanes -->
+| Lane | Pages | What |
+|---|---:|---|
+| [🏛Philosophy](%F0%9F%8F%9BPhilosophy/INDEX.md) | 0 | The principles this code keeps, each pointed at the code that keeps it. |
+| [🧩Manual and Artifacts](%F0%9F%A7%A9Manual%20and%20Artifacts/INDEX.md) | 1 | How to use it and how it is built. |
+| [🌍Publishing](%F0%9F%8C%8DPublishing/INDEX.md) | 0 | How it is built, shipped, and where it lands — its delivery. |
+| [🔍Audits](%F0%9F%94%8DAudits/INDEX.md) | 2 | Findings against the built thing; known issues, measured. |
+| [🛣Roadmap](%F0%9F%9B%A3Roadmap/INDEX.md) | 3 | Plans are not kept here: every plan is a card in the APK.audio monorepo's `Documentation/🛣Roadmap/roadmap.htm`. |
+| [💡Notes and Ideas](%F0%9F%92%A1Notes%20and%20Ideas/INDEX.md) | 0 | Loose notes and ideas not yet filed. |
 
-### Action Artifact
-- [Binary Peak Preview Audit](Action Artifact/binary_peak_preview_audit.md)
-- [Cloud Group Filter Audit](Action Artifact/cloud_group_filter_audit.md)
-- [Codebase Untangling Audit](Action Artifact/codebase_untangling_audit.md)
-- [Codec Audit Report](Action Artifact/codec_audit_report.md)
-- [Day2 Optimisations](Action Artifact/day2_optimisations.md)
-- [Examiner Layer Overlays Audit](Action Artifact/examiner_layer_overlays_audit.md)
-- [Favorites Tab Audit](Action Artifact/favorites_tab_audit.md)
-- [Frontend Rewrite Audit](Action Artifact/frontend_rewrite_audit.md)
-- [Fsd50K Audit](Action Artifact/fsd50k_audit.md)
-- [Layers Rendering Audit](Action Artifact/layers_rendering_audit.md)
-- [Python Vs Web Audit](Action Artifact/python_vs_web_audit.md)
-- [Typescript Web Audit](Action Artifact/typescript_web_audit.md)
-- [Ucs Adjective Audit](Action Artifact/ucs_adjective_audit.md)
-- [Ucs Modernization Audit](Action Artifact/ucs_modernization_audit.md)
+**Books and pages of its own**
 
-### Audit
-- [Database Architecture](Audit/Database_Architecture.md)
-
-### Features
-- [Manifest Cache Loader](Features/manifest-cache-loader/README.md)
-- UCS synonym search — documented in the [root README](../README.md#ucs-synonyms--searching-by-any-word-for-the-sound-web_frontsrcucssynonymsts)
-
-### Fixes
-- `Fixes/fix_voice.py`, `Fixes/patch_stats.py` — one-off patch scripts, kept for the record
-
-### Issues
-- [Known Issues](Issues/KNOWN_ISSUES.md)
-
-### Notes
-- [Architecture Notes](Notes/ARCHITECTURE_NOTES.md)
-
-### Plans
-- [Roadmap](Plans/ROADMAP.md)
-- [Open Items](Plans/open_items.md)
-- [Pad Browser Plan](Plans/pad_browser_plan.md)
-
-### Specs
-- [Sample Conversion Architecture](Specs/sample_conversion_architecture.md)
-- [Ucs Signature Spec](Specs/ucs_signature_spec.md)
-
----
-*Aligned with `APK:Documentation` standards.*
+| Page | What |
+|---|---|
+| [Action Artifact/](Action%20Artifact/README.md) | Audit |
+| [Features/](Features/) | folder |
+| [Fixes/](Fixes/) | folder |
+| [Specs/](Specs/) | folder |
+<!-- /wiki:lanes -->

@@ -164,7 +164,7 @@ function App() {
   // works on every tab, the orange paints four surfaces, and favorites.json has exactly
   // one writer. Persisted as a SIBLING of the manifest (user data — re-scans regenerate
   // the manifest but never touch favorites.json), with a localStorage mirror for the
-  // demo pack / denied-grant cases. See Documentation/Audit/favorites_tab_audit.md.
+  // demo pack / denied-grant cases. See Documentation/🔍Audits/favorites_tab_audit.md.
   const [favorites, setFavorites] = useState<Favorites>(new Map())
   const favoritesRef = useRef(favorites); favoritesRef.current = favorites;
   const favPersistTimerRef = useRef<number | null>(null)

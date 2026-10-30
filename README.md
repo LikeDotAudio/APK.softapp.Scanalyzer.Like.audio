@@ -112,7 +112,7 @@ so build that first — `python3 main.py` builds it and then runs `npm run tauri
 **Known broken:** both `main.py` and `start_analysis` in `Web_Front/src-tauri/src/lib.rs`
 still look for the engine under the pre-reorg `SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine`
 path, so the launcher exits and the desktop scan cannot start until they are repointed
-(see `Documentation/Issues/KNOWN_ISSUES.md`). It scans with one worker per core, streams progress, and
+(see `Documentation/🔍Audits/KNOWN_ISSUES.md`). It scans with one worker per core, streams progress, and
 writes a `.PEAK` sidecar next to every sample.
 
 CLI (what the desktop app runs for you):
@@ -137,7 +137,7 @@ Database", and the desktop scan's `--db-url`) shares `.PEAK` records across mach
 through PHP endpoints (`Web_Front/public/api/*.php`, with migration/debug copies in
 `Web_Front/tools/api/`) over MariaDB/MySQL. **The database credentials are currently
 committed** — in `Web_Front/src-tauri/src/lib.rs` (`start_analysis`) and `describe_db.py`;
-see `Documentation/Issues/KNOWN_ISSUES.md`.
+see `Documentation/🔍Audits/KNOWN_ISSUES.md`.
 
 ---
 

@@ -1,5 +1,5 @@
 // The Sonic Visualiser value→colour chain, ported per the layers audit
-// (Documentation/Audit/layers_rendering_audit.md §5):
+// (Documentation/🔍Audits/layers_rendering_audit.md §5):
 //   value → peak-normalize → threshold cut (below → index 0 = reserved background)
 //         → dB log map → proportion ∈ [0,1] → palette index 1..255 → RGB
 // Index 0 bypasses the palette entirely — thresholding is structural, not cosmetic.

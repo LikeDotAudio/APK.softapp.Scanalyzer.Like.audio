@@ -1,7 +1,7 @@
 // The favorites manifest — user data, written at the library root as a SIBLING of
 // sample_cloud_manifest.json, never inside it. The manifest is a rebuildable cache that
 // every re-scan regenerates; favorites must survive every scan, so they live in their own
-// file with their own lifecycle. See Documentation/Audit/favorites_tab_audit.md.
+// file with their own lifecycle. See Documentation/🔍Audits/favorites_tab_audit.md.
 
 export const FAVORITES_FILE = 'favorites.json';
 export const FAVORITES_VERSION = 1;

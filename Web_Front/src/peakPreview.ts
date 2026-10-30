@@ -1,7 +1,7 @@
 // Reading the .PEAK's binary waveform preview — the analyzer-computed peak map that
 // lets every tab paint a waveform BEFORE (or without) decoding any audio. The section
 // holds interleaved signed 8-bit min,max pairs per bin, base64-encoded; the whole design
-// is documented in Documentation/Audit/binary_peak_preview_audit.md.
+// is documented in Documentation/🔍Audits/binary_peak_preview_audit.md.
 
 /** The `preview` section decoded to usable arrays (values normalized to ±1). */
 export interface DecodedPreview {

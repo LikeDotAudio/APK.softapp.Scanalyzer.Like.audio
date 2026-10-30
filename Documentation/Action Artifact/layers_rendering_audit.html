@@ -111,7 +111,7 @@ td code{white-space:nowrap}
 <main>
 <div class="eyebrow">Sample Analysis · Documentation Audit</div>
 <h1>Layers Rendering Audit — the Overlays, Their Plots, and Their Math</h1>
-<p class="meta"><b>Scope:</b> <code>Documentation/layers/</code> — 75 C++/Qt files (~1.1&nbsp;MB), the layer stack vendored from <b>Sonic Visualiser</b> (svgui/layer, Chris Cannam / QMUL). Every miniature plot on this page is drawn live from the audited formulas. Full report: <code>Documentation/Audit/layers_rendering_audit.md</code>.</p>
+<p class="meta"><b>Scope:</b> <code>Documentation/layers/</code> — 75 C++/Qt files (~1.1&nbsp;MB), the layer stack vendored from <b>Sonic Visualiser</b> (svgui/layer, Chris Cannam / QMUL). Every miniature plot on this page is drawn live from the audited formulas. Full report: <code>Documentation/🔍Audits/layers_rendering_audit.md</code>.</p>
 
 <h2>1 · How a layer gets sound onto the screen</h2>
 <p>Every overlay subclasses <code>Layer</code>. A layer never owns its view: each <code>paint()</code> call receives a <code>LayerGeometryProvider</code> supplying the time↔pixel mapping (<code>getXForFrame / getFrameForX</code>), frequency↔y mapping, and the zoom level as a <em>frames-per-pixel</em> quantity. Data arrives through an opaque <code>ModelId</code> resolved in a global registry — the model's <em>type</em> decides which layers can display it.</p>
@@ -246,7 +246,7 @@ y     = h − h·(point − min)/(max − min)     — log scales interpolate li
 <li><b>Transferable to Sample Analysis:</b> the gain→threshold→log→palette chain, widen-only display extents, and the scrollable-strip cache map directly onto the Web_Front client-side spectrogram and the Scananalyzer Extractor tab.</li>
 </ol>
 
-<div class="footer">Audit of 75 files at commit 198a320 · five parallel deep-reads · formulas quoted from source with file:line references · full text in <code>Documentation/Audit/layers_rendering_audit.md</code></div>
+<div class="footer">Audit of 75 files at commit 198a320 · five parallel deep-reads · formulas quoted from source with file:line references · full text in <code>Documentation/🔍Audits/layers_rendering_audit.md</code></div>
 </main>
 
 <script>

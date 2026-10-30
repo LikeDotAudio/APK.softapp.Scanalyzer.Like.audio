@@ -32,7 +32,7 @@ interface ExaminerTabProps {
   // samples under 5 s loop with a 1 s breath of silence between repeats.
   autoLoop?: boolean;
   // Favorite flags (relative path → favorited_unix), owned by App. Favorite rows render
-  // their name in orange with a ★. See Documentation/Audit/favorites_tab_audit.md.
+  // their name in orange with a ★. See Documentation/🔍Audits/favorites_tab_audit.md.
   favorites?: Map<string, number>;
   // Shown centred over the list when there are no rows — the Favorites mount uses it to
   // explain the F key instead of presenting an empty table.
@@ -383,7 +383,7 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
   // slices, waterfall/3-D spectrograms) is an isolated layer in
   // examiner/layers/, composited by renderLayerStack according to the 🎚 Layers
   // menu (stacked overlays or rows). See
-  // Documentation/Audit/examiner_layer_overlays_audit.md.
+  // Documentation/🔍Audits/examiner_layer_overlays_audit.md.
   const renderPreview = (buffer: AudioBuffer, item: any) => {
     const canvas = canvasRef.current;
     if (!canvas) return;

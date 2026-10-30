@@ -3,5 +3,5 @@ __pycache__/
 target/
 
 # Vendored Sonic Visualiser reference source (GPL) — kept local as a study guide,
-# not part of this project's tree. See Documentation/Audit/layers_rendering_audit.md.
+# not part of this project's tree. See Documentation/🔍Audits/layers_rendering_audit.md.
 Documentation/layers/

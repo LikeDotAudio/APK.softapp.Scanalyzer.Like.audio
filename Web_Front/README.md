@@ -9,7 +9,7 @@ Tauri v2 window on the desktop (`src-tauri/`). What it shows and why is in the
 | Command | What it does |
 | :--- | :--- |
 | `npm run dev` | Vite dev server |
-| `npm run build` | `tsc -b && vite build` → `dist/` (`tsc -b` currently fails on pre-existing errors; `npx vite build` alone succeeds — see `../Documentation/Issues/KNOWN_ISSUES.md`) |
+| `npm run build` | `tsc -b && vite build` → `dist/` (`tsc -b` currently fails on pre-existing errors; `npx vite build` alone succeeds — see `../Documentation/🔍Audits/KNOWN_ISSUES.md`) |
 | `npm run preview` | serve `dist/` |
 | `npm test` | `node --test test/*.test.mjs` — no runner beyond node's own |
 | `npm run lint` | oxlint |
