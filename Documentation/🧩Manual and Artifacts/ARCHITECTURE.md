@@ -44,6 +44,9 @@ sample_analyzer_rs → PROCESSOR.SampleAnalyzer     the engine (own repo)
 extractor_engine_rs → CAPTURE.Extractor-Engine    region detection / slicing (own repo)
 folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/   Folder-ScanAnalyzer stages
 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to each Scanalyzer softapp, by stage
+                                each module's own display.json is its menu entry; there is
+                                no suite-wide manifest (SCANALIZER_DYNAMIC_MANIFEST.json named
+                                pre-reorg paths, was read by nothing, removed 2026-10-30)
 SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
 ```
 
