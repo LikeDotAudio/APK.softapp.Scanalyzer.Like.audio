@@ -18,7 +18,10 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2.6.3", features = [] }
 
 [dependencies]
-serde_json = "1.0"
+# float_roundtrip: extractor Region JSON comes back from the webview and must parse to the
+# exact f64 the engine wrote, or `floor(start_seconds * sr)` shifts the cut by a sample
+# (LOOSE-wasm-extractor-cut; same flag as wasm_extractor).
+serde_json = { version = "1.0", features = ["float_roundtrip"] }
 serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 tauri = { version = "2.11.3", features = ["protocol-asset"] }
