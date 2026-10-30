@@ -897,5 +897,5 @@ uploaded. What differs from the desktop build:
   bit depth) baked in. Run it yourself, on your own machine.
 
 <!-- wiki:smoke -->
-**Smoke test** — ✅ PASS 2/2 since 2026-10-30 13:37 EDT — [results](Documentation/%F0%9F%A7%A9Manual%20and%20Artifacts/SMOKE.md)
+**Smoke test** — ❌ FAIL 1/2 since 2026-10-30 18:17 EDT — [results](Documentation/%F0%9F%A7%A9Manual%20and%20Artifacts/SMOKE.md)
 <!-- /wiki:smoke -->
