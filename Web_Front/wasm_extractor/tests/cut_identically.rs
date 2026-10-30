@@ -17,7 +17,8 @@
 //! compile for non-wasm targets, and what can drift between the two paths is Rust —
 //! parameter defaulting, JSON field names, the fade curve the wrapper hardcodes, the
 //! empty-input guards. wasm-bindgen's own codegen is not this repository's code and is
-//! covered by `cargo check --target wasm32-unknown-unknown` in `check.sh scan-extractor`.
+//! covered by `cargo check --target wasm32-unknown-unknown` (once the `check.sh
+//! scan-extractor` lane, retired with the old orchestrator in 2240c51e5; run it by hand).
 //! Executing the same assertions INSIDE a browser needs `wasm-pack test --headless`, a
 //! browser binary and a network fetch of the test runner — a `browser` gate, not this one.
 //!

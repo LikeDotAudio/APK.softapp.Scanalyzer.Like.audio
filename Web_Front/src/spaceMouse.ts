@@ -86,9 +86,10 @@ export interface PuckStatus extends FrameQualification {
  * nothing may (PLAN-393.03).
  *
  * It is a `const` here and a `const` there rather than a string typed twice:
- * `check.sh hid-declaration` reads both and fails when they disagree, which is
- * what stops the relay saying one word while the surface it feeds branches on
- * another.
+ * the old `check.sh hid-declaration` lane read both and failed when they
+ * disagreed, which is what stopped the relay saying one word while the surface
+ * it feeds branches on another. That lane was retired with the old
+ * orchestrator (2240c51e5); nothing compares the two now.
  */
 export const PUCK_ABSENT = 'absent';
 
@@ -340,7 +341,8 @@ function clamp(value: unknown): number {
  *
  * It is spelled `& FrameQualification` rather than as two more properties on
  * purpose: the annotation is what makes the fields load-bearing to `tsc -b`, and
- * `tsc -b` is what `check.sh scan-web` runs. Two bare booleans nobody reads are
+ * `tsc -b` is the first half of `npm run build` (and was what the retired
+ * `check.sh scan-web` lane ran). Two bare booleans nobody reads are
  * indistinguishable from dead code and were deleted clean by an experiment on
  * 2026-09-06; the named type is not.
  *

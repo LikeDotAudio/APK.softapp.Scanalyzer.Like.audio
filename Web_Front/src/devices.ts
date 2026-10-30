@@ -190,7 +190,9 @@ export interface Unfolded { prefix: string; service: string; why: string }
  * words in DevicesTab: this application has no server to ask when it is reading
  * the committed snapshot, and a list that folds with a bench behind it and does
  * not without one is two different answers to "what is on this bench".
- * `check.sh devicefold` fails when the two copies disagree.
+ * The old `check.sh devicefold` lane failed when the two copies disagreed; it
+ * was retired with the old orchestrator (2240c51e5) and nothing compares them
+ * now, so a change to one is a change to both, by hand.
  *
  * Why the fold exists at all, and why it is here rather than in the agents, is
  * written once in server.py above `fold_devices` — the short of it: the SAP and

@@ -518,7 +518,7 @@ function CloudPoints({ data, xAxis, yAxis, zAxis, sizeAxis, colorBy, shapeBy, hi
 // It is reachable and unread, which to a lint sweep is dead code. What keeps it
 // alive is not this comment: `puck` is typed `… & FrameQualification`, the same
 // named interface `PuckStatus` extends and `senseWarning` takes, so deleting the
-// two fields is a `tsc -b` failure and `check.sh scan-web` runs `tsc -b`. That
+// two fields is a `tsc -b` failure, and `npm run build` runs `tsc -b`. That
 // is the whole of PLAN-501.01; `senseWarning(puck)` is the one-line call a
 // refusing surface would add here, and adding it is still somebody else's
 // decision.

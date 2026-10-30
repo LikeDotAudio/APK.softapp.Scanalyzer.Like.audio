@@ -14,7 +14,7 @@
  *
  * Non-obvious constraints:
  *   - Exit codes are a contract, not a convention: 0 pass, 1 the checked rule
- *     failed, 3 a path the gate needs is not on disk. `check.sh` and a human
+ *     failed, 3 a path the gate needs is not on disk. Whatever runs the gate and a human
  *     both need to tell "the tree is wrong" from "the gate is wrong".
  *   - `stripInert` preserves byte offsets (it blanks, it does not delete) so a
  *     match found in the stripped text indexes the original text.

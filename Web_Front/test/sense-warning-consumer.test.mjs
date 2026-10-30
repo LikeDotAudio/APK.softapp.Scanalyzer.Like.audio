@@ -5,8 +5,9 @@
 // PLAN-394.01 replaced an eleven-character suffix on a `title=` attribute with a
 // real branch: `senseWarning()` in `spaceMouse.ts`, obeyed by `CloudTab.tsx`,
 // which paints the puck badge amber and draws a notice when the producer says
-// the sense is unconfirmed. Every lane in `check.sh` was green with that branch
-// deleted — `scan-web` runs `tsc -b` and `vite build`, so it proves the file
+// the sense is unconfirmed. Every lane in the old `check.sh` was green with that
+// branch deleted — `scan-web` ran `tsc -b` and `vite build` (as `npm run build`
+// still does), so it proves the file
 // compiles and says nothing about what it draws. THIS FILE IS WHAT MAKES THE
 // DELETION FAIL. PLAN-431.01.
 //
