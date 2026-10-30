@@ -78,9 +78,10 @@ describe('the hosts', () => {
     test('every host that keeps its own fill says why, in the file', () => {
         // Step 4's whole point. A track is allowed; an UNEXPLAINED track is not,
         // because the next reader cannot tell it from a conversion nobody got to.
+        // Header.tsx left this list when 382f068 reduced the header to `return null`:
+        // it draws no fill any more, so it has nothing to explain.
         const hosts = [
             'components/ScanalyzeTab/ScanalyzeTab.tsx',
-            'components/Header.tsx',
             'components/examiner/PropertyBars.tsx',
         ];
         for (const host of hosts) {

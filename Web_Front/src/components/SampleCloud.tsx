@@ -1,3 +1,5 @@
+// Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+// MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useRef, useMemo, useEffect, useState } from 'react'
 import { Canvas, useThree, useFrame, type ThreeEvent } from '@react-three/fiber'
 import { OrbitControls, Line, Html } from '@react-three/drei'
@@ -5,6 +7,48 @@ import * as THREE from 'three'
 import { subKey, ucsColor, ucsSubColor, taxonomyKeys } from '../groupColors'
 import type { Taxonomy } from '../groupColors'
 import { adsrNumber } from '../envelopeSlices'
+import { puck, puckFlyable } from '../spaceMouse'
+
+// The subgroup, but only when it is a CURATED level (Perc -> Conga) rather than
+// the auto "group + length tier" one; '' when the subgroup merely echoes its
+// group. Ported from `graphing_rs/src/main.rs:99` `deeper_sub()`, which held this
+// rule until PLAN-109.04 retired that crate — nothing called it, and a lane was
+// compiling it anyway. **This function is now the only copy.** What the Rust used
+// to prove is proved instead by `test/depth-axis.test.mjs`, which replays the
+// retired binary's own captured answers against this source; the crate is in git
+// history if the vectors ever need regenerating. The measurement that says so is the
+// audit 20260829_GRAPHING_RS_VS_CLOUDTAB.md, filed under Code-Quality-Audits/ in
+// the APK:Documentation audits lane. NAMED BY FILENAME ON PURPOSE: that lane was
+// renumbered twice on 2026-08-30 alone, so a path here would already be wrong.
+//
+// The test is a lowercased prefix test in BOTH directions on purpose: it has to
+// reject `Perc`/`Perc Long` (subgroup extends the group) as well as
+// `Perc Long`/`Perc` (group extends the subgroup). Equality alone would let the
+// auto tier through as a level and double every group in the depth axis.
+export function deeperSub(group: string, subgroup: string): string {
+  const g = (group ?? '').trim();
+  const sg = (subgroup ?? '').trim();
+  const gl = g.toLowerCase();
+  const sgl = sg.toLowerCase();
+  if (sg !== '' && sgl !== gl && !sgl.startsWith(gl) && !gl.startsWith(sgl)) return sg;
+  return '';
+}
+
+// The LEADING U+001F IS LOAD-BEARING, and a plain ' › ' is measurably wrong.
+//
+// `makeAxis` orders a categorical axis by sorting the distinct set, so the level
+// order has to fall out of the string. The Rust built it by hand — a BTreeMap of
+// group -> BTreeSet of subgroups, group level emitted before its subgroups — and
+// the only way a flat sort reproduces that is if the separator sorts BELOW every
+// character a group name can start with. U+001F (unit separator) does; a space
+// does not, because a group named `Perc Long` then lands between `Perc` and
+// `Perc › Conga` and the hierarchy interleaves. That is the same reason
+// `subKey()` in ../groupColors uses charCode 31, and it is the same convention.
+//
+// The ' › ' after it is cosmetic: nothing renders a categorical value today
+// (`makeAxis` only ever calls `cats.indexOf` on it), and if anything ever does,
+// it reads as `Perc › Conga` with an invisible byte in front.
+const DEPTH_SEP = '\u001f › ';
 
 // Feature registry: label → how to read it. Numeric features are normalized
 // across the dataset; categorical ones are spread into bands. Mirrors the
@@ -13,6 +57,20 @@ type Feature = { categorical?: boolean; get: (it: any) => number | string };
 export const CLOUD_FEATURES: Record<string, Feature> = {
   Group: { categorical: true, get: (it) => it.classification?.group || 'Unclassified' },
   Subgroup: { categorical: true, get: (it) => it.classification?.subgroup || '—' },
+  // Hierarchical depth: a group, and its curated subgroups one level deeper.
+  // `Group` and `Subgroup` above are two independent FLAT axes — pick one and
+  // the other is ignored — so neither can show a sample sitting at the group
+  // level beside its siblings that are one level down. This is the axis that
+  // can. The group fallback is 'Unclassified' rather than the Rust's 'Other'
+  // so that one record does not answer to two different names on two axes.
+  Depth: {
+    categorical: true,
+    get: (it) => {
+      const g = it.classification?.group || 'Unclassified';
+      const sub = deeperSub(g, it.classification?.subgroup || '');
+      return sub ? g + DEPTH_SEP + sub : g;
+    },
+  },
   Timbre: { categorical: true, get: (it) => it.classification?.timbre || '?' },
   Cluster: { categorical: true, get: (it) => it.unsupervised?.cluster != null && it.unsupervised.cluster !== -1 ? 'C' + it.unsupervised.cluster : '—' },
   Length: { get: (it) => it.metadata?.length_seconds ?? 0 },
@@ -432,6 +490,126 @@ function CloudPoints({ data, xAxis, yAxis, zAxis, sizeAxis, colorBy, shapeBy, hi
   );
 }
 
+// SIX DEGREES OF FREEDOM ONTO SIX. The point cloud was chosen as the puck's
+// first consuming surface for exactly this reason: every other candidate — the
+// schematic canvas, the CAD elevations, the vision mixer — needs a projection
+// decided before it needs code, and this one does not. Each axis lands on the
+// camera move that shares its name.
+//
+//   y  push / pull      -> dolly, in and out along the view
+//   x  left / right     -> truck, across the screen
+//   z  lift / press     -> pedestal, up the camera's own up
+//   yaw   twist         -> orbit, azimuth about the target
+//   pitch nose up/down  -> orbit, elevation
+//   roll  tilt          -> roll, the camera's up about the view axis
+//
+// The sense comes from the producer (right-handed, +X right, +Y forward, +Z up)
+// and NOT from here. A consumer that decides its own sign is the fourth puck
+// this whole arrangement exists to prevent.
+//
+// WHETHER THAT SENSE HAS EVER BEEN CHECKED against a hand is `puck.senseConfirmed`,
+// readable here in one expression. This loop does not branch on it, and that is a
+// decision rather than an oversight: the rule in force is fly-and-say-so, and the
+// saying-so is drawn by CloudTab off `senseWarning`. The flag is carried this far
+// so that a surface choosing to refuse an unverified frame costs a guard on the
+// line below instead of a redesign — but refusing here would make this the only
+// puck in the tree that does not move, on every bench, until somebody confirms one.
+//
+// It is reachable and unread, which to a lint sweep is dead code. What keeps it
+// alive is not this comment: `puck` is typed `… & FrameQualification`, the same
+// named interface `PuckStatus` extends and `senseWarning` takes, so deleting the
+// two fields is a `tsc -b` failure and `check.sh scan-web` runs `tsc -b`. That
+// is the whole of PLAN-501.01; `senseWarning(puck)` is the one-line call a
+// refusing surface would add here, and adding it is still somebody else's
+// decision.
+//
+// RATES ARE PER SECOND, not per frame. `delta` is what makes a 20 Hz beat and a
+// 144 Hz redraw fly at the same speed; multiplying a normalised axis straight
+// into a position makes the puck faster on a better graphics card.
+const PUCK_DOLLY = 18;      // world units per second at full deflection
+const PUCK_TRUCK = 14;
+const PUCK_ORBIT = 1.6;     // radians per second
+const PUCK_ROLL = 1.2;
+const PUCK_DEAD = 0.002;    // the probe already has a deadband; this is float noise
+
+function SpaceMouseFly() {
+  const { camera, controls } = useThree();
+
+  useFrame((_state, delta) => {
+    const f = puck.frame;
+
+    // ONE CALL, AND IT IS THE ONLY WAY THIS SURFACE MAY ASK — PLAN-901.02.
+    // This was two guards: `if (!puck.moving) return;` and then
+    // `if (puckStale(Date.now())) return;`. Both are still what happens, in
+    // that order and at that cost — `puckFlyable` short-circuits on `moving`
+    // before it reads the clock — but the pairing now has a name, so the next
+    // surface has one thing to call instead of a comment to obey.
+    //
+    // THE DEATH NOBODY ANNOUNCES is what the second half defends against.
+    // `moving` is cleared only when a status says `offline` — that is, only
+    // when the producer's Last Will fires. If frames simply STOP with the
+    // deflection held, no status is ever posted, `moving` stays true, `f` keeps
+    // its last non-zero value, and every line below would integrate it for as
+    // long as the page is open.
+    //
+    // The window it tests against is derived from the producer's advertised
+    // `pacing` rather than typed here. That is the entire point: under
+    // `when: 'on_change'` with no heartbeat a held push is INDISTINGUISHABLE
+    // from a dead wire, so a producer that promises no cadence gets no timeout
+    // and flies forever — the old behaviour, kept exactly, for exactly that
+    // case. PLAN-625.01, unblocked by PLAN-694.01.
+    //
+    // STOP, not zero: this returns without touching `puck`, so the next frame
+    // to arrive resumes the flight with nothing to reset, and no frame the
+    // producer did not send is invented on its behalf. The reasoning is on
+    // `puckStale` itself, next to the stamp it reads.
+    if (!puckFlyable()) return;
+
+    const step = Math.min(delta, 0.1);   // a backgrounded tab must not teleport
+
+    const target: THREE.Vector3 = (controls as any)?.target ?? new THREE.Vector3();
+    const view = new THREE.Vector3().subVectors(camera.position, target);
+    const radius = view.length();
+    if (!(radius > 0)) return;
+
+    // Orbit: yaw about the world up, pitch about the camera's own right.
+    const yaw = Math.abs(f.yaw) > PUCK_DEAD ? -f.yaw * PUCK_ORBIT * step : 0;
+    const pitch = Math.abs(f.pitch) > PUCK_DEAD ? f.pitch * PUCK_ORBIT * step : 0;
+    if (yaw) view.applyAxisAngle(camera.up.clone().normalize(), yaw);
+    if (pitch) {
+      const right = new THREE.Vector3().crossVectors(view, camera.up).normalize();
+      view.applyAxisAngle(right, pitch);
+    }
+
+    // Dolly: along the view, and never through the target.
+    if (Math.abs(f.y) > PUCK_DEAD) {
+      const wanted = radius - f.y * PUCK_DOLLY * step;
+      view.setLength(Math.max(1.5, Math.min(500, wanted)));
+    }
+
+    // Truck and pedestal: the target moves with the camera, so the pan is a
+    // pan and not a second orbit.
+    const right = new THREE.Vector3().crossVectors(view, camera.up).normalize();
+    const pan = new THREE.Vector3();
+    if (Math.abs(f.x) > PUCK_DEAD) pan.addScaledVector(right, f.x * PUCK_TRUCK * step);
+    if (Math.abs(f.z) > PUCK_DEAD) pan.addScaledVector(camera.up.clone().normalize(), f.z * PUCK_TRUCK * step);
+    if (pan.lengthSq() > 0) target.add(pan);
+
+    // Roll: the camera's up about the view axis. The sixth axis is consumed
+    // rather than dropped — a puck that moves five of six is a puck the hand
+    // keeps discovering the edge of.
+    if (Math.abs(f.roll) > PUCK_DEAD) {
+      camera.up.applyAxisAngle(view.clone().normalize(), -f.roll * PUCK_ROLL * step).normalize();
+    }
+
+    camera.position.copy(target).add(view);
+    camera.lookAt(target);
+    (controls as any)?.update?.();
+  });
+
+  return null;
+}
+
 interface SampleCloudProps {
   data?: any[];
   xAxis?: string; yAxis?: string; zAxis?: string; sizeAxis?: string; colorBy?: string; shapeBy?: string;
@@ -455,6 +633,7 @@ export default function SampleCloud({
         </div>
       )}
       <Canvas camera={{ position: [0, 0, 45], fov: 60 }} raycaster={{ params: { Points: { threshold: 0.6 } } as any }}
+        aria-label="Three-dimensional point cloud of the scanned library, one point per sample"
         style={{ touchAction: 'none' }}>
         <color attach="background" args={['#0B0E14']} />
         <ambientLight intensity={0.7} />
@@ -465,7 +644,8 @@ export default function SampleCloud({
           sizeAxis={sizeAxis} colorBy={colorBy} shapeBy={shapeBy} hiddenGroups={hiddenGroups}
           selectedIndex={selectedIndex} onPick={onPick} playing={playing}
         />
-        <OrbitControls enablePan enableZoom enableRotate autoRotate={false} />
+        <OrbitControls makeDefault enablePan enableZoom enableRotate autoRotate={false} />
+        <SpaceMouseFly />
       </Canvas>
     </div>
   )

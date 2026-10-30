@@ -80,6 +80,18 @@ export default function PropertyBars({ item, analysisResult }: Props) {
                 {has ? `${raw.toFixed(2)}${bar.unit ?? ''}${inSamples}` : '—'}
               </span>
             </div>
+            {/* apk-pct-allow-fill: THE TRACK STAYS, and this one is not a
+                layout preference — THE DIGITS ARE NOT A PERCENTAGE. What is
+                printed above is `raw` in the property's own unit (seconds, dB,
+                Hz, and a sample count beside it); `pct` is where that value
+                sits between this corpus's own min and max. The chip prints the
+                number it is given and fills to it, which would put `4.20s` in a
+                span filled to 4%. The primitive's own eligibility rule is "is
+                there a whole, and is this a part of it" — the position IS a
+                part of a whole and the reading is not, so the two cannot share
+                one element. PLAN-924.01 lifted this file's clamp and its
+                em-dash-for-missing into the primitive; that is what it had to
+                give, and this is what it keeps. PLAN-924.02 step 4. */}
             <div style={{ width: '100%', height: '16px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
               <div style={{ width: `${pct}%`, height: '100%', background: '#10B981' }} />
             </div>

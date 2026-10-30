@@ -1,3 +1,5 @@
+// Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+// MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 // The per-transient ADSR table — the numbers behind the `transient slices` layer.
 //
 // The record's file-level envelope_* fields are null whenever a file holds more
@@ -7,6 +9,13 @@
 // blanks upstairs is explained rather than looking like missing data.
 
 import { envelopeSlices, isMultiEvent, type EnvelopeSlice } from '../../envelopeSlices';
+// THE FIRST SCAN HOST ON THE PERCENT-FILL PRIMITIVE, and the one with no
+// decision attached: both figures below are shares of a bounded whole, neither
+// had a separate track, and both were `?? 0` — a slice with no level drew a
+// hard 0%, which is the "no data is not zero" claim the primitive exists to
+// stop. The fill sits behind digits that were already there, so the column is
+// no wider than it was. PLAN-924.02 step 3.
+import Pct from '../Pct';
 
 interface Props {
   item: any;
@@ -90,12 +99,12 @@ export default function SliceTable({ item }: Props) {
                   <td style={{ ...cell, color: '#F59E0B' }}>{s.index + 1}</td>
                   <td style={cell}>{s.start_seconds.toFixed(2)}s</td>
                   <td style={{ ...cell, textAlign: 'right' }}>
-                    {Math.round((s.relative_level ?? 0) * 100)}%
+                    <Pct ratio={s.relative_level} />
                   </td>
                   <td style={{ ...cell, textAlign: 'right' }}>{dur(s.envelope_attack_seconds)}</td>
                   <td style={{ ...cell, textAlign: 'right' }}>{dur(s.envelope_decay_seconds)}</td>
                   <td style={{ ...cell, textAlign: 'right' }}>
-                    {Math.round((s.envelope_sustain_level ?? 0) * 100)}%
+                    <Pct ratio={s.envelope_sustain_level} />
                   </td>
                   <td style={{ ...cell, textAlign: 'right' }}>{dur(s.envelope_release_seconds)}</td>
                   <td style={{ ...cell, color: 'var(--text-secondary)' }}>{s.envelope_shape}</td>

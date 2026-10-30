@@ -13,9 +13,13 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
   shell's absorbed modules import (`pdfjs-dist`, `jszip`, `exifreader`, `tesseract.js`) are
   declared, and the type-only imports say so. `npm run build` (tsc + vite) passes; the
   parent CI still runs `vite build` alone.
-- **13 of 44 `npm test` cases fail** (depth-axis, percent-fill, puck, sense-warning,
-  stall-notice consumers): source-text assertions that no longer match the components.
-  The synonym tests pass.
+- ~~13 of 44 `npm test` cases fail~~ — fixed 2026-10-30. The tests were right: when the
+  monorepo's `APK:Softapps/SCAN` copy became this submodule (4e8604b54), the helper modules
+  (`spaceMouse.ts`, `percentFill.ts`, `Pct.tsx`, `percent-fill.css`) came across but the
+  components that consume them were the older ones. `CloudTab.tsx`, `SampleCloud.tsx`,
+  `SliceTable.tsx`, `main.tsx` and the allow-fill notes in `ScanalyzeTab.tsx` /
+  `PropertyBars.tsx` were restored from that copy; `Header.tsx` (reduced to `return null` in
+  382f068) left the fill-host list. 47/47 pass.
 - **The front end's UCS mirrors are hand-regenerated.** `ucsIndex.ts` and `categoryEmoji.ts`
   say "GENERATED" but their generators are not in the repo (only
   `scripts/gen-ucs-synonyms.mjs` is). `ucsIndex.ts` has no `8.2.APK` instrument ids

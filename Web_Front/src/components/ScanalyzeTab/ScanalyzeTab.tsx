@@ -510,6 +510,15 @@ export default function ScanalyzeTab({
                   <div style={{ textAlign: 'center', color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.5rem' }}>
                       {done.toLocaleString()} of {total.toLocaleString()} files &middot; {pct}%
                   </div>
+                  {/* apk-pct-allow-fill: THE TRACK STAYS. The percent-fill chip
+                      earns its place by costing no width in a COLUMN of values
+                      a reader is comparing — twenty rows deep, the fill does the
+                      comparison in the layout. This is one number on a full
+                      screen during a run that has nothing else to look at, and
+                      width is exactly what is free here: a 640px track carries
+                      motion an inline chip cannot, and motion is what says the
+                      run is alive rather than wedged. Retiring it would trade
+                      the one thing this surface is for. PLAN-924.02 step 4. */}
                   <div style={{ width: '100%', height: '16px', background: 'rgba(0,0,0,0.4)', border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: '1rem' }}>
                       <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent-primary)', transition: 'width 0.15s' }} />
                   </div>
