@@ -65,6 +65,7 @@ SCANALYZER.Like.audio/              (this repo — the application)
 │   ├── scripts/                    build gates (check-*.mjs) + generators (logo, UCS synonyms)
 │   ├── test/                       node --test suites  (npm test)
 │   └── public/api/, tools/api/     PHP endpoints for the optional MySQL "cloud" of .PEAK records
+├── Docker/                         scan-api: php-fpm over public/api's three endpoints, for the APK.audio bench
 ├── sample_analyzer_rs   → ../../PROCESSOR/PROCESSOR.SampleAnalyzer    ── THE CORE ── (own repo)
 ├── extractor_engine_rs  → ../../CAPTURE/CAPTURE.Extractor-Engine
 ├── Sample_Conversion_rs → ../../PROCESSOR/PROCESSOR.SampleConversion
@@ -138,6 +139,17 @@ through PHP endpoints (`Web_Front/public/api/*.php`, with migration/debug copies
 `Web_Front/tools/api/`) over MariaDB/MySQL. **The database credentials are currently
 committed** — in `Web_Front/src-tauri/src/lib.rs` (`start_analysis`) and `describe_db.py`;
 see `Documentation/🔍Audits/KNOWN_ISSUES.md`.
+
+**On the APK.audio bench, the API is this repository's own stack** (`Docker/`, PLAN-3424.01):
+php-fpm as `scan-api:9000` in the `apk-audio` compose project, holding only `db_status.php`,
+`get_peaks.php` and `upload_peak.php` — the other nine files in `public/api/` are hand-run
+migrations and never enter the image. It reads `SCAN_DB_*` from its environment and reaches the
+database at `sql-proxy:3306` (DATABASE.server.SQL); with no `SCAN_DB_*` set the same files fall
+back to the cPanel host's `localhost`. The gateway (WEB.Traffic-Router) and Storage-Portal (:8080)
+both send `/scan-api/<name>.php` and the app's own `…/api/<name>.php` there by FastCGI.
+Start it with
+`docker compose -f 'PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Docker/docker-compose.yml' up -d --build`;
+an edit to one of the three endpoints needs that rebuild.
 
 ---
 

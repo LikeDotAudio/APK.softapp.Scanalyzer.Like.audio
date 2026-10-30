@@ -34,13 +34,18 @@ function as_text($value) {
     return $value;
 }
 
-$host = 'localhost';
-$db   = 'tandapho_scanalyzer';
-$user = 'tandapho_scanalyzer';
-$pass = 'GITHUB_SECRET_DB_PASSWORD';
+// The connection comes from the environment where there is one: the scan-api
+// stack (../../../Docker/docker-compose.yml) sets SCAN_DB_* and reaches the
+// database at sql-proxy:3306. Unset, it is the co-located cPanel host, where
+// the database is on localhost and the deploy fills in the password.
+$host = getenv('SCAN_DB_HOST') ?: 'localhost';
+$port = (int) (getenv('SCAN_DB_PORT') ?: 3306);
+$db   = getenv('SCAN_DB_NAME') ?: 'tandapho_scanalyzer';
+$user = getenv('SCAN_DB_USER') ?: 'tandapho_scanalyzer';
+$pass = getenv('SCAN_DB_PASS') !== false ? getenv('SCAN_DB_PASS') : 'GITHUB_SECRET_DB_PASSWORD';
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

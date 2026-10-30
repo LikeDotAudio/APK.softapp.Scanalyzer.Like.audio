@@ -1,0 +1,33 @@
+# Scanalyzer's corpus API (PLAN-3424.01): php-fpm on scan-api:9000.
+#     docker compose -f 'PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Docker/docker-compose.yml' up -d --build
+# Callers, both FastCGI:
+#   the gateway (WEB.Traffic-Router/SRC/Caddyfile) — /scan-api/<name>.php and
+#     the app's own relative …/api/<name>.php, for the three names only;
+#   Storage-Portal (DATABASE.server.SQL/SRC/nginx.conf) on :8080 — the same.
+# ONE PROJECT WITH THE REST (`apk-audio`), so `sql-proxy` (DATABASE.server.SQL)
+# resolves and both callers reach this as `scan-api` on apk-audio_default.
+# No port is published.
+name: apk-audio
+
+services:
+  scan-api:
+    build:
+      context: "../Web_Front/public/api"
+      dockerfile: "../../../Docker/Dockerfile"   # relative to the context
+    image: scanalyzer-api:local
+    container_name: Scanalyzer-API
+    restart: unless-stopped
+    environment:
+      # The database stack's own defaults (DATABASE.server.SQL's compose).
+      SCAN_DB_HOST: ${SCAN_DB_HOST:-sql-proxy}
+      SCAN_DB_PORT: 3306
+      SCAN_DB_NAME: ${MARIADB_DATABASE:-apkaudio}
+      SCAN_DB_USER: ${MARIADB_USER:-apkaudio}
+      SCAN_DB_PASS: ${MARIADB_PASSWORD:-DEV.DB}
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(extension_loaded('pdo_mysql') ? 0 : 1);"]
+      interval: 60s
+      start_interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
