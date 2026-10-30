@@ -12,4 +12,4 @@ Is `SCANALYZER.Like.audio` deployed? Written by `.apk.scripts/smoke.py` from the
 
 Re-run: `python3 .apk.scripts/smoke.py PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio`
 
-<!-- smoke:sig 7ee4ae6793b4 since 2026-10-30 12:51 EDT -->
+<!-- smoke:sig 56f6f427f58b since 2026-10-30 12:51 EDT -->
