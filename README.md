@@ -12,6 +12,28 @@ At its core, **scanalyzer** is a smart, automated librarian for your audio files
 > Get your library in check. 👇 
 > #MusicProduction #SoundDesign #BeatMaker #AudioEngineer #ProducerLife #MusicTech #SampleLibrary
 
+### Philosophy
+
+What the code holds to, and where it holds it:
+
+- **Your audio never leaves your machine.** The browser build runs the core as WASM in a
+  worker pool; the desktop build runs it natively. The only network feature is the
+  optional, opt-in `.PEAK` upload to a MySQL host.
+- **One engine, one UI, two targets.** The same Rust crate is the WASM core and the
+  native binary; the same React app is the web page and the Tauri window.
+- **The `.PEAK` sidecar is the record.** One JSON per audio file, next to it, plus the
+  aggregate. Everything the UI shows is read back from it, and every record carries the
+  `analyzer_version` that wrote it, so stale analysis invalidates itself.
+- **Listen first, read the name last.** Measurements and blind classification come before
+  the file name is consulted (see [the pipeline](#the-pipeline)).
+- **One taxonomy: the UCS.** Categories, colours, emoji, scope chips and search all hang
+  off the Universal Category System data — generated from it, not typed in beside it.
+- **Measured, not reasoned.** UCS signatures began as reasoned numbers and are calibrated
+  against FSD50K; what measuring falsified is written down below.
+- **Keep going on errors.** A file that will not decode, a sidecar that will not parse, a
+  synonym library that will not build — each is skipped or degraded and reported; none of
+  them stops the scan or blanks the screen.
+
 It ships as **one React app over one shared Rust DSP core**, delivered two ways —
 as a Tauri desktop app and as a browser app — so the exact same analysis and the
 exact same UI run whether you launch the native app or open the web page:
@@ -34,20 +56,28 @@ exact same UI run whether you launch the native app or open the web page:
   produced by one opens in the other.
 
 ```
-Sample Analysis/
-├── sample_analyzer_rs/    # ── THE CORE ── Rust DSP engine (shared by both targets)
-│   └── target/release/oa_sample_analyzer     # native binary (used by the desktop app)
-│
-├── UCS/                   # Universal Category System data
-│   └── categories/         # 82 UCS categories + MUSICPROD (the music-production role axis)
-│
-├── graphing_rs/           # Rust 3D-cloud placement engine
-├── Sample_Conversion_rs/  # Rust sample-format conversion helper
-│
-└── Web_Front/             # The app (React + Vite)
-    ├── wasm_analyzer/      # the CORE compiled to WebAssembly (wasm-bindgen wrapper)
-    ├── src-tauri/          # the desktop shell (Tauri v2)
-    └── src/                # React UI: Scanalize / 3D Cloud / Stats / Groups / Examiner / Rename
+SCANALYZER.Like.audio/              (this repo — the application)
+├── Web_Front/                      THE APP (React + Vite; Tauri on the desktop)
+│   ├── src/                        UI: tabs, shell, UCS index/colours/emoji, synonym library
+│   ├── src-tauri/                  desktop shell (Tauri v2) — links the core natively
+│   ├── wasm_analyzer/              the core compiled to WebAssembly (wasm-bindgen wrapper)
+│   ├── wasm_extractor/             the extractor engine compiled to WebAssembly
+│   ├── scripts/                    build gates (check-*.mjs) + generators (logo, UCS synonyms)
+│   ├── test/                       node --test suites  (npm test)
+│   └── public/api/, tools/api/     PHP endpoints for the optional MySQL "cloud" of .PEAK records
+├── sample_analyzer_rs   → ../../PROCESSOR/PROCESSOR.SampleAnalyzer    ── THE CORE ── (own repo)
+├── extractor_engine_rs  → ../../CAPTURE/CAPTURE.Extractor-Engine
+├── Sample_Conversion_rs → ../../PROCESSOR/PROCESSOR.SampleConversion
+├── graphing_rs          → ../../VISUALIZER/VISUALIZER.Graphing         (retired from the app, PLAN-109.04)
+├── folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/  Folder-ScanAnalyzer stages 1–3
+├── 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to every Scanalyzer softapp, by stage
+├── SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
+├── main.py                         desktop launcher (rebuilds the engine, then `npm run tauri dev`)
+└── Documentation/                  audits, specs, plans, known issues
+
+The UCS data is not here: it lives in ../../DATATYPE/DATATYPE.soundfx.UCS
+(categories/*.json — 94 categories, 828 subcategories — producer_synonyms.json, the
+FSD50K calibration). The core's build.rs and Web_Front/scripts/gen-ucs-synonyms.mjs read it.
 ```
 
 ## Run — browser
@@ -77,8 +107,12 @@ cd Web_Front && npm run tauri dev                                     # or: npm 
 
 Requires: Node 18+, a Rust toolchain, and the Tauri v2 system dependencies.
 
-The desktop app spawns `sample_analyzer_rs/target/release/oa_sample_analyzer`,
-so build that first. It scans with one worker per core, streams progress, and
+The desktop app is meant to spawn `sample_analyzer_rs/target/release/oa_sample_analyzer`,
+so build that first — `python3 main.py` builds it and then runs `npm run tauri dev`.
+**Known broken:** both `main.py` and `start_analysis` in `Web_Front/src-tauri/src/lib.rs`
+still look for the engine under the pre-reorg `SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine`
+path, so the launcher exits and the desktop scan cannot start until they are repointed
+(see `Documentation/Issues/KNOWN_ISSUES.md`). It scans with one worker per core, streams progress, and
 writes a `.PEAK` sidecar next to every sample.
 
 CLI (what the desktop app runs for you):
@@ -90,18 +124,20 @@ oa_sample_analyzer <dir> [--out <path>] [--workers <n>] [--max-len <s>]
 
 ## Deployment
 
-The browser app is deployed to **<https://scanalyzer.like.audio>**.
+This repo has no deploy workflow of its own any more (`.github/` was removed in
+`53236b7`). The parent APK.audio CI (`.github/workflows/ci.yml`, "Build the Scanalyzer")
+builds both wasm cores with `wasm-pack`, runs `npm ci` and `npx vite build --base ./`
+— **`tsc` is skipped on purpose**, so a type error does not take the windows down — and
+publishes `Web_Front/dist/` under
+`/APK:Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/`, where the
+APK:OS Scanalyzer tiles open it. <https://scanalyzer.like.audio> is the app's public home.
 
-`.github/workflows/deploy_web.yml` runs on every push to `main` that touches
-`Web_Front/**` (or on manual dispatch). It builds the WASM core with
-`wasm-pack`, builds the Vite bundle, and syncs `Web_Front/dist/` to the web host
-over FTPS.
-
-**Backend Services:**
-While the audio analysis is 100% client-side (processed locally in your browser/CPU), the application features an optional **Cloud Database** capability ("Load from Database") to share pre-computed `.PEAK` analysis records across machines. 
-This is powered by lightweight PHP endpoints (`Web_Front/public/api/*.php`) connecting to a MariaDB/MySQL database.
-
-To securely deploy these endpoints, the GitHub Action automatically intercepts the PHP scripts during deployment and injects your database password from GitHub Secrets (`DB_PASSWORD`). The raw password is never stored in the repository.
+**Backend services.** Analysis is 100% local. The optional **cloud database** ("Load from
+Database", and the desktop scan's `--db-url`) shares `.PEAK` records across machines
+through PHP endpoints (`Web_Front/public/api/*.php`, with migration/debug copies in
+`Web_Front/tools/api/`) over MariaDB/MySQL. **The database credentials are currently
+committed** — in `Web_Front/src-tauri/src/lib.rs` (`start_analysis`) and `describe_db.py`;
+see `Documentation/Issues/KNOWN_ISSUES.md`.
 
 ---
 
@@ -135,8 +171,8 @@ carries it. Before analyzing a file the binary reads the existing
 `<sample>.PEAK` sidecar: if it parses, its `analyzer_version` matches the
 running binary, and it names the same file, the record is **reused and the DSP
 skipped entirely** — identical code yields identical results by definition.
-Any change to an extractor *or* to a category signature *or* to the MUSICPROD
-role taxonomy produces a new hash and invalidates old sidecars automatically. `--force` re-analyzes regardless. Sidecars are written
+Any change to an extractor *or* to a category signature *or* to the producer
+vocabulary overlay produces a new hash and invalidates old sidecars automatically. `--force` re-analyzes regardless. Sidecars are written
 incrementally during the run, so a stopped/killed run resumes where it left
 off. (Clustering and PCA are global, so they are always recomputed.)
 
@@ -419,7 +455,14 @@ pitch; one-shot = transient_count ≤ 1):
 
 Drums and FX legitimately match no role (shown as "(no role)").
 
-### Music-production role (`music_prod.rs`) — the top level
+### Music-production role (`categorize.rs::music_prod_category`) — the top level
+
+> **Status (2026-07-14, see CHANGELOG "music taxonomy explosion").** `UCS/categories/MUSICPROD.json`
+> is retired: the 13 instrument categories (DRUMS … LOOPS) are the music taxonomy, and the
+> production role is no longer a scope axis or an Examiner column. The analyzer still derives
+> the role (`Pipeline/analyze.rs` → `categorize.rs::music_prod_category`) and writes
+> `classification.music_production_category`, which the Rename tab and the cloud tooltip still
+> read. What follows describes how that role is assigned.
 
 The role a sample plays in a production. The subcategory names come from
 `UCS/categories/MUSICPROD.json`, which reuses UCS MUSICAL's names and acoustic
@@ -543,11 +586,12 @@ axes of greatest variance of the whole library.
 
 The **Universal Category System (UCS)** is the de facto standardized taxonomy in audio post-production (e.g., `CatID-SubCatID_Vendor_...`). The analyzer seamlessly weaves this standard into its output by mapping its deep acoustic and heuristic findings directly to official UCS v8.2 IDs. This allows independent creators and game/film studios to cleanly ingest your processed library into professional tools like Soundminer without manual categorization. It maps terms intelligently under the `MUSICAL` and `DESIGNED` hierarchies, outputting `ucs_category`, `ucs_subcategory`, and `ucs_id`.
 
-Each of the 778 subcategories in `UCS/categories/*.json` carries an
+Each of the 828 subcategories in `DATATYPE.soundfx.UCS/categories/*.json` (94 categories:
+the stock UCS 8.2.1 set plus the 13 `8.2.APK` instrument categories) carries an
 `acoustic_signature`: a `morphology`, a `separability` tier, hard `gates`, and
 weighted Gaussian `priors`. `build.rs` splices those files into the binary, so the
 scorer and the taxonomy can never drift apart. The grammar and the scoring math are
-specified in `Documentation/ucs_signature_spec.md`.
+specified in `Documentation/Specs/ucs_signature_spec.md`.
 
 ### UCS synonyms — searching by any word for the sound (`Web_Front/src/ucsSynonyms.ts`)
 
@@ -583,7 +627,7 @@ explanation text, internally consistent, and never once compared to a real audio
 The calibration pass replaces that with measurement wherever measurement is possible.
 
 **The corpus.** FSD50K.dev — 40,966 clips, scanned to `.PEAK` by the current analyzer,
-whose filenames carry the human-authored FSD50K label chain. `UCS/fsd50k_crosswalk.json`
+whose filenames carry the human-authored FSD50K label chain. `DATATYPE.soundfx.UCS/fsd50k_crosswalk.json`
 hand-maps those labels to UCS IDs; only `high` and `medium` confidence entries calibrate,
 and the coarse AudioSet parents (`Music`, `Animal`, `Vehicle`) are deliberately refused.
 A clip is used only when every label it carries agrees on **one** subcategory — 28,815
@@ -591,7 +635,7 @@ of 40,966 survive that, and the **85 subcategories** holding at least 30 such cl
 (28,790 of them) are the ones that calibrate. The rest are dropped as ambiguous rather
 than silently averaged into a class they only partly belong to.
 
-**What gets written back** (`UCS/fsd50k_calibration.json` records all of it):
+**What gets written back** (`DATATYPE.soundfx.UCS/fsd50k_calibration.json` records all of it):
 
 - **651 priors** move to the measured median, each stamped with a `provenance` block
   naming the dataset, the clip count, and the reasoned value it replaced. Absence of
@@ -655,8 +699,8 @@ reasoning was wrong. Three findings, each recorded in the calibration file:
 Both halves are one script, run against a directory of scanned `.PEAK` sidecars:
 
 ```bash
-python3 UCS/fsd50k_calibrate.py calibrate  ".../FSD50K.dev_audio"   # rewrites categories/*.json
-python3 UCS/fsd50k_calibrate.py evaluate   ".../FSD50K.dev_audio"   # the numbers above; writes nothing
+python3 ../../DATATYPE/DATATYPE.soundfx.UCS/fsd50k_calibrate.py calibrate  ".../FSD50K.dev_audio"   # rewrites categories/*.json
+python3 ../../DATATYPE/DATATYPE.soundfx.UCS/fsd50k_calibrate.py evaluate   ".../FSD50K.dev_audio"   # the numbers above; writes nothing
 ```
 
 `calibrate` is idempotent — it is a fixed point on its own output, and it carries the
@@ -739,7 +783,7 @@ a missing feature reads as absent rather than as a plausible zero.
 | `acoustic_types` | string[] | Harmonic / Inharmonic / Stochastic / Impulsive (multi) |
 | `sound_design_roles` | string[] | Pad / Pluck / Lead / Bass (multi; may be empty) |
 | `instrument_family` | string | Hornbostel-Sachs guess ("" unknown) |
-| `music_production_category` | string | the role the sample plays in a production — one of the MUSICPROD subcategories (`PERCUSSION`, `KEYED`, `SYNTHESIZED`, `LOOP`, `IMPULSE RESPONSE`, …). Replaces the old `god_category`. |
+| `music_production_category` | string | the role the sample plays in a production — one of `PERCUSSION`, `KEYED`, `SYNTHESIZED`, `LOOP`, `IMPULSE RESPONSE`, … (derived by `categorize.rs`; the MUSICPROD category file it was named after is retired). Replaces the old `god_category`. |
 | `sample_rate` / `bit_depth` / `channels` | int | raw file attributes |
 | `root_note_name` / `root_frequency_hz` / `root_cents_offset` | string/number | musical root, e.g. "A3", its Hz, cents off equal temperament |
 | `beats_per_minute` / `root_midi_note` | number/int | from the embedded ACID chunk (0 / −1 when absent) |
@@ -766,37 +810,32 @@ keypress reads **10 ms** on one-shot files but **3.0 s** on multi-event ones. Fi
 
 ## The GUI
 
-Near-black theme with bright text throughout. **Start Analysis** becomes
-**■ Stop Analysis** during a run — stopping keeps the sidecars written so
-far, which the version-skip reuses next run.
+Near-black theme with bright text throughout. The tabs (`Web_Front/src/App.tsx`) are
+**SCANALYZE · 3D · 4D · 2D · Examiner · ★ Favorites · Extractor · Rename**; one global
+scope bar above them scopes every tab by UCS category → subcategory (plus optional
+runner-up ranks) and a free-text filter that also searches through
+[the UCS synonyms](#ucs-synonyms--searching-by-any-word-for-the-sound-web_frontsrcucssynonymsts).
+The **SCANALYZE** run button becomes **■ Stop** during a run — stopping keeps the sidecars
+written so far, which the version-skip reuses next run.
 
-**One colour system everywhere**: each music-production role owns a hue
-(PERCUSSION = red-orange, BELLS = gold, KEYED = green, SYNTHESIZED = teal,
-PERFORMANCE = violet, MISC = grey); every group is a distinct shade of its
-role's hue and every curated subgroup a further nudge of that shade
-(`Web_Front/src/groupColors.ts: groupColor()`, mirroring
-`sample_analyzer_rs/src/music_prod.rs`). The 3D cloud's
-points, its legend and sidebar tree, the 2D-stats buttons and scatter, and
-the Groups/Examiner table rows all share the exact same colours.
+**One colour system everywhere**: the UCS CATEGORY fixes the hue (82 stock categories
+spread by the golden ratio, the 13 instrument categories appended so nobody's hue moved)
+and the UCS SUBCATEGORY nudges it (`Web_Front/src/groupColors.ts: ucsColor()/ucsSubColor()`).
+The 3D cloud, the 4D ball, the 2D stats, the Examiner rows and the Extractor all share it.
 
-- **3D Cloud** — live interactive cloud with free X / Y / Z / Size axis
-  pickers and ten one-click presets (**A–J**: classic, brightness, envelope
-  space, tonal-vs-noisy, musicality, percussive, noise, texture, tempo,
-  dynamics — the axis labels follow). Scroll to zoom, Top/Front/Side/Iso
-  views, drag to orbit. The role → group → subgroup tree in the
-  sidebar shows/hides any slice. Click a point to inspect and play it.
-- **2D Stats** — right beside the cloud: per-group scatter of any two
-  measures, click a point to inspect/play.
-- **Groups / CSV** — group along any dimension (Music production / Name group /
-  Timbre / Env shape / Acoustic / Sound design / Family / Distortion /
-  Cluster), two levels deep; defaults to music-production roles with name groups
-  nested. Full CSV export of every field. Selecting a file opens the shared
-  inspector: complete record JSON + waveform preview + Play.
-- **PEAK Examiner** — open any `.PEAK`, filter/search, same inspector.
-- **Auto-Guess** — fingerprints each named group's acoustics (mean normalized
-  feature vector) and guesses the group of Unclassified/mismatched one-shots
-  by nearest fingerprint, with a confidence from the margin between the two
-  nearest. Same inspector.
+- **3D** — live interactive cloud with free X / Y / Z / Size axis pickers and one-click
+  presets; scroll to zoom, Top/Front/Side/Iso views, drag to orbit; click a point to
+  inspect and play it.
+- **4D** — the same samples on a truncated icosahedron: every UCS category routes to one
+  of 32 *facial responses* (`facialResponse.ts`), and the pull toward that face is the
+  fourth dimension; a blendshape inspector plays the response over the sample's
+  per-transient ADSR slices.
+- **2D** — scatter / pie / bar statistics of any two measures, coloured by UCS.
+- **Examiner** — virtualized table of every record with the waveform / spectrum viewer
+  and its layers; arrow keys, DIG auto-advance, push-to-tab.
+- **★ Favorites** — the F key works on every tab; favourites persist to `favorites.json`
+  beside the manifest.
+- **Extractor** — region detection and slicing inside long files, rescanned per region.
 - **Flatten / Rename** — a token-based name builder: three reorderable
   checkbox tables (each row has ▲/▼) compose the result. **Destination
   subfolders** — every checked label (Music production, Group, Subgroup, Timbre,
@@ -813,9 +852,9 @@ the Groups/Examiner table rows all share the exact same colours.
 
 ## The browser app (Web_Front)
 
-The web front-end mirrors the desktop tabs — **Scanalize, 3D Cloud, Stats,
-Groups, Examiner, Flatten/Rename** — running the same Rust DSP core as
-WebAssembly, and sharing the one role → group → subgroup colour system.
+The web front-end is the same app as the desktop — the tabs listed under
+[The GUI](#the-gui) — running the same Rust DSP core as WebAssembly, and sharing the
+one UCS category → subcategory colour system.
 It is **100% client-side**: no server performs any computation and nothing is
 uploaded. What differs from the desktop build:
 
