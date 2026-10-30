@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
+    "lint": "oxlint src",
     "preview": "vite preview",
     "test": "node --test test/*.test.mjs",
     "gen:logo": "node scripts/gen-logo.mjs",

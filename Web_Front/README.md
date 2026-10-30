@@ -12,7 +12,7 @@ Tauri v2 window on the desktop (`src-tauri/`). What it shows and why is in the
 | `npm run build` | `tsc -b && vite build` → `dist/` (`tsc -b` currently fails on pre-existing errors; `npx vite build` alone succeeds — see `../Documentation/🔍Audits/KNOWN_ISSUES.md`) |
 | `npm run preview` | serve `dist/` |
 | `npm test` | `node --test test/*.test.mjs` — no runner beyond node's own |
-| `npm run lint` | oxlint |
+| `npm run lint` | oxlint over `src/` (what CI runs) |
 | `npm run tauri dev` | the desktop app |
 | `npm run gen:logo` | regenerate the logo/favicon SVGs |
 | `npm run gen:ucs-synonyms` | regenerate `src/ucsSynonyms.json` from `../../../DATATYPE/DATATYPE.soundfx.UCS` (or a path given as the first argument / `UCS_DIR`) |
