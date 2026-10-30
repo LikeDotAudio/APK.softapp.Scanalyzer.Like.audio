@@ -128,7 +128,9 @@ oa_sample_analyzer <dir> [--out <path>] [--workers <n>] [--max-len <s>]
 This repo has no deploy workflow of its own any more (`.github/` was removed in
 `53236b7`). The parent APK.audio CI (`.github/workflows/ci.yml`, "Build the Scanalyzer")
 builds both wasm cores with `wasm-pack`, runs `npm ci` and `npx vite build --base ./`
-— **`tsc` is skipped on purpose**, so a type error does not take the windows down — and
+— **`tsc` is skipped on purpose**, so a type error does not take the windows down (the root
+`.github/workflows/scanalyzer.yml` runs tsc, `npm test`, the gates and `cargo test` beside it,
+without gating the deploy) — and
 publishes `Web_Front/dist/` under
 `/APK:Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/`, where the
 APK:OS Scanalyzer tiles open it. <https://scanalyzer.like.audio> is the app's public home.

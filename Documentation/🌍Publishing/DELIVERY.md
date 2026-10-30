@@ -34,19 +34,28 @@ Run in `Web_Front/`: `npm test` (47 node --test cases), `npm run build`,
 `node scripts/check-mount-reach.mjs`, `node scripts/check-public-api.mjs`,
 `node scripts/check-effect-abort.mjs`, `node scripts/check-discovery.mjs`,
 `npm run gen:ucs-index -- --check`. The desktop crate: `cargo check` in `Web_Front/src-tauri`.
+The Folder-ScanAnalyzer tools: `cargo test` in `folder_scanner_rs` and `graphics_suite_rs`.
+
+In CI, the APK.audio root `.github/workflows/scanalyzer.yml` runs all of the above except the
+desktop crate on every push that moves this submodule, the engine, the extractor or the UCS
+data: it builds the two wasm cores first (tsc resolves them through the gitignored `pkg/`),
+then `npm ci`, `npm test`, `tsc -b`, the four gates, `gen:ucs-index --check`, and both
+`cargo test`s. It lives at the root, not here, because the wasm cores and the UCS mirror build
+from sibling submodules a lone clone of this repo does not have. It does not gate the deploy.
 The repo's smoke result is in [SMOKE.md](../🧩Manual%20and%20Artifacts/SMOKE.md).
 
 ## Not automated
 
-- **CI runs none of the tests or gates above.** The root CI builds with `vite build` only;
-  `tsc`, `npm test` and the `check-*.mjs` gates run only when someone runs them.
+- **The deploy does not wait for the tests.** The root deploy builds with `vite build` only;
+  `scanalyzer.yml` goes red beside it but does not stop it. `cargo check` of the desktop crate
+  runs only by hand.
 - **scanalyzer.like.audio is not deployed from here.** This repo's own `.github/` was removed
   in `53236b7`. The `public/api/*.php` files there use the placeholder
   `GITHUB_SECRET_DB_PASSWORD` when `SCAN_DB_PASS` is unset; whatever substitutes it on that
   host is outside this repo.
-- **The WASM `pkg/` folders are committed** so a build without Rust works; after an engine
-  change they must be rebuilt with `wasm-pack` and committed by hand (CI rebuilds them for
-  apk.audio, but not for a local `npm run build`).
+- **The WASM `pkg/` folders are not committed** (each holds a `*` .gitignore), so every build
+  runs `wasm-pack build` first; after an engine change a local `npm run build` needs that rerun
+  by hand.
 - **Generated UCS tables** (`npm run gen:ucs-index`, `npm run gen:ucs-synonyms`) are rerun by
   hand when DATATYPE.soundfx.UCS changes.
 - **Rotating the database password** after its exposure in git history is the owner's step.
