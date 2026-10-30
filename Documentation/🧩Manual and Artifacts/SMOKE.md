@@ -4,12 +4,13 @@ Is `SCANALYZER.Like.audio` deployed? Written by `.apk.scripts/smoke.py` from the
 
 ← [Wiki home](../README.md)
 
-**✅ PASS** — 1/1 checks, since 2026-10-30 12:51 EDT
+**✅ PASS** — 2/2 checks, since 2026-10-30 13:37 EDT
 
 | Check | Target | Result | Detail |
 |---|---|---|---|
 | pushed | [APK.softapp.Scanalyzer.Like.audio](https://github.com/LikeDotAudio/APK.softapp.Scanalyzer.Like.audio.git) | ✅ | HEAD is on origin |
+| container | `Scanalyzer-API` | ✅ | running, healthy |
 
 Re-run: `python3 .apk.scripts/smoke.py PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio`
 
-<!-- smoke:sig 56f6f427f58b since 2026-10-30 12:51 EDT -->
+<!-- smoke:sig 934cd2de41cb since 2026-10-30 13:37 EDT -->
