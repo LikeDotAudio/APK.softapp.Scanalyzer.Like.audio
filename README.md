@@ -549,6 +549,33 @@ weighted Gaussian `priors`. `build.rs` splices those files into the binary, so t
 scorer and the taxonomy can never drift apart. The grammar and the scoring math are
 specified in `Documentation/ucs_signature_spec.md`.
 
+### UCS synonyms — searching by any word for the sound (`Web_Front/src/ucsSynonyms.ts`)
+
+The UCS files about 10 400 synonyms under its subcategories ("Abbey", "Castle",
+"Victorian" under DOORS › ANTIQUE), but people search with words for *those* words —
+"sedan", "automobile", "hatchback" for CAR. The front end's global filter goes through
+a two-ring synonym library:
+
+1. **The UCS's own synonyms** — `Web_Front/src/ucsSynonyms.json`, one row per
+   subcategory, generated (`node scripts/gen-ucs-synonyms.mjs [path/to/DATATYPE.soundfx.UCS]`)
+   from the category JSONs plus `producer_synonyms.json` ("808", "bd").
+2. **Words for those words** — `Web_Front/src/ucsThesaurus.json`, hand-kept rings of
+   interchangeable words. Every ring must contain at least one UCS word;
+   `test/ucs-synonyms.test.mjs` fails on a ring that reaches nothing.
+
+A query reaches a subcategory if it is one of its words, or shares a ring with one —
+**one hop**, never ring-to-ring, so "hit" cannot drift to "match" to "fire". Plurals fold
+("sedans" = "sedan"). A record passes the filter when its text contains the query (the
+old substring rule, unchanged), when its UCS pick or a runner-up is reached by the whole
+query, or — for a several-word query — when each word is in its text or reaches its
+subcategory ("old door" → DOORS › ANTIQUE). The filter box's tooltip lists the ring words
+a search was widened through. Search only: nothing here changes what the analyzer writes.
+
+It keeps going on errors: malformed rows and rings are skipped and counted, an index
+that will not build or a query that throws degrades to the plain substring filter, and
+the generator skips unreadable category files and refuses to replace a good library with
+an empty one.
+
 ### Calibrating the signatures against FSD50K
 
 Those signatures began as *reasoned* numbers — derived from physics and from the UCS
@@ -801,7 +828,8 @@ uploaded. What differs from the desktop build:
   path (basename fallback). Header status text and pulsing buttons walk you
   through getting "online".
 - **Examiner** — a virtualized list (handles 30k+ rows), sortable columns,
-  group/subgroup scope filters + text filter, a draggable sash, arrow-key
+  group/subgroup scope filters + text filter (the global filter, which also
+  searches through [the UCS synonyms](#ucs-synonyms--searching-by-any-word-for-the-sound-web_frontsrcucssynonymsts)), a draggable sash, arrow-key
   navigation, a **DIG** crate-digging auto-advance, and a static waveform +
   averaged-FFT preview (group colour for the wave, its complement for the
   spectrum, note-frequency axis on top, root-note marker, ADSR overlay).

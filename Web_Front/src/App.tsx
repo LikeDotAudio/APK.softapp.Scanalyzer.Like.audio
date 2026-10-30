@@ -19,6 +19,8 @@ import FaceBallTabRaw from './components/FaceBallTab/FaceBallTab'
 import ScopeBar from './components/ScopeBar'
 import { matchesScope } from './groupColors'
 import { altCategory, altSubcategory } from './ucsIndex'
+import { compileQuery, subKey } from './ucsSynonyms'
+import { UCS_SYNONYMS } from './ucsSynonymData'
 import { lazy, Suspense } from 'react'
 
 const StatsTab = lazy(async () => ({ default: StatsTabRaw }))
@@ -123,18 +125,24 @@ function App() {
   // filters the data. (It used to also drive a `scopeLetters` window that defaulted to A–E
   // on mount, so the whole app booted showing only categories A–E — a hidden filter nobody
   // set. That coupling is gone.)
+  // The free text also goes through the UCS synonym library (ucsSynonyms.ts): "sedan"
+  // finds a record filed VEHICLES › CAR even though no field says "sedan". Compiled once
+  // per keystroke, not per record; if it cannot expand, it is the old substring filter.
+  const filterQuery = useMemo(() => compileQuery(UCS_SYNONYMS, filterText), [filterText])
   const scopedData = useMemo(() => {
-    const q = filterText.trim().toLowerCase();
     return analysisResult.filter(it => {
       if (!matchesScope(it, scopeGroup, scopeSub, altRanks)) return false;
+      if (!filterText.trim()) return true;
 
-      const altText = (it.ucs?.alternatives || [])
-        .map((a: any) => `${altCategory(a)} ${altSubcategory(a)}`).join(' ');
-      if (q && !`${it.metadata?.name || ''} ${it.classification?.group || ''} ${it.classification?.subgroup || ''} ${it.ucs?.category || ''} ${it.ucs?.subcategory || ''} ${altText} ${it.classification?.timbre || ''} ${it.musicality?.root_note_name || ''} ${it.classification?.reason?.[0] || ''}`
-        .toLowerCase().includes(q)) return false;
-      return true;
+      const alts = it.ucs?.alternatives || [];
+      const altText = alts.map((a: any) => `${altCategory(a)} ${altSubcategory(a)}`).join(' ');
+      const haystack = `${it.metadata?.name || ''} ${it.classification?.group || ''} ${it.classification?.subgroup || ''} ${it.ucs?.category || ''} ${it.ucs?.subcategory || ''} ${altText} ${it.classification?.timbre || ''} ${it.musicality?.root_note_name || ''} ${it.classification?.reason?.[0] || ''}`
+        .toLowerCase();
+      const keys = [subKey(it.ucs?.category, it.ucs?.subcategory),
+        ...alts.map((a: any) => subKey(altCategory(a), altSubcategory(a)))];
+      return filterQuery.test(haystack, keys);
     });
-  }, [analysisResult, scopeGroup, scopeSub, filterText, altRanks])
+  }, [analysisResult, scopeGroup, scopeSub, filterText, filterQuery, altRanks])
 
   // What every tab renders: the scoped set. (The old Groups hide/show filter was retired.)
   const filteredData = scopedData

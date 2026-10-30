@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "test": "node --test test/*.test.mjs",
     "gen:logo": "node scripts/gen-logo.mjs",
+    "gen:ucs-synonyms": "node scripts/gen-ucs-synonyms.mjs",
     "tauri": "tauri"
   },
   "dependencies": {

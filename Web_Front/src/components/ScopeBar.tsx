@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { type Taxonomy, taxonomyKeys, scopeSubgroups, scopeSubColor } from '../groupColors';
 import { altCategory } from '../ucsIndex';
+import { compileQuery } from '../ucsSynonyms';
+import { UCS_SYNONYMS } from '../ucsSynonymData';
 
 import { categoryLabel, subcategoryLabel } from '../categoryEmoji';
 import AlphabetScrubber from './AlphabetScrubber';
@@ -65,6 +67,14 @@ export default function ScopeBar({ analysisResult, group, sub, setGroup, setSub,
   const [draftText, setDraftText] = useState(filterText || '');
   useEffect(() => { setDraftText(filterText || ''); }, [filterText]);
   const searchPending = explicitSearch && draftText !== (filterText || '');
+  // Say what the UCS synonym library widened the search through ("sedan" → car, auto),
+  // so a hit that shares no letters with the query is not a mystery. See ucsSynonyms.ts.
+  const synonymTitle = useMemo(() => {
+    const via = filtering ? compileQuery(UCS_SYNONYMS, filterText || '').via : [];
+    return via.length
+      ? `Also matching through UCS synonyms: ${via.slice(0, 12).join(', ')}${via.length > 12 ? ` (+${via.length - 12})` : ''}`
+      : 'Matches name, group, timbre and UCS category — plus the UCS synonyms (e.g. "sedan" finds VEHICLES › CAR)';
+  }, [filtering, filterText]);
 
 
   const filterBtn = (label: string, active: boolean, onClick: () => void, color?: string, disabled = false) => (
@@ -138,7 +148,8 @@ export default function ScopeBar({ analysisResult, group, sub, setGroup, setSub,
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', width: isNarrow ? '150px' : '300px', flex: isNarrow ? 1 : '0 0 auto' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: 0, display: 'flex', alignItems: 'center' }}>
               <input type="text"
-                placeholder={explicitSearch ? 'Search name, group, timbre... (Enter)' : 'Filter by name, group, timbre...'}
+                placeholder={explicitSearch ? 'Search name, group, synonym... (Enter)' : 'Filter by name, group, synonym...'}
+                title={synonymTitle}
                 value={explicitSearch ? draftText : (filterText || '')}
                 onChange={e => (explicitSearch ? setDraftText(e.target.value) : setFilterText(e.target.value))}
                 onKeyDown={e => { if (explicitSearch && e.key === 'Enter') setFilterText(draftText); }}

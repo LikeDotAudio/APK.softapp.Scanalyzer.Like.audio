@@ -10,6 +10,28 @@ existing `.PEAK` sidecars and forces a re-scan. That is by design.
 
 ## [Unreleased]
 
+### 2026-10-30 — search: the UCS synonym library (issue #1)
+
+#### Added
+
+- **The global filter now searches through UCS synonyms.** Typing "sedan" finds a
+  record filed VEHICLES › CAR although no field of it says "sedan". Two rings of
+  words: the UCS's own ~10 400 synonyms (`Web_Front/src/ucsSynonyms.json`, generated
+  by `Web_Front/scripts/gen-ucs-synonyms.mjs` from the DATATYPE.soundfx.UCS category
+  JSONs + `producer_synonyms.json`), and a hand-kept thesaurus of words for those words
+  (`Web_Front/src/ucsThesaurus.json`, ~300 rings). One hop only, plural-folded; a
+  several-word query matches when every word does ("old door" → DOORS › ANTIQUE). The
+  filter box's tooltip names the words a search was widened through.
+- **It keeps going on errors.** Malformed rows/rings are skipped and counted; a library
+  that will not build, or a query that throws, falls back to the plain substring filter.
+  The generator skips unreadable category files and never overwrites a good library
+  with an empty one.
+- `npm test` (= `node --test test/*.test.mjs`) is now a real script; the new
+  `test/ucs-synonyms.test.mjs` runs the matcher against the shipped data and fails on
+  any thesaurus ring that reaches no UCS word.
+
+No analyzer or UCS-data change: existing `.PEAK` sidecars stay valid.
+
 ### 2026-07-16 — examiner: spectrum pane no longer blanks on slow decodes
 
 #### Fixed
