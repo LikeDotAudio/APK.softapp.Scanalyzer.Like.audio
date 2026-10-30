@@ -271,12 +271,33 @@ fn extractor_analyze_chunk(
     }
 }
 
+/// What `--db-url` carries. The engine does not open a database connection — its
+/// `db::get_pool` ignores the value and POSTs to `upload_peak.php`, which holds the
+/// credentials server-side — so the URL is only "upload is on" and needs no secret.
+/// `SCAN_DB_URL` overrides it; nothing here may ever hold a password again.
+fn cloud_db_url() -> String {
+    std::env::var("SCAN_DB_URL").unwrap_or_else(|_| "https://scanalyzer.like.audio/api/upload_peak.php".to_string())
+}
+
+/// The scan engine CLI. `main.py` builds `sample_analyzer_rs` (this repo's symlink to
+/// PROCESSOR/PROCESSOR.SampleAnalyzer), asks `cargo metadata` where cargo put it — in the
+/// APK.audio checkout that is the root `target/`, not the crate's — and hands the path over
+/// as `SCAN_ANALYZER_BIN`. Without it (a standalone clone, no target-dir override) the
+/// crate-local `target/` is resolved from this crate's own directory, never the cwd.
+fn analyzer_binary() -> std::path::PathBuf {
+    if let Ok(p) = std::env::var("SCAN_ANALYZER_BIN") {
+        return std::path::PathBuf::from(p);
+    }
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../sample_analyzer_rs/target/release/oa_sample_analyzer")
+}
+
 #[tauri::command]
 fn sync_to_db(app: tauri::AppHandle, directory: String) {
     std::thread::spawn(move || {
         use tauri::Emitter;
-        let db_url = "mysql://tandapho_scanalyzer:z7hGhX%29x%29%3FUXtuo%5D@scanalyzer.like.audio/tandapho_scanalyzer";
-        let pool = match oa_sample_analyzer::db::get_pool(db_url) {
+        let db_url = cloud_db_url();
+        let pool = match oa_sample_analyzer::db::get_pool(&db_url) {
             Ok(p) => p,
             Err(_) => {
                 let _ = app.emit("analyzer-progress", r#"{"type":"db_export","status":"failed"}"#);
@@ -354,12 +375,12 @@ fn start_analysis(
             .map(|n| n.get())
             .unwrap_or(4);
 
-        let mut cmd = Command::new("../../SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine/target/release/oa_sample_analyzer");
+        let mut cmd = Command::new(analyzer_binary());
         cmd.arg(&directory)
             .arg("--workers")
             .arg(workers.to_string())
             .arg("--db-url")
-            .arg("mysql://tandapho_scanalyzer:z7hGhX%29x%29%3FUXtuo%5D@scanalyzer.like.audio/tandapho_scanalyzer");
+            .arg(cloud_db_url());
         if let Some(s) = stride {
             cmd.arg("--stride").arg(s.to_string());
         }

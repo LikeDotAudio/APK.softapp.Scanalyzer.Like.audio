@@ -4,16 +4,11 @@
 Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 50,000 WAV files.
 
 ## Found while refreshing the README (2026-10-30)
-- **Database credentials are committed.** The MySQL user and password for
-  `scanalyzer.like.audio` sit in plain text in `describe_db.py` and in the `--db-url` that
-  `start_analysis` (`Web_Front/src-tauri/src/lib.rs`) passes to the engine. They are in
-  git history either way; removing them needs a rotation, not just an edit.
-- **The desktop engine path is stale.** `main.py::build_analyzer` and `lib.rs::start_analysis`
-  look for `SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine`, which the family reorg
-  removed; the core is `../../PROCESSOR/PROCESSOR.SampleAnalyzer` (also reachable as
-  `sample_analyzer_rs/`). `main.py` exits before launching, and a desktop scan cannot spawn.
-- **`SCAN` is a dangling symlink** (`SCAN -> Scanalyzer.Like.audio`, a name that no longer
-  exists).
+- **A database password is in git history.** Until 2026-10-30 the MySQL user and password
+  for `scanalyzer.like.audio` were committed in `describe_db.py` and in `lib.rs`. Both now
+  carry none (`describe_db.py` reads `SCAN_DB_*`; `cloud_db_url()` passes a credential-free
+  upload URL, since the engine POSTs to `upload_peak.php` and never opens MySQL). The old
+  password stays in history: **the owner must rotate it on the host.**
 - **`npm run build` fails on `tsc -b`**: 20+ pre-existing errors (missing `jszip`,
   `exifreader`, `tesseract.js`; `verbatimModuleSyntax` type-only imports). `vite build`
   alone succeeds, and the parent CI builds with `npx vite build --base ./` for that reason.

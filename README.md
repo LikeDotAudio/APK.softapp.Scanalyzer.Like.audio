@@ -108,12 +108,10 @@ cd Web_Front && npm run tauri dev                                     # or: npm 
 
 Requires: Node 18+, a Rust toolchain, and the Tauri v2 system dependencies.
 
-The desktop app is meant to spawn `sample_analyzer_rs/target/release/oa_sample_analyzer`,
-so build that first — `python3 main.py` builds it and then runs `npm run tauri dev`.
-**Known broken:** both `main.py` and `start_analysis` in `Web_Front/src-tauri/src/lib.rs`
-still look for the engine under the pre-reorg `SCANALYZER:softapps/SCANALIZER.SampleAnalyzer-Engine`
-path, so the launcher exits and the desktop scan cannot start until they are repointed
-(see `Documentation/🔍Audits/KNOWN_ISSUES.md`). It scans with one worker per core, streams progress, and
+`python3 main.py` builds the engine (`sample_analyzer_rs/` → PROCESSOR/PROCESSOR.SampleAnalyzer),
+asks `cargo metadata` where the binary landed (the APK.audio checkout's root `target/`), hands
+that path to the app as `SCAN_ANALYZER_BIN`, then runs `npm run tauri dev`; `start_analysis` in
+`Web_Front/src-tauri/src/lib.rs` (`analyzer_binary`) spawns it. It scans with one worker per core, streams progress, and
 writes a `.PEAK` sidecar next to every sample.
 
 CLI (what the desktop app runs for you):
@@ -136,9 +134,11 @@ APK:OS Scanalyzer tiles open it. <https://scanalyzer.like.audio> is the app's pu
 **Backend services.** Analysis is 100% local. The optional **cloud database** ("Load from
 Database", and the desktop scan's `--db-url`) shares `.PEAK` records across machines
 through PHP endpoints (`Web_Front/public/api/*.php`, with migration/debug copies in
-`Web_Front/tools/api/`) over MariaDB/MySQL. **The database credentials are currently
-committed** — in `Web_Front/src-tauri/src/lib.rs` (`start_analysis`) and `describe_db.py`;
-see `Documentation/🔍Audits/KNOWN_ISSUES.md`.
+`Web_Front/tools/api/`) over MariaDB/MySQL. The credentials live only server-side (`SCAN_DB_*`,
+or the deploy's secret substitution); the desktop's `--db-url` only switches the upload on, and
+`describe_db.py` reads `SCAN_DB_*` from the environment. A password that was committed before
+2026-10-30 is still in git history, so it must be rotated on the host
+(see `Documentation/🔍Audits/KNOWN_ISSUES.md`).
 
 **On the APK.audio bench, the API is this repository's own stack** (`Docker/`, PLAN-3424.01):
 php-fpm as `scan-api:9000` in the `apk-audio` compose project, holding only `db_status.php`,

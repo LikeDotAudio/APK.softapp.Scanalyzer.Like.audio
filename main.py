@@ -7,6 +7,7 @@ This script launches the modern Tauri/Rust-based desktop application.
 import os
 import sys
 import subprocess
+import json
 
 def clean_env():
     """Scrub snap env vars that break glibc and WebKit when launched from a snapped VS Code."""
@@ -28,18 +29,20 @@ def build_analyzer(root_dir, env):
     """Rebuild the analyzer CLI the desktop app shells out to.
 
     The desktop app does NOT analyze in-process — start_analysis (src-tauri) runs the
-    prebuilt binary at sample_analyzer_rs/target/release/oa_sample_analyzer. `tauri dev`
+    prebuilt binary oa_sample_analyzer from sample_analyzer_rs (handed over as SCAN_ANALYZER_BIN). `tauri dev`
     recompiles the Tauri crate but never that binary, so without this step the desktop
     keeps using a stale engine: every classifier, calibration and .PEAK-schema change
     would be invisible until the CLI is rebuilt by hand. `cargo build` is a no-op when
     nothing changed, so this is cheap on the common launch.
     """
-    analyzer_dir = os.path.join(root_dir, "SCANALYZER:softapps", "SCANALIZER.SampleAnalyzer-Engine")
+    # sample_analyzer_rs is the repo's symlink to PROCESSOR/PROCESSOR.SampleAnalyzer;
+    # start_analysis (src-tauri/src/lib.rs, analyzer_binary) runs the binary built here.
+    analyzer_dir = os.path.join(root_dir, "sample_analyzer_rs")
     if not os.path.isdir(analyzer_dir):
         print(f"Error: Could not find the analyzer at {analyzer_dir}")
         sys.exit(1)
 
-    print("Building the analyzer engine (SCANALIZER.SampleAnalyzer-Engine, release)...")
+    print("Building the analyzer engine (PROCESSOR.SampleAnalyzer, release)...")
     try:
         subprocess.run(
             ["cargo", "build", "--release"],
@@ -55,10 +58,29 @@ def build_analyzer(root_dir, env):
               "Fix the build above before launching, or the desktop app would run a stale engine.")
         sys.exit(e.returncode)
 
-    binary = os.path.join(analyzer_dir, "target", "release", "oa_sample_analyzer")
+    binary = os.path.join(target_dir(analyzer_dir, env), "release", "oa_sample_analyzer")
     if not os.path.isfile(binary):
         print(f"Error: build reported success but {binary} is missing.")
         sys.exit(1)
+    return binary
+
+
+def target_dir(crate_dir, env):
+    """Where cargo put the build: ask `cargo metadata`, never guess.
+
+    The APK.audio checkout sets `[build] target-dir` in its root .cargo/config.toml, so the
+    binary is NOT under <crate>/target there; `cargo metadata` reports the winner (that
+    setting, or CARGO_TARGET_DIR). Falls back to <crate>/target only when the ask fails —
+    a standalone clone with no override, where that IS where cargo writes.
+    """
+    try:
+        out = subprocess.run(
+            ["cargo", "metadata", "--format-version", "1", "--no-deps"],
+            cwd=crate_dir, env=env, check=True, capture_output=True, text=True,
+        ).stdout
+        return json.loads(out)["target_directory"]
+    except (OSError, subprocess.CalledProcessError, ValueError, KeyError):
+        return os.path.join(crate_dir, "target")
 
 
 def main():
@@ -81,7 +103,8 @@ def main():
 
     # Rebuild the engine first, so the app that launches uses current code, not a stale
     # binary from a previous session.
-    build_analyzer(root_dir, env)
+    # start_analysis (src-tauri/src/lib.rs, analyzer_binary) spawns exactly this binary.
+    env["SCAN_ANALYZER_BIN"] = build_analyzer(root_dir, env)
 
     print("\nLaunching the Scanalyzer Tauri App...")
     print("If this is your first time, it may take a few moments to compile the Rust backend.")
