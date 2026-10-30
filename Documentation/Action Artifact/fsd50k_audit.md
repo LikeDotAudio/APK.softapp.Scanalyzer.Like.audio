@@ -306,28 +306,35 @@ measure) would change the meaning of 514 priors and should be done deliberately.
 ### 7.7 The separability tiers were too pessimistic — measured, not argued
 
 §6.4 asked for this and it is the most interesting result. A logistic probe on the
-analyzer's own feature vector (5-fold CV, majority-class baseline) over **181 sibling
-pairs**:
+analyzer's own feature vector (5-fold CV, majority-class baseline) over **118 sibling
+pairs** (regenerated 2026-10-30 against the MUSICAL-split UCS ids; the first run, on the
+pre-split ids, counted 181 pairs, median lift +0.22 and 51 of 66):
 
-> **51 of 66 `semantic_only` pairs (77 %) separate well above chance.** Median lift
-> across all 181 pairs: **+0.22**.
+> **43 of 52 pairs touching `semantic_only` (83 %) separate above chance** (lift > 0.05).
+> Median lift across all 118 pairs: **+0.19**.
 
 The spec's own flagship example of a thing DSP can never do —
 
-- **VEHICLES-CAR vs VEHICLES-BUS: 0.86 accuracy** against a 0.51 baseline.
-- ANIMALS-CAT vs ANIMALS-DOG: 0.88 against 0.56.
-- COMMUNICATIONS-CELLPHONE vs TYPEWRITER: 0.99 against 0.53.
+- **VEHICLES-CAR vs VEHICLES-BUS: 0.81 accuracy** against a 0.51 baseline.
+- ANIMALS-CAT vs ANIMALS-DOG: 0.87 against 0.72.
+- COMMUNICATIONS-CAMERA vs TELEPHONE: 0.94 against 0.58.
 
 §7 of the signature spec says "signal features cannot tell a car from a bus". They
-can, 86 % of the time. **The 38 % `semantic_only` verdict is wrong, and the tiers
+can, about 80 % of the time. **The 38 % `semantic_only` verdict is wrong, and the tiers
 should be re-derived from this table rather than argued.**
 
-In the other direction the evidence is thin: only 6 `signal_separable` pairs show a
-lift under 0.05, and every one of them is a heavily imbalanced pair whose baseline is
-already ≥0.84 — where lift is a weak statistic. **No `signal_separable` claim is
-falsified by this data.** The tiers err in one direction only: pessimism.
+In the other direction the evidence is thinner but no longer empty: 7 pairs touching
+`signal_separable` show a lift under 0.05. Four are heavily imbalanced (baseline
+≥0.85: WATRFlow/WATRPour, VOXCry/VOXLaff, VOXEfrt/VOXLaff, WATRBubl/WATRPlmb), where
+lift is a weak statistic. The other three are WATER pairs at moderate baselines that
+the probe cannot split at all — WATRBubl/WATRFlow 0.80 vs 0.80, WATRBubl/WATRSurf
+0.76 vs 0.76, WATRDrip/WATRPour 0.69 vs 0.70 — so the `signal_separable` tier on
+WATRBubl and WATRDrip is the one claim this data puts in doubt. Otherwise the tiers
+err in one direction: pessimism.
 
-Full table: `UCS/fsd50k_separability.json`.
+Full table: `fsd50k_separability.json` in DATATYPE.soundfx.UCS
+(`PODS/POD.THIN/Softapps/DATATYPE/DATATYPE.soundfx.UCS/`, written by
+`fsd50k_calibrate.py separability`).
 
 ### 7.8 Licensing
 
