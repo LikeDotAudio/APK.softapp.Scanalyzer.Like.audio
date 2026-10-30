@@ -1,4 +1,4 @@
-import { FileItem } from './types';
+import type { FileItem } from './types';
 
 export interface Annotation {
   id: number;

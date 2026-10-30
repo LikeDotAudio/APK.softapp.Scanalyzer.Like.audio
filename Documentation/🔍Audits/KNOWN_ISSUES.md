@@ -9,9 +9,10 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
   carry none (`describe_db.py` reads `SCAN_DB_*`; `cloud_db_url()` passes a credential-free
   upload URL, since the engine POSTs to `upload_peak.php` and never opens MySQL). The old
   password stays in history: **the owner must rotate it on the host.**
-- **`npm run build` fails on `tsc -b`**: 20+ pre-existing errors (missing `jszip`,
-  `exifreader`, `tesseract.js`; `verbatimModuleSyntax` type-only imports). `vite build`
-  alone succeeds, and the parent CI builds with `npx vite build --base ./` for that reason.
+- ~~`npm run build` fails on `tsc -b`~~ — fixed 2026-10-30: the four packages the legacy
+  shell's absorbed modules import (`pdfjs-dist`, `jszip`, `exifreader`, `tesseract.js`) are
+  declared, and the type-only imports say so. `npm run build` (tsc + vite) passes; the
+  parent CI still runs `vite build` alone.
 - **13 of 44 `npm test` cases fail** (depth-axis, percent-fill, puck, sense-warning,
   stall-notice consumers): source-text assertions that no longer match the components.
   The synonym tests pass.

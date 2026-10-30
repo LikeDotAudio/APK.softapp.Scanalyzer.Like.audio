@@ -1,4 +1,4 @@
-import { FileItem, TreeNode } from './types';
+import type { FileItem, TreeNode } from './types';
 import { sidecarBadge, sidecarTitle } from './sidecars';
 
 export function buildDirectoryTree(files: FileItem[]): TreeNode {

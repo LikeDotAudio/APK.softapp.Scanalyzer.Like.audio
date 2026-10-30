@@ -1,4 +1,4 @@
-import { FileItem } from './types';
+import type { FileItem } from './types';
 import { apiUrl } from './apiBase';
 
 export async function identifyPhotoAndWords(fileItem: FileItem, container: HTMLElement) {

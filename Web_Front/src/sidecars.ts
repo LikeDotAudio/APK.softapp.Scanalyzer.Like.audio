@@ -28,7 +28,7 @@
 // is the record of a file that has been deleted since the scan, which is a real
 // thing to be able to see.
 
-import { FileItem } from './types';
+import type { FileItem } from './types';
 
 /** What a scan wrote beside one file. Every field is optional — a folder may
  *  have been scanned partway, or not at all. */

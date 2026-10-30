@@ -1,5 +1,5 @@
 import ExifReader from 'exifreader';
-import { FileItem, ImageMetadata, BatchEXIFSummary } from './types';
+import type { FileItem, ImageMetadata, BatchEXIFSummary } from './types';
 
 export async function extractImageMetadata(fileItem: FileItem): Promise<ImageMetadata> {
   const file = fileItem.file;

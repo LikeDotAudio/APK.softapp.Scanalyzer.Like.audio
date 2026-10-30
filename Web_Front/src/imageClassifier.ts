@@ -1,4 +1,4 @@
-import { FileItem } from './types';
+import type { FileItem } from './types';
 
 export interface ImageClassification {
   /** UNMEASURED = the pixels could not be read, so no class was decided. */

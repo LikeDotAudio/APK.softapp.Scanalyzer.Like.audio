@@ -1,5 +1,5 @@
-import { FileItem } from './types';
-import { classifyImage, formatConfidence, ImageClassification } from './imageClassifier';
+import type { FileItem } from './types';
+import { classifyImage, formatConfidence, type ImageClassification } from './imageClassifier';
 import { escapeHTML } from './lib/html';
 import { formatBytes } from './tree';
 import { runOCR } from './ocr';

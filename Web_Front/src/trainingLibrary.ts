@@ -1,4 +1,4 @@
-import { FileItem } from './types';
+import type { FileItem } from './types';
 import { formatBytes } from './tree';
 import { escapeHTML } from './lib/html';
 

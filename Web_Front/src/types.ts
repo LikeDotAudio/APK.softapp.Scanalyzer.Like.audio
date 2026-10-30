@@ -1,4 +1,4 @@
-import { SidecarSet } from './sidecars';
+import type { SidecarSet } from './sidecars';
 
 export interface FileItem {
   file: File;

@@ -1,4 +1,4 @@
-import { FileItem } from './types';
+import type { FileItem } from './types';
 import { formatBytes } from './tree';
 import { runOCR } from './ocr';
 import { convertImageToSVG } from './svgConverter';

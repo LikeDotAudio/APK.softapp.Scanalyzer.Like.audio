@@ -1,5 +1,5 @@
 import ImageTracer from 'imagetracerjs';
-import { FileItem } from './types';
+import type { FileItem } from './types';
 import { formatBytes } from './tree';
 import { runOCR } from './ocr';
 import { analyzeImage } from './imageAnalyzer';

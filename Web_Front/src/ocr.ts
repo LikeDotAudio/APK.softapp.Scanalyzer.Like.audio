@@ -1,6 +1,6 @@
 import { createWorker } from 'tesseract.js';
-import { FileItem } from './types';
-import { classifyImage, formatConfidence, ImageClassification } from './imageClassifier';
+import type { FileItem } from './types';
+import { classifyImage, formatConfidence, type ImageClassification } from './imageClassifier';
 import { convertImageToSVG } from './svgConverter';
 import { apiUrl } from './apiBase';
 import { escapeHTML } from './lib/html';
