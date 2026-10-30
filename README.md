@@ -75,7 +75,6 @@ SCANALYZER.Like.audio/              (this repo — the application)
 ├── folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/  Folder-ScanAnalyzer stages 1–3
 ├── 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to every Scanalyzer softapp, by stage
 ├── SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
-├── main.py                         desktop launcher (rebuilds the engine, then `npm run tauri dev`)
 └── Documentation/                  audits, specs, plans, known issues
 
 The UCS data is not here: it lives in ../../DATATYPE/DATATYPE.soundfx.UCS
@@ -110,7 +109,7 @@ cd Web_Front && npm run tauri dev                                     # or: npm 
 
 Requires: Node 18+, a Rust toolchain, and the Tauri v2 system dependencies.
 
-`python3 main.py` builds the engine (`sample_analyzer_rs/` → PROCESSOR/PROCESSOR.SampleAnalyzer),
+`python3 Web_Front/desktop.py` builds the engine (`sample_analyzer_rs/` → PROCESSOR/PROCESSOR.SampleAnalyzer),
 asks `cargo metadata` where the binary landed (the APK.audio checkout's root `target/`), hands
 that path to the app as `SCAN_ANALYZER_BIN`, then runs `npm run tauri dev`; `start_analysis` in
 `Web_Front/src-tauri/src/lib.rs` (`analyzer_binary`) spawns it. It scans with one worker per core, streams progress, and
@@ -141,7 +140,7 @@ by default — the browser scan's batches and the desktop scan's `--db-url`) sha
 through PHP endpoints (`Web_Front/public/api/*.php`, with migration/debug copies in
 `Web_Front/tools/api/`) over MariaDB/MySQL. The credentials live only server-side (`SCAN_DB_*`,
 or the deploy's secret substitution); the desktop's `--db-url` only switches the upload on, and
-`describe_db.py` reads `SCAN_DB_*` from the environment. A password that was committed before
+`Web_Front/tools/api/describe_db.py` reads `SCAN_DB_*` from the environment. A password that was committed before
 2026-10-30 is still in git history, so it must be rotated on the host
 (see `Documentation/🔍Audits/KNOWN_ISSUES.md`).
 
@@ -474,7 +473,7 @@ Drums and FX legitimately match no role (shown as "(no role)").
 
 ### Music-production role (`categorize.rs::music_prod_category`) — the top level
 
-> **Status (2026-07-14, see CHANGELOG "music taxonomy explosion").** `UCS/categories/MUSICPROD.json`
+> **Status (2026-07-14, see `Documentation/🌍Publishing/CHANGELOG.md` "music taxonomy explosion").** `UCS/categories/MUSICPROD.json`
 > is retired: the 13 instrument categories (DRUMS … LOOPS) are the music taxonomy, and the
 > production role is no longer a scope axis or an Examiner column. The analyzer still derives
 > the role (`Pipeline/analyze.rs` → `categorize.rs::music_prod_category`) and writes

@@ -10,7 +10,7 @@ map of entry points, data flow and files.
 |---|---|
 | Browser, dev | `cd Web_Front && npm install && npm run dev` |
 | Browser, build | `npm run build` (`tsc -b && vite build` → `Web_Front/dist/`) |
-| Desktop | `python3 main.py` — builds the engine, then `npm run tauri dev` |
+| Desktop | `python3 Web_Front/desktop.py` — builds the engine, then `npm run tauri dev` |
 | CLI only | `oa_sample_analyzer <dir> [--out p] [--workers n] [--max-len s] [--clusters k] [--no-per-file] [--force] [--stride n] [--db-url u]` |
 | Corpus API on the bench | `docker compose -f Docker/docker-compose.yml up -d --build` (scan-api, php-fpm :9000) |
 
@@ -34,12 +34,11 @@ Web_Front/
   src-tauri/src/lib.rs    desktop commands (Tauri v2)
   wasm_analyzer/, wasm_extractor/   wasm-bindgen wrappers; committed pkg/ for builds without Rust
   public/api/             db_status.php, get_peaks.php, upload_peak.php — served
-  tools/api/              hand-run migrations/debug PHP — never served
+  tools/api/              hand-run migrations/debug PHP, describe_db.py (peaks table layout; credentials from SCAN_DB_*) — never served
+  desktop.py              desktop launcher (rebuilds the engine, then `npm run tauri dev`)
   scripts/                gates (check-*.mjs) and generators (gen-logo, gen-ucs-synonyms, gen-ucs-index)
   test/                   node --test suites (npm test)
-main.py                   desktop launcher
 Docker/                   scan-api image (the three endpoints only)
-describe_db.py            prints the peaks table layout; credentials from SCAN_DB_*
 sample_analyzer_rs → PROCESSOR.SampleAnalyzer     the engine (own repo)
 extractor_engine_rs → CAPTURE.Extractor-Engine    region detection / slicing (own repo)
 folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/   Folder-ScanAnalyzer stages
@@ -68,7 +67,7 @@ written as `<file>.PEAK` beside the audio (where the browser allows writes), bat
 **Desktop scan.** `TauriScan.tsx` invokes `start_analysis` (`lib.rs`), which spawns
 `oa_sample_analyzer <dir> --workers <cores>`, plus `--db-url <upload URL>` only when the
 opt-in box is ticked (`upload`) (binary from
-`analyzer_binary()`: `SCAN_ANALYZER_BIN`, set by `main.py` after it asks `cargo metadata`
+`analyzer_binary()`: `SCAN_ANALYZER_BIN`, set by `Web_Front/desktop.py` after it asks `cargo metadata`
 where cargo built it). The CLI streams one JSON line per file; `lib.rs` batches results into
 `analyzer-batch` events (1,000 at a time) and progress into `analyzer-progress`. The engine
 writes the sidecars and `sample_cloud_data.PEAK` itself. Other commands read back what is on

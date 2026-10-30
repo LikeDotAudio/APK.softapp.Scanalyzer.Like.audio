@@ -4,7 +4,7 @@ Credentials come from the environment (the same SCAN_DB_* names the PHP API read
 none are kept in this repository.
 
     SCAN_DB_HOST=scanalyzer.like.audio SCAN_DB_USER=... SCAN_DB_PASS=... \\
-    SCAN_DB_NAME=... python3 describe_db.py
+    SCAN_DB_NAME=... python3 Web_Front/tools/api/describe_db.py
 """
 import os
 import sys

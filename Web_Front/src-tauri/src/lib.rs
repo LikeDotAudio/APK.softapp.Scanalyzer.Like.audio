@@ -279,7 +279,7 @@ fn cloud_db_url() -> String {
     std::env::var("SCAN_DB_URL").unwrap_or_else(|_| "https://scanalyzer.like.audio/api/upload_peak.php".to_string())
 }
 
-/// The scan engine CLI. `main.py` builds `sample_analyzer_rs` (this repo's symlink to
+/// The scan engine CLI. `Web_Front/desktop.py` builds `sample_analyzer_rs` (this repo's symlink to
 /// PROCESSOR/PROCESSOR.SampleAnalyzer), asks `cargo metadata` where cargo put it — in the
 /// APK.audio checkout that is the root `target/`, not the crate's — and hands the path over
 /// as `SCAN_ANALYZER_BIN`. Without it (a standalone clone, no target-dir override) the

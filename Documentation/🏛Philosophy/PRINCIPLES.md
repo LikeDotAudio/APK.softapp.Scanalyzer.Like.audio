@@ -15,7 +15,7 @@ the web page and the Tauri window.
   starts one `wasmWorker.ts` per `navigator.hardwareConcurrency`.
 - Desktop: `Web_Front/src-tauri/Cargo.toml` links `oa-sample-analyzer` by path, and
   `start_analysis` (`src-tauri/src/lib.rs`) spawns the CLI built from the same crate
-  (`analyzer_binary()`; `main.py` `build_analyzer` builds it first so the desktop never runs a
+  (`analyzer_binary()`; `Web_Front/desktop.py` `build_analyzer` builds it first so the desktop never runs a
   stale engine).
 
 ## 2. The `.PEAK` sidecar is the record
@@ -86,7 +86,7 @@ pushes sideways to the window that owns the next screen instead of switching its
   `CloudShareToggle.tsx`, stored by `cloudShare.ts`, off by default) gates the browser
   `flushDbBatch`, the desktop `start_analysis` (`upload`; without it `--db-url` is not passed)
   and the desktop `sync_to_db` on open. Unticked, nothing but the audio's own sidecars is written.
-- **A database password is in git history** (committed until 2026-10-30 in `describe_db.py`
+- **A database password is in git history** (committed until 2026-10-30 in `describe_db.py`, now `Web_Front/tools/api/describe_db.py`
   and `lib.rs`). The source no longer carries it; rotating it is the owner's step
   (`Documentation/🔍Audits/KNOWN_ISSUES.md`).
 - **`Header.tsx` returns `null`** (since 382f068): the branding/progress strip is gone from

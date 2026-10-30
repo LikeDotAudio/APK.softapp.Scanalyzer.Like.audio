@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Scanalyzer Runner Script.
-This script launches the modern Tauri/Rust-based desktop application.
+Scanalyzer desktop launcher: `python3 Web_Front/desktop.py` from the repository root.
+Rebuilds the analyzer engine, then runs `npm run tauri dev` in Web_Front/.
 """
 
 import os
@@ -84,8 +84,10 @@ def target_dir(crate_dir, env):
 
 
 def main():
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-    web_front_dir = os.path.join(root_dir, "Web_Front")
+    # This file lives in Web_Front/; the repository root (where the
+    # sample_analyzer_rs symlink sits) is one folder up.
+    web_front_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.dirname(web_front_dir)
 
     if not os.path.isdir(web_front_dir):
         print(f"Error: Could not find the Web_Front directory at {web_front_dir}")

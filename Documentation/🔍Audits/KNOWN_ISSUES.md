@@ -6,7 +6,7 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
 ## Found while refreshing the README (2026-10-30)
 - **A database password is in git history.** Until 2026-10-30 the MySQL user and password
   for `scanalyzer.like.audio` were committed in `describe_db.py` and in `lib.rs`. Both now
-  carry none (`describe_db.py` reads `SCAN_DB_*`; `cloud_db_url()` passes a credential-free
+  carry none (`Web_Front/tools/api/describe_db.py` reads `SCAN_DB_*`; `cloud_db_url()` passes a credential-free
   upload URL, since the engine POSTs to `upload_peak.php` and never opens MySQL). The old
   password stays in history: **the owner must rotate it on the host.**
 - ~~`npm run build` fails on `tsc -b`~~ — fixed 2026-10-30: the four packages the legacy

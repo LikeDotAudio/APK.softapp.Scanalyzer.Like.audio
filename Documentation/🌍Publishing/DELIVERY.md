@@ -10,7 +10,7 @@ How it is built, tested and shipped, and where it lands.
 | **WEB.Frontend-Assets image** | the whole `PODS/POD.THIN/Softapps` tree, sources as checked out | `WEB.Frontend-Assets/Docker/Dockerfile` `COPY ["PODS/POD.THIN/Softapps", …]` |
 | **scan-api container** (bench) | `db_status.php`, `get_peaks.php`, `upload_peak.php` on php-fpm :9000 | `Docker/docker-compose.yml` (project `apk-audio`), image `scanalyzer-api:local` |
 | **scanalyzer.like.audio** | the app's public home and the cPanel PHP endpoints the desktop uploads to | no workflow in this repo (see *Not automated*) |
-| **Desktop** | a Tauri window run from the checkout | `python3 main.py` |
+| **Desktop** | a Tauri window run from the checkout | `python3 Web_Front/desktop.py` |
 
 ## Build
 
@@ -20,7 +20,7 @@ How it is built, tested and shipped, and where it lands.
   `npx vite build --base ./` (relative base, because the bundle is served from a deep path).
   The root deploy (`WEB.Frontend-Assets/.apk.scripts/deploy.py`) then uploads the site by FTPS.
   Locally `npm run build` runs `tsc -b && vite build`; both pass as of 2026-10-30.
-- **Desktop.** `main.py` runs `cargo build --release` in `sample_analyzer_rs`, asks
+- **Desktop.** `Web_Front/desktop.py` runs `cargo build --release` in `sample_analyzer_rs`, asks
   `cargo metadata` for the target directory (the APK.audio checkout sets one at the root),
   exports the binary as `SCAN_ANALYZER_BIN`, then `npm run tauri dev`. `npm run tauri build`
   makes an installer; nothing publishes one.
