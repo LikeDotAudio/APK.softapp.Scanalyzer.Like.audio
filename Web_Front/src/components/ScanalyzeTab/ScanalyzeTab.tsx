@@ -41,7 +41,27 @@ interface ScanalyzeTabProps {
   dbStatus?: { online: boolean; records: number; checked: boolean };
 }
 
-export default function ScanalyzeTab({
+// The desktop app scans natively (TauriScan); the browser runs the wasm analyzer
+// (WebScan). They are two components rather than one with an early `return`, because
+// WebScan's hooks run on every render and an early return above any of them breaks
+// the Rules of Hooks (oxlint react-hooks/rules-of-hooks).
+export default function ScanalyzeTab(props: ScanalyzeTabProps) {
+  if (isTauri()) {
+    return (
+      <TauriScan
+        analysisResult={props.analysisResult}
+        setAnalysisResult={props.setAnalysisResult}
+        isAnalyzing={props.isAnalyzing}
+        setIsAnalyzing={props.setIsAnalyzing}
+        setProgress={props.setProgress}
+        onViewCloud={props.onViewCloud}
+      />
+    );
+  }
+  return <WebScan {...props} />;
+}
+
+function WebScan({
     analysisResult,
     setAnalysisResult,
     isAnalyzing,
@@ -79,8 +99,6 @@ export default function ScanalyzeTab({
   const threadsRef = useRef<number>(1);
 
   useEffect(() => {
-    // Desktop scans natively — don't fetch the web analyzer wasm there.
-    if (isTauri()) return;
     // Instantiate from fetched bytes (see wasmWorker) so a wrong .wasm MIME type doesn't
     // trigger the instantiateStreaming warning/fallback.
     (async () => {
@@ -89,20 +107,6 @@ export default function ScanalyzeTab({
         setVersion(analyzer_version());
     })().catch(console.error);
   }, []);
-
-  // Below every hook — an early return above a hook breaks the Rules of Hooks.
-  if (isTauri()) {
-    return (
-      <TauriScan
-        analysisResult={analysisResult}
-        setAnalysisResult={setAnalysisResult}
-        isAnalyzing={isAnalyzing}
-        setIsAnalyzing={setIsAnalyzing}
-        setProgress={setProgress}
-        onViewCloud={onViewCloud}
-      />
-    );
-  }
 
   // Discover WAV files in the picked folder. everyNth > 1 samples the library
   // (e.g. every 50th file) for a quick representative test scan.

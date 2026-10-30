@@ -30,7 +30,8 @@ How it is built, tested and shipped, and where it lands.
 
 ## Test
 
-Run in `Web_Front/`: `npm test` (47 node --test cases), `npm run build`,
+Run in `Web_Front/`: `npm test` (47 node --test cases), `npm run build`, `npx oxlint src`
+(fails on errors only; warnings are reported),
 `node scripts/check-mount-reach.mjs`, `node scripts/check-public-api.mjs`,
 `node scripts/check-effect-abort.mjs`, `node scripts/check-discovery.mjs`,
 `npm run gen:ucs-index -- --check`. The desktop crate: `cargo check` in `Web_Front/src-tauri`.
@@ -40,7 +41,7 @@ In CI, the APK.audio root `.github/workflows/scanalyzer.yml` runs all of the abo
 desktop crate on every push that moves this submodule, the engine, the extractor, the UCS
 data or one of the seven CAPTURE repos that copy files from here: it first runs
 `01_CAPTURES/sync_copies.py --check` (those copies match the files built here), builds the two
-wasm cores (tsc resolves them through the gitignored `pkg/`), then `npm ci`, `npm test`, `tsc -b`, the four gates, `gen:ucs-index --check`, and both
+wasm cores (tsc resolves them through the gitignored `pkg/`), then `npm ci`, `npm test`, `tsc -b`, `oxlint src`, the four gates, `gen:ucs-index --check`, and both
 `cargo test`s. It lives at the root, not here, because the wasm cores and the UCS mirror build
 from sibling submodules a lone clone of this repo does not have. It does not gate the deploy.
 The repo's smoke result is in [SMOKE.md](../🧩Manual%20and%20Artifacts/SMOKE.md).
