@@ -20,8 +20,8 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
   `SliceTable.tsx`, `main.tsx` and the allow-fill notes in `ScanalyzeTab.tsx` /
   `PropertyBars.tsx` were restored from that copy; `Header.tsx` (reduced to `return null` in
   382f068) left the fill-host list. 47/47 pass.
-- **The front end's UCS mirrors are hand-regenerated.** `ucsIndex.ts` and `categoryEmoji.ts`
-  say "GENERATED" but their generators are not in the repo (only
-  `scripts/gen-ucs-synonyms.mjs` is). `ucsIndex.ts` has no `8.2.APK` instrument ids
-  (no DRUMS, GUITAR, …); it is only consulted for legacy packed-string runner-ups, which
-  predate those categories, so nothing is known to resolve wrongly today.
+- ~~The front end's UCS mirrors are hand-regenerated~~ — fixed 2026-10-30:
+  `scripts/gen-ucs-index.mjs` (`npm run gen:ucs-index`, `--check` to gate) rewrites the tables
+  in `ucsIndex.ts` and `categoryEmoji.ts` from DATATYPE.soundfx.UCS. `ucsIndex.ts` now carries
+  the 8.2.APK instrument ids (828 subcategories in 94 categories) and keeps the 43 retired
+  MUSICAL/MUSICPROD ids, since legacy packed runner-ups still name them.

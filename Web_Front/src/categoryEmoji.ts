@@ -1,7 +1,7 @@
 // GENERATED from UCS/categories/*.json — do not edit by hand.
 // Each UCS category (and each of its subcategories) carries an emoji in its category
 // JSON (the top-level "emoji" field, and each subcategory's "emoji"). This mirrors
-// them for the UI. Regenerate whenever the taxonomy changes (scratchpad/gen-emoji.cjs).
+// them for the UI. Regenerate whenever the taxonomy changes (828 subcategories in 94 categories, UCS 8.2.1 + 8.2.APK): npm run gen:ucs-index.
 
 export const CATEGORY_EMOJI: Record<string, string> = {
   "AIR": "💨",

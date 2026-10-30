@@ -11,6 +11,7 @@
     "test": "node --test test/*.test.mjs",
     "gen:logo": "node scripts/gen-logo.mjs",
     "gen:ucs-synonyms": "node scripts/gen-ucs-synonyms.mjs",
+    "gen:ucs-index": "node scripts/gen-ucs-index.mjs",
     "tauri": "tauri"
   },
   "dependencies": {
