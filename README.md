@@ -879,3 +879,7 @@ uploaded. What differs from the desktop build:
   script** (Bash / PowerShell / Python) that recreates the destination tree and
   copies/moves each file, with an optional **ffmpeg resample** (sample rate +
   bit depth) baked in. Run it yourself, on your own machine.
+
+<!-- wiki:smoke -->
+**Smoke test** — ✅ PASS 1/1 since 2026-10-30 12:51 EDT — [results](Documentation/%F0%9F%A7%A9Manual%20and%20Artifacts/SMOKE.md)
+<!-- /wiki:smoke -->
