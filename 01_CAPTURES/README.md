@@ -33,3 +33,7 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 | **`CAPTURE.WebScraper`** | `LikeDotAudio/APK.softapp.CAPTURE.WebScraper` | Documentation harvester and Web API specification scraper (AMWA IS-12 / NMOS). |
 | **`CAPTURE.crawler`** | `LikeDotAudio/APK.softapp.CAPTURE.crawler` | Web and local network asset crawler for audio corpora. |
 | **`CAPTURE.Czur-Fast-Capture`** | `LikeDotAudio/APK.softapp.CAPTURE.Czur-Fast-Capture` | High-speed document overhead scanner camera interface and page crop manager. |
+
+## Copies kept in step
+
+Seven of these repositories (FolderScanner, Document, FaceID, Image, OCR, Schematics, Vectorizer) publish files that are **compiled here**. [`copies.tsv`](copies.tsv) names every pair, the Scanalyzer file being the source of truth; `python3 sync_copies.py --write` copies each one over its CAPTURE copy and `--check` exits 1 on any drift. The root `.github/workflows/scanalyzer.yml` runs `--check`, so a fix made here and not carried over goes red.
