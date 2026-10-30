@@ -18,12 +18,12 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 
 | Module Name | Repository / Path | Description |
 | :--- | :--- | :--- |
-| **`DATABASE.Data-Channels`** | `LikeDotAudio/APK.softapp.SCANALIZER.Data-Channels` | Inter-softapp messaging router and postMessage / MQTT data channel bus. |
-| **`DATABASE.Electronics-Emoji`** | `LikeDotAudio/APK.softapp.DATABASE.electronicsEmoji` | 82 schematic symbol ES modules, 18px and 72px renders, and Unicode proposal database. |
-| **`DATABASE.Favorites`** | `LikeDotAudio/APK.softapp.SCANALIZER.Favorites` | Bookmarking, starring, and favorites collection store for scanned assets. |
-| **`DATABASE.Groups`** | `LikeDotAudio/APK.softapp.SCANALIZER.Groups` | Multi-item grouping, tagging, and category aggregation store. |
-| **`DATABASE.Machinist.Like.audio`** | `LikeDotAudio/machinist.like.audio` | Machining feeds, speeds, speeds/feeds calculators, and material reference database. |
-| **`DATABASE.Microphones.Like.audio`** | `LikeDotAudio/Microphones.Like.audio` | 2,067 microphone datasheets, frequency response curves, and polar pattern corpus. |
-| **`DATABASE.Schema`** | `LikeDotAudio/APK.softapp.SCANALIZER.Database-Schema` | MariaDB / MySQL relational database tables and migration scripts for .PEAK data. |
-| **`DATABASE.UCS-Taxonomy`** | `LikeDotAudio/APK.softapp.SCANALIZER.UCS-Taxonomy` | Universal Category System (UCS v8.2) audio taxonomy dictionary and validator. |
+| **`DATABASE.Data-Channels`** | `LikeDotAudio/APK.softapp.DATABASE.Data-Channels` | Inter-softapp messaging router and postMessage / MQTT data channel bus. |
+| **`DATABASE.Electronics-Emoji`** | `LikeDotAudio/APK.softapp.DATABASE.Electronics-Emoji` | 82 schematic symbol ES modules, 18px and 72px renders, and Unicode proposal database. |
+| **`DATABASE.Favorites`** | `LikeDotAudio/APK.softapp.DATABASE.Favorites` | Bookmarking, starring, and favorites collection store for scanned assets. |
+| **`DATABASE.Groups`** | `LikeDotAudio/APK.softapp.DATABASE.Groups` | Multi-item grouping, tagging, and category aggregation store. |
+| **`DATABASE.Machinist.Like.audio`** | `LikeDotAudio/APK.softapp.DATABASE.Machinist.Like.audio` | Machining feeds, speeds, speeds/feeds calculators, and material reference database. |
+| **`DATABASE.Microphones.Like.audio`** | `LikeDotAudio/APK.softapp.DATABASE.Microphones.Like.audio` | 2,067 microphone datasheets, frequency response curves, and polar pattern corpus. |
+| **`DATABASE.Schema`** | `LikeDotAudio/APK.softapp.DATABASE.Schema` | MariaDB / MySQL relational database tables and migration scripts for .PEAK data. |
+| **`DATABASE.UCS-Taxonomy`** | `LikeDotAudio/APK.softapp.DATABASE.UCS-Taxonomy` | Universal Category System (UCS v8.2) audio taxonomy dictionary and validator. |
 | **`DATABASE.linuxCommands`** | `LikeDotAudio/APK.softapp.DATABASE.linuxCommands` | Linux shell command cheatsheet and command reference corpus. |

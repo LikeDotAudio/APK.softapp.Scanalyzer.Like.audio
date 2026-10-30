@@ -12,6 +12,6 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 
 | Module Name | Repository / Path | Description |
 | :--- | :--- | :--- |
-| **`ENGINE.Graphing`** | `LikeDotAudio/APK.softapp.SCANALIZER.Graphing-Engine` | Real-time 2D and 3D plotting calculation engine powering visualizers. |
-| **`ENGINE.SampleAnalyzer`** | `LikeDotAudio/APK.softapp.SCANALIZER.SampleAnalyzer-Engine` | Audio signal analysis core computing RMS, peak power, pitch class, and spectral descriptors. |
-| **`ENGINE.SampleConversion`** | `LikeDotAudio/APK.softapp.SCANALIZER.SampleConversion-Engine` | High-fidelity sample rate, bit depth, channel format, and encoding conversion engine. |
+| **`ENGINE.Graphing`** | `LikeDotAudio/APK.softapp.VISUALIZER.Graphing` | Real-time 2D and 3D plotting calculation engine powering visualizers. |
+| **`ENGINE.SampleAnalyzer`** | `LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer` | Audio signal analysis core computing RMS, peak power, pitch class, and spectral descriptors. |
+| **`ENGINE.SampleConversion`** | `LikeDotAudio/APK.softapp.PROCESSOR.SampleConversion` | High-fidelity sample rate, bit depth, channel format, and encoding conversion engine. |

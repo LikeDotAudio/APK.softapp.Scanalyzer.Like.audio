@@ -10,4 +10,4 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 
 | Module Name | Repository / Path | Description |
 | :--- | :--- | :--- |
-| **`UTILITY.Rename`** | `LikeDotAudio/APK.softapp.SCANALIZER.Rename` | Batch file renaming utility applying Universal Category System (UCS) naming patterns to audio assets. |
+| **`UTILITY.Rename`** | `LikeDotAudio/APK.softapp.UTILITY.Rename` | Batch file renaming utility applying Universal Category System (UCS) naming patterns to audio assets. |

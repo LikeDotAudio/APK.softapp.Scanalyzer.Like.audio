@@ -10,4 +10,4 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 
 | Module Name | Repository / Path | Description |
 | :--- | :--- | :--- |
-| **`HARDWARE.Devices`** | `LikeDotAudio/APK.softapp.SCANALIZER.Devices` | Device discovery dashboard managing mDNS probes, IS-04 NMOS nodes, and hardware registries. |
+| **`HARDWARE.Devices`** | `LikeDotAudio/APK.softapp.HARDWARE.Devices` | Device discovery dashboard managing mDNS probes, IS-04 NMOS nodes, and hardware registries. |

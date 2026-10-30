@@ -10,4 +10,4 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 
 | Module Name | Repository / Path | Description |
 | :--- | :--- | :--- |
-| **`SCANNER.Scanalyze`** | `LikeDotAudio/APK.softapp.SCANALIZER.Scanalyze` | Main scanalyze runner triggering directory walks, extracting metadata, and writing `.PEAK` sidecars. |
+| **`SCANNER.Scanalyze`** | `LikeDotAudio/APK.softapp.SCANNER.Scanalyze` | Main scanalyze runner triggering directory walks, extracting metadata, and writing `.PEAK` sidecars. |
