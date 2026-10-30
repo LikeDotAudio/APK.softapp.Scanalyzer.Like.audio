@@ -1,3 +1,5 @@
+// Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+// MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import React, { useState, useEffect, useRef } from 'react';
 import initWasm, { analyzer_version } from 'wasm_analyzer';
 import wasmUrl from 'wasm_analyzer/wasm_analyzer_bg.wasm?url';
@@ -31,6 +33,10 @@ interface ScanalyzeTabProps {
   setAudioFiles: (files: File[]) => void;
   /** Re-read the cloud database's live row count once a scan has contributed. */
   onDbChanged?: () => void;
+  /** The live corpus database, polled by App on mount. `checked` is false until
+   *  the first reply lands — "not asked yet" and "asked, and it is down" have to
+   *  look different on screen, or a slow database reads as a broken one. */
+  dbStatus?: { online: boolean; records: number; checked: boolean };
 }
 
 export default function ScanalyzeTab({
@@ -41,7 +47,8 @@ export default function ScanalyzeTab({
     setProgress,
     onViewCloud,
     setAudioFiles,
-    onDbChanged
+    onDbChanged,
+    dbStatus
 }: ScanalyzeTabProps) {
   const [wasmReady, setWasmReady] = useState(false);
   const [done, setDone] = useState(0);
@@ -266,7 +273,20 @@ export default function ScanalyzeTab({
   };
 
   const [dbLoading, setDbLoading] = useState(false);
-  const loadFromDatabase = async () => {
+  // What the auto-connect did, so the tab can say so rather than filling
+  // silently. '' = it has not run.
+  const [autoLoaded, setAutoLoaded] = useState('');
+
+  /** Read the whole corpus back out of the database.
+   *
+   *  `silent` is the difference between the button and the auto-connect. The
+   *  button is a user asking to SEE the cloud, so it ends by switching to the
+   *  3D view and it reports failure in an alert(). The auto-connect runs on
+   *  mount without being asked: it must not move the user off the tab they are
+   *  looking at, and it must not put a modal in front of someone who only
+   *  wanted to scan a folder — a database that is down is a status line, not an
+   *  interruption. */
+  const loadFromDatabase = async (silent = false) => {
     setDbLoading(true);
     try {
       const baseUrl = isTauri() ? 'https://scanalyzer.like.audio' : '.';
@@ -279,7 +299,7 @@ export default function ScanalyzeTab({
         data = JSON.parse(text);
       } catch (parseErr) {
         console.error("DB Load Error: PHP endpoint did not return valid JSON. Response was:", text.substring(0, 500) + (text.length > 500 ? "..." : ""));
-        alert("Error: Database endpoint returned invalid data. Check browser console.");
+        if (!silent) alert("Error: Database endpoint returned invalid data. Check browser console.");
         setDbLoading(false);
         return;
       }
@@ -296,18 +316,47 @@ export default function ScanalyzeTab({
           });
           return Array.from(map.values());
         });
-        onViewCloud();
+        if (silent) setAutoLoaded(`${data.length.toLocaleString()} record${data.length === 1 ? '' : 's'}`);
+        else onViewCloud();
       } else {
         console.error("DB Load Error: Expected JSON array, but got:", data);
-        alert("Failed to load from database: " + (data.error || "Invalid format (check console)"));
+        if (!silent) alert("Failed to load from database: " + (data.error || "Invalid format (check console)"));
       }
     } catch (e) {
       console.error("DB Load Exception: Network or server connection failed:", e);
-      alert("Error connecting to database (check console for details).");
+      if (!silent) alert("Error connecting to database (check console for details).");
     } finally {
       setDbLoading(false);
     }
   };
+
+  // AUTO-CONNECT. The corpus is the point of the cloud database, and reaching it
+  // used to cost a deliberate click on a button below the fold — so the tab
+  // opened empty over a database holding tens of thousands of records, and
+  // looked identical to one with no database at all.
+  //
+  // Gated on `dbStatus`, not attempted blind: App polls `db_status.php` on
+  // mount, so by the time `checked` is true we already know whether there is
+  // anything to fetch. A blind fetch of the whole corpus against a tier that is
+  // down is a multi-second hang on first paint.
+  //
+  // ONCE PER MOUNT, and the ref is what guarantees it. `dbStatus` is refreshed
+  // after every scan contribution, so an effect keyed on it alone would re-read
+  // the entire corpus each time a scan finished — over the records it had just
+  // uploaded.
+  //
+  // NOT WHEN SOMETHING IS ALREADY LOADED. A scan in progress, or records
+  // absorbed from local sidecars, is the user's own work; the cloud must not
+  // overwrite it on arrival.
+  const autoConnectedRef = useRef(false);
+  useEffect(() => {
+    if (autoConnectedRef.current) return;
+    if (!dbStatus?.checked || !dbStatus.online || dbStatus.records <= 0) return;
+    if (analysisResult.length || isAnalyzing) return;
+    autoConnectedRef.current = true;
+    void loadFromDatabase(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dbStatus?.checked, dbStatus?.online, dbStatus?.records]);
 
   const handleFolderUpload = (e: React.ChangeEvent<HTMLInputElement>) => { void discover(e.target.files, 1); };
 
@@ -575,7 +624,7 @@ export default function ScanalyzeTab({
     const pct = absorbing.total ? Math.round((absorbing.done / absorbing.total) * 100) : 0;
     return (
       <div className="tab-content glass-panel" style={{ margin: 0, padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <h2 style={{ fontSize: '1.6rem', marginBottom: '1rem' }}>Reading existing .PEAK sidecars…</h2>
+        <h2 style={{ fontSize: '1.6rem', marginBottom: '1rem' }}>⏳ Reading existing .PEAK sidecars…</h2>
         <div style={{ color: 'var(--accent-primary)', fontSize: '2rem', fontWeight: 700, marginBottom: '1rem' }}>
           {absorbing.done.toLocaleString()} <span style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>/ {absorbing.total.toLocaleString()}</span>
         </div>
@@ -697,7 +746,7 @@ export default function ScanalyzeTab({
 
   return (
     <div className="tab-content glass-panel" style={{ margin: 0, padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Scan a New Directory…</h2>
+      <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔍 Scan a New Directory…</h2>
       <p className="text-secondary" style={{ marginBottom: '1rem', fontSize: '1.2rem', textAlign: 'center', maxWidth: '800px' }}>
           Select a folder of audio files to begin local DSP analysis.
       </p>
@@ -707,8 +756,32 @@ export default function ScanalyzeTab({
           {fsaSupported() && <><br /><br /><strong>💾 Caching:</strong> Small <code>.PEAK</code> sidecar files will be written right beside your audio files on your local drive to cache the analysis, making future scans instantaneous!</>}
       </div>
       
-      <div className="text-secondary" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center' }}>
+      <div className="text-secondary" style={{ marginBottom: '0.4rem', display: 'flex', alignItems: 'center' }}>
          <strong>WASM Engine Status:</strong> <span style={{ marginLeft: '0.5rem', color: wasmReady ? 'var(--accent-primary)' : 'var(--accent-secondary)' }}>{wasmReady ? '🟢 Online' : '🔴 Offline'}</span>
+      </div>
+
+      {/* THE DATABASE SAYS WHETHER IT IS THERE, beside the engine that says the
+          same about itself. This line did not exist: the corpus database was
+          reachable only through a button, so "connected with 34,000 records"
+          and "no database at all" drew the identical screen. Three states and
+          not two — an unanswered check is not an offline one. */}
+      <div className="text-secondary" style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center' }}>
+         <strong>Cloud Database:</strong>
+         <span style={{ marginLeft: '0.5rem', color: !dbStatus?.checked
+                    ? 'var(--text-secondary)'
+                    : dbStatus.online ? 'var(--accent-primary)' : 'var(--accent-secondary)' }}>
+            {!dbStatus?.checked
+                ? '⚪ Checking…'
+                : dbStatus.online
+                    ? `🟢 MariaDB · ${dbStatus.records.toLocaleString()} record${dbStatus.records === 1 ? '' : 's'}`
+                    : '🔴 Offline'}
+         </span>
+         {dbLoading && <span style={{ marginLeft: '0.75rem', fontStyle: 'italic' }}>connecting…</span>}
+         {!dbLoading && autoLoaded && (
+            <span style={{ marginLeft: '0.75rem', color: 'var(--accent-primary)' }}>
+                ☁️ auto-loaded {autoLoaded}
+            </span>
+         )}
       </div>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', alignItems: 'center' }}>
@@ -755,14 +828,20 @@ export default function ScanalyzeTab({
           />
         </label>
 
-        <button className="btn" style={{ cursor: 'pointer', padding: '0.6rem 1.5rem', marginTop: '1rem', background: 'rgba(255,255,255,0.05)', color: 'var(--accent-primary)' }} disabled={dbLoading} onClick={loadFromDatabase}>
-          {dbLoading ? 'Loading Database...' : '☁️ Load All Cloud Records from Database'}
+        {/* The manual path stays: the auto-connect skips a tab that already has
+            records in it, so re-reading the cloud after a scan is still a thing
+            somebody has to be able to ask for. `() => loadFromDatabase()` and
+            not the bare reference — onClick hands the handler a MouseEvent,
+            which is truthy, and passing that straight into `silent` would make
+            the button silent. */}
+        <button className="btn" style={{ cursor: 'pointer', padding: '0.6rem 1.5rem', marginTop: '1rem', background: 'rgba(255,255,255,0.05)', color: 'var(--accent-primary)' }} disabled={dbLoading} onClick={() => void loadFromDatabase()}>
+          {dbLoading ? 'Loading Database...' : '☁️ Reload All Cloud Records from Database'}
         </button>
       </div>
 
       {analysisResult.length > 0 && (
         <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
-          <h3 style={{ color: 'var(--accent-primary)', marginBottom: '0.5rem' }}>Analysis Complete</h3>
+          <h3 style={{ color: 'var(--accent-primary)', marginBottom: '0.5rem' }}>✅ Analysis Complete</h3>
           <p className="text-secondary">{analysisResult.length} files successfully processed.</p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
             <button className="btn primary" onClick={onViewCloud}>

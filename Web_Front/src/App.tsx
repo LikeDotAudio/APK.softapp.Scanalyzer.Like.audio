@@ -1,3 +1,5 @@
+// Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+// MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import './index.css'
 import { fsaSupported, getDirHandle, scanDirectoryHandle, clearDirHandle, setAudioRoot, getAudioRoot, filterAudioFiles, isTauri, getLastFolderName, clearLastFolderName, resolveAudioUrl, readRootFile, writeRootFile, ensureReadwrite } from './audioLinking'
@@ -16,11 +18,13 @@ import ExaminerTabRaw from './components/ExaminerTab'
 import ExtractorTabRaw from './components/ExtractorTab'
 import RenameTabRaw from './components/RenameTab'
 import FaceBallTabRaw from './components/FaceBallTab/FaceBallTab'
+import DevicesTabRaw from './components/DevicesTab'
 import ScopeBar from './components/ScopeBar'
 import { matchesScope } from './groupColors'
 import { altCategory, altSubcategory } from './ucsIndex'
 import { compileQuery, subKey } from './ucsSynonyms'
 import { UCS_SYNONYMS } from './ucsSynonymData'
+import { SOLO, handOffToWindow, receiveHandOff } from './soloWindow'
 import { lazy, Suspense } from 'react'
 
 const StatsTab = lazy(async () => ({ default: StatsTabRaw }))
@@ -29,8 +33,9 @@ const ExaminerTab = lazy(async () => ({ default: ExaminerTabRaw }))
 const ExtractorTab = lazy(async () => ({ default: ExtractorTabRaw }))
 const RenameTab = lazy(async () => ({ default: RenameTabRaw }))
 const FaceBallTab = lazy(async () => ({ default: FaceBallTabRaw }))
+const DevicesTab = lazy(async () => ({ default: DevicesTabRaw }))
 
-const TAB_IDS = ['scanalyze', 'cloud', 'faceball', 'stats', 'groups', 'examiner', 'favorites', 'extractor', 'rename'] as const;
+const TAB_IDS = ['scanalyze', 'devices', 'cloud', 'faceball', 'stats', 'groups', 'examiner', 'favorites', 'extractor', 'rename'] as const;
 
 function tabFromHash(): string {
   const h = window.location.hash.replace(/^#\/?/, '');
@@ -164,7 +169,7 @@ function App() {
   // works on every tab, the orange paints four surfaces, and favorites.json has exactly
   // one writer. Persisted as a SIBLING of the manifest (user data — re-scans regenerate
   // the manifest but never touch favorites.json), with a localStorage mirror for the
-  // demo pack / denied-grant cases. See Documentation/🔍Audits/favorites_tab_audit.md.
+  // demo pack / denied-grant cases. See Documentation/Action Artifact/favorites_tab_audit.md.
   const [favorites, setFavorites] = useState<Favorites>(new Map())
   const favoritesRef = useRef(favorites); favoritesRef.current = favorites;
   const favPersistTimerRef = useRef<number | null>(null)
@@ -344,6 +349,27 @@ function App() {
     if (name) setReopenName(name);
   }, []);
 
+  // …but a solo window fills itself, without asking.
+  //
+  // The prompt exists because reopening needs permission and permission needs a
+  // gesture. When the grant is still `granted` no gesture is required, and the
+  // shell has eight windows onto the same folder: making every one of them open
+  // with the same blue bar, and charging a click each to answer it, is the cost
+  // of breaking the tabs out charged back to the user eight times. Where the
+  // grant HAS lapsed the bar is still there and still the way in.
+  useEffect(() => {
+    if (!SOLO || isTauri() || !fsaSupported()) return;
+    let cancelled = false;
+    (async () => {
+      const handle = await getDirHandle();
+      if (!handle || cancelled) return;
+      const state = await handle.queryPermission({ mode: 'read' } as any);
+      if (state !== 'granted' || cancelled) return;
+      reopenFolder();
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   // Reopen the remembered folder: re-request read permission (the button click is the
   // required user gesture), re-walk it including .PEAK sidecars, and load the cached
   // records back in — no re-analysis.
@@ -356,7 +382,7 @@ function App() {
         // cached analysis with no re-scan. Fall back to the Scanalyze tab if there's no
         // cached .PEAK to read.
         const dir = getAudioRoot();
-        if (!dir) { goToTab('scanalyze'); return; }
+        if (!dir) { revealTab('scanalyze'); return; }
         try {
           const { invoke } = await import('@tauri-apps/api/core');
           // Prefer the slim manifest (fast — a fraction of the bytes); fall back to the
@@ -374,11 +400,11 @@ function App() {
             all.push(...normalizePeakRecords(JSON.parse(page)).records);
           }
           await invoke('close_peak_file');
-          if (all.length) { setAnalysisResult(all); goToTab('cloud'); }
-          else goToTab('scanalyze');
+          if (all.length) { setAnalysisResult(all); revealTab('cloud'); }
+          else revealTab('scanalyze');
         } catch (err) {
           console.warn('Reopen: no cached .PEAK for', dir, '— falling back to Scanalyze.', err);
-          goToTab('scanalyze');
+          revealTab('scanalyze');
         }
         return;
       }
@@ -407,7 +433,7 @@ function App() {
             const report = normalizePeakRecords(m.records);
             setAnalysisResult(report.records);
             setSchemaNotice(noticeFor(report.migrated, report.skipped));
-            if (report.records.length) goToTab('cloud');
+            if (report.records.length) revealTab('cloud');
             return;
           }
         } catch { /* unreadable manifest — fall through to reading the sidecars */ }
@@ -427,7 +453,7 @@ function App() {
       const report = normalizePeakRecords(records);
       setAnalysisResult(report.records);
       setSchemaNotice(noticeFor(report.migrated, report.skipped));
-      if (report.records.length) goToTab('cloud');
+      if (report.records.length) revealTab('cloud');
     } catch (err) {
       console.warn('Reopen failed; forgetting the remembered folder.', err);
       await clearDirHandle();
@@ -474,7 +500,7 @@ function App() {
       setAnalysisResult(report.records);
       setSchemaNotice(noticeFor(report.migrated, report.skipped));
       setReopenName(null);
-      goToTab('cloud');
+      revealTab('cloud');
     } catch (err) {
       console.warn('Could not load the demo sample pack.', err);
     } finally {
@@ -496,6 +522,14 @@ function App() {
   };
 
   const goToTab = (id: string) => { window.location.hash = `#/${id}`; setActiveTab(id); }
+
+  // "Now look at the result" — the jump this app makes for you after a folder
+  // opens, a scan lands or a file is dropped. A solo window is one screen with
+  // its name on the shell's title bar, so making it become another screen is the
+  // one move it must not make: the reveal is dropped, and the window that owns
+  // that screen is opened instead where a real click asked for it (onViewCloud,
+  // footerPush). See soloWindow.ts.
+  const revealTab = (id: string) => { if (!SOLO) goToTab(id); }
 
   const footerPlay = async () => {
     // On an audio-owning tab, the footer Play IS that tab's play — drive its player (and its
@@ -559,11 +593,21 @@ function App() {
   // list that still needs a click is half a push. `pushedName` carries the open-this
   // intent; the target tab consumes it via onAutoOpened once the row is selected.
   const [pushedName, setPushedName] = useState('');
+  // Solo windows push sideways: the target screen is a window of its own, and
+  // switching THIS window's hidden tab to it would leave two windows called 3D
+  // and Examiner both showing the Examiner. See soloWindow.ts.
   const footerPush = (tab: FooterTab, name: string) => {
+    if (SOLO) { handOffToWindow(tab, name); return; }
     setFilterText(name);
     setPushedName(name);
     goToTab(tab);
   }
+
+  // The other end of that push, for whichever window was opened by it.
+  useEffect(() => {
+    if (!SOLO) return;
+    return receiveHandOff(activeTab, (name) => { setFilterText(name); setPushedName(name); });
+  }, [activeTab])
 
   const loadPeakFiles = (fileList: File[]) => {
     const files = fileList.filter(f => /\.peak$|\.json$/i.test(f.name) || f.type === 'application/json');
@@ -690,7 +734,7 @@ function App() {
       });
 
       selectSound(audioFile.name);
-      goToTab('examiner');
+      revealTab('examiner');
     }
   }
 
@@ -710,6 +754,10 @@ function App() {
 
   const tabs = [
     { id: 'scanalyze', label: 'SCANALYZE' },
+    // Beside SCANALYZE rather than among the views: both are the act of finding
+    // things — one over a folder, one over the network — and the rest of the
+    // strip reads what was found.
+    { id: 'devices', label: 'DEVICES' },
     { id: 'cloud', label: '3D' },
     { id: 'faceball', label: '4D' },
     { id: 'stats', label: '2D' },
@@ -753,7 +801,13 @@ function App() {
         </div>
       )}
 
-      {!analysisResult.length && (
+      {/* The demo pack is an offer to LOAD something, so in the broken-out windows
+          it belongs on the one that loads — otherwise the same green invitation
+          rides along the top of all eight. */}
+      {/* …and never on DEVICES, which has no corpus to be empty: that screen
+          reads the network, so an invitation to load samples above it is an
+          offer about a different application. */}
+      {!analysisResult.length && activeTab !== 'devices' && (!SOLO || activeTab === 'scanalyze') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', background: 'rgba(16,185,129,0.10)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}>
           <span style={{ flex: 1 }}>New here? Load a curated pack of 30 music + 30 sound-effect samples to explore right away — no folder needed.</span>
           <button className="btn primary" disabled={demoLoading} onClick={loadDemoPack} style={{ padding: '0.2rem 0.7rem', fontSize: '0.75rem' }}>{demoLoading ? 'Loading…' : '🎧 Sample samples for sampling'}</button>
@@ -762,11 +816,17 @@ function App() {
 
 
 
-      {/* Tabs Navigation */}
-      <nav className="tabs-nav glass-panel" style={{ display: 'flex', gap: '2px', padding: '2px', borderTop: 'none', borderBottom: '1px solid var(--border-color)', borderRadius: '0', zIndex: 40 }}>
+      {/* Tabs Navigation — the window IS the tab in solo, and the OS drew its
+          name on the title bar three pixels above this row. */}
+      {!SOLO && (
+      <nav className="tabs-nav glass-panel" role="tablist" aria-label="Scanalyzer screens" style={{ display: 'flex', gap: '2px', padding: '2px', borderTop: 'none', borderBottom: '1px solid var(--border-color)', borderRadius: '0', zIndex: 40 }}>
         {tabs.map(tab => (
           <button
             key={tab.id}
+            id={`tab-${tab.id}`}
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            aria-controls="app-main-panel"
             onClick={() => goToTab(tab.id)}
             className={`btn ${activeTab === tab.id ? 'primary' : ''}`}
             style={{ 
@@ -784,9 +844,11 @@ function App() {
           </button>
         ))}
       </nav>
+      )}
 
-      {/* Global Scope Bar */}
-      {analysisResult.length > 0 && (
+      {/* Global Scope Bar — the sample corpus's filter, so it is not drawn over
+          DEVICES, whose rows it does not describe and cannot narrow. */}
+      {analysisResult.length > 0 && activeTab !== 'devices' && (
         <div style={{ padding: '0.1rem 1rem', background: '#0d1017', borderBottom: '1px solid var(--border-color)', zIndex: 50 }}>
           <ScopeBar
             analysisResult={analysisResult}
@@ -798,7 +860,20 @@ function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="app-main" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', padding: 0 }}>
+      {/* One panel, eight tabs: the screens are display:none siblings and a
+          conditional Suspense block rather than eight separate regions, so the
+          panel role belongs on the container they share. In solo the tablist is
+          not rendered at all, so aria-labelledby would point at nothing — the
+          window title is the label there, and this is a plain region. */}
+      <main
+        className="app-main"
+        id="app-main-panel"
+        role={SOLO ? 'region' : 'tabpanel'}
+        {...(SOLO
+          ? { 'aria-label': tabs.find(t => t.id === activeTab)?.label ?? 'Scanalyzer' }
+          : { 'aria-labelledby': `tab-${activeTab}` })}
+        style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', padding: 0 }}
+      >
         
         <div style={{ display: activeTab === 'scanalyze' ? 'flex' : 'none', flex: 1, flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
           <ScanalyzeTab 
@@ -807,9 +882,10 @@ function App() {
             isAnalyzing={isAnalyzing}
             setIsAnalyzing={setIsAnalyzing}
             setProgress={setProgress}
-            onViewCloud={() => goToTab('cloud')}
+            onViewCloud={() => { if (SOLO) handOffToWindow('cloud', ''); else goToTab('cloud'); }}
             setAudioFiles={setAudioFiles}
             onDbChanged={refreshDbStatus}
+            dbStatus={dbStatus}
           />
         </div>
 
@@ -822,6 +898,7 @@ function App() {
 
         <Suspense fallback={<div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Loading tab...</div>}>
           {activeTab === 'stats' && <StatsTab analysisResult={analysisResult} filteredData={filteredData} audioFiles={audioFiles} onSound={selectSound} selectedItem={footerItem} />}
+          {activeTab === 'devices' && <DevicesTab />}
           {activeTab === 'groups' && <GroupsTab filteredData={filteredData} />}
           {activeTab === 'examiner' && <ExaminerTab analysisResult={analysisResult} filteredData={filteredData} audioFiles={audioFiles} onSound={selectSound} autoLoop={autoLoop}
             favorites={favorites}
@@ -845,7 +922,10 @@ function App() {
 
       </main>
 
-      {/* Global footer */}
+      {/* Global footer — the selected SAMPLE's transport, so it is not drawn on
+          DEVICES: every button on it (download, play, dig, push to a tab) acts on
+          a sample, and that screen has none to act on. */}
+      {activeTab !== 'devices' && (
       <SampleFooter
         item={footerItem}
         favorite={footerItem ? favorites.has(favoriteKeyOf(footerItem)) : false}
@@ -875,6 +955,7 @@ function App() {
           : undefined}
         dbStatus={dbStatus}
       />
+      )}
       <audio ref={el => { footerAudioRef.current = el; setFooterAudioEl(el); }} style={{ display: 'none' }} loop={autoLoop && !digging}
         onPlay={() => setFooterPlaying(true)} onPause={() => setFooterPlaying(false)} onEnded={handleFooterEnded} />
     </div>
