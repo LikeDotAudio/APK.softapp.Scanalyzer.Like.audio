@@ -2,6 +2,18 @@
 
 This folder contains the database schema, data routing, taxonomy, and reference corpus modules of the **Scanalyzer** system.
 
+Each module here is a **symlink** into its real home in the Softapps tree (repointed 2026-10-30 after the family reorg; the old flat `../../<name>` targets no longer exist):
+
+`DATABASE.Data-Channels` → `Softapps/DATABASE/DATABASE.Data-Channels`  
+`DATABASE.Electronics-Emoji` → `Softapps/DATABASE/DATABASE.Electronics-Emoji`  
+`DATABASE.Favorites` → `Softapps/DATABASE/DATABASE.Favorites`  
+`DATABASE.Groups` → `Softapps/DATABASE/DATABASE.Groups`  
+`DATABASE.linuxCommands` → `Softapps/DATABASE/DATABASE.linuxCommands`  
+`DATABASE.Machinist.Like.audio` → `Softapps/DATABASE/DATABASE.Machinist.Like.audio`  
+`DATABASE.Microphones.Like.audio` → `Softapps/DATABASE/DATABASE.Microphones.Like.audio`  
+`DATABASE.Schema` → `Softapps/DATABASE/DATABASE.Schema`  
+`DATABASE.UCS-Taxonomy` → `Softapps/DATABASE/DATABASE.UCS-Taxonomy`
+
 ## Modules
 
 | Module Name | Repository / Path | Description |
