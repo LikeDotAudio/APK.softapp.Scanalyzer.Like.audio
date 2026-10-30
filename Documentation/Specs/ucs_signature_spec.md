@@ -1,8 +1,9 @@
 # UCS Acoustic Signature Specification (v1)
 
-How the scanalyzer scores an audio file against the 753 UCS subcategories.
+How the scanalyzer scores an audio file against the UCS subcategories: 828 in 94 categories
+today (735 from UCS 8.2.1, 93 from the 8.2.APK instrument extension).
 
-Every subcategory object in `UCS/categories/*.json` carries an `acoustic_signature`
+Every subcategory object in `DATATYPE.soundfx.UCS/categories/*.json` carries an `acoustic_signature`
 block. This document defines its grammar, the closed feature vocabulary it may
 reference, and the exact scoring math. Nothing outside this vocabulary is legal.
 
@@ -19,7 +20,7 @@ UCS flattens two independent axes into one label:
   **morphology.** Mostly *measurable*, and the same tokens repeat across dozens
   of categories.
 
-So the classifier is not 753 models. It is a small set of morphology detectors
+So the classifier is not 828 models. It is a small set of morphology detectors
 crossed with a material/timbre axis, gated by text evidence from `synonyms`.
 
 ## 2. Separability tiers — the honesty flag
@@ -101,7 +102,7 @@ stays valid even when a feature could not be measured for a given file.
 These were the spec's "proposed" set. They are now measured and on the record.
 Until they landed, `ucs::feature()` had no field to read them from and returned
 None for every one — which silently dropped **~900 prior and gate terms** across
-the 753 signatures, including the single most heavily-weighted term in many of
+the signatures (753 of them at the time), including the single most heavily-weighted term in many of
 them. The signatures were being scored against a fraction of the evidence they
 were written for.
 
@@ -251,7 +252,7 @@ categories have one). Abstention is a correct answer, not a failure.
 ## 7. What this cannot do
 
 Signal features cannot tell a car from a bus, a cat from a wild cat, or an
-office from a hospital. Roughly half the 753 are `semantic_only`. For those, the
+office from a hospital. Roughly half the subcategories are `semantic_only`. For those, the
 real classifier is text — and if you want audio to decide them, the answer is a
 learned embedding (CLAP or similar), scored against text prompts built from each
 subcategory's `explanation` + `synonyms`, not more DSP. This spec is designed to
