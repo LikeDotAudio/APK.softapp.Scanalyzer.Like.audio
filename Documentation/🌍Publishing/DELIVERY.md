@@ -38,10 +38,8 @@ Run in `Web_Front/`: `npm test` (47 node --test cases), `npm run build`, `npx ox
 The Folder-ScanAnalyzer tools: `cargo test` in `folder_scanner_rs` and `graphics_suite_rs`.
 
 In CI, the APK.audio root `.github/workflows/scanalyzer.yml` runs all of the above except the
-desktop crate on every push that moves this submodule, the engine, the extractor, the UCS
-data or one of the seven CAPTURE repos that copy files from here: it first runs
-`01_CAPTURES/sync_copies.py --check` (those copies match the files built here), builds the two
-wasm cores (tsc resolves them through the gitignored `pkg/`), then `npm ci`, `npm test`, `tsc -b`, `oxlint src`, the four gates, `gen:ucs-index --check`, and both
+desktop crate on every push that moves this submodule, the engine, the extractor or the UCS
+data: it builds the two wasm cores (tsc resolves them through the gitignored `pkg/`), then `npm ci`, `npm test`, `tsc -b`, `oxlint src`, the four gates, `gen:ucs-index --check`, and both
 `cargo test`s. It lives at the root, not here, because the wasm cores and the UCS mirror build
 from sibling submodules a lone clone of this repo does not have. It does not gate the deploy.
 The repo's smoke result is in [SMOKE.md](../🧩Manual%20and%20Artifacts/SMOKE.md).

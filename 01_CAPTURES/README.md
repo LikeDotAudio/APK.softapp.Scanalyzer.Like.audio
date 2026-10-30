@@ -34,6 +34,6 @@ Each module here is a **symlink** into its real home in the Softapps tree (repoi
 | **`CAPTURE.crawler`** | `LikeDotAudio/APK.softapp.CAPTURE.crawler` | Web and local network asset crawler for audio corpora. |
 | **`CAPTURE.Czur-Fast-Capture`** | `LikeDotAudio/APK.softapp.CAPTURE.Czur-Fast-Capture` | High-speed document overhead scanner camera interface and page crop manager. |
 
-## Copies kept in step
+## No copies
 
-Seven of these repositories (FolderScanner, Document, FaceID, Image, OCR, Schematics, Vectorizer) publish files that are **compiled here**. [`copies.tsv`](copies.tsv) names every pair, the Scanalyzer file being the source of truth; `python3 sync_copies.py --write` copies each one over its CAPTURE copy and `--check` exits 1 on any drift. The root `.github/workflows/scanalyzer.yml` runs `--check`, so a fix made here and not carried over goes red.
+Seven of these repositories (FolderScanner, Document, FaceID, Image, OCR, Schematics, Vectorizer) used to republish files that are **compiled here**, kept in step by a sync script; they had drifted before. On 2026-10-30 the copies were removed (LOOSE-capture-capture-document): each of those repos is now a pointer README (plus its `display.json`, and FolderScanner's own `index.html`) naming the files here. Edit the code here only.
