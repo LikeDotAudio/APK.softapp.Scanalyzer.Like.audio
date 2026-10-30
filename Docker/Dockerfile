@@ -7,7 +7,7 @@
 # they are built from here, and the database is reached the way every other
 # client reaches it: sql-proxy:3306.
 # ⚠️ THE BUILD CONTEXT IS Web_Front/public/api/ (compose: `context:
-#    ../Web_Front/public/api`), twelve PHP files, so no ignore list is needed
+#    ../Web_Front/public/api`), the three PHP endpoints only, so no ignore list is needed
 #    and nothing else in this repository can reach the image.
 FROM php:8.3-fpm-alpine
 
@@ -34,10 +34,10 @@ RUN { \
     } > /usr/local/etc/php/conf.d/zz-scan-api.ini \
  && echo 'clear_env = no' >> /usr/local/etc/php-fpm.d/www.conf
 
-# THE THREE ENDPOINTS, BY NAME, AND ONLY THOSE. The other nine files in
-# public/api/ are hand-run migrations and debug scripts (init_db, fix_db,
-# migrate_* …), one of which drops tables; they never enter this image, so no
-# router in front of it has to be the only thing keeping them from running.
+# THE THREE ENDPOINTS, BY NAME, AND ONLY THOSE. The hand-run migrations and
+# debug scripts (init_db, fix_db, migrate_* …) live in Web_Front/tools/api/,
+# outside this context, one of them drops tables; naming the three keeps it so if
+# a fourth file ever lands in public/api/ without a caller.
 COPY ["db_status.php", "get_peaks.php", "upload_peak.php", "/srv/scan-api/"]
 
 # Fail the BUILD, not the first request, on a syntax error.

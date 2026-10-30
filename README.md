@@ -142,8 +142,8 @@ or the deploy's secret substitution); the desktop's `--db-url` only switches the
 
 **On the APK.audio bench, the API is this repository's own stack** (`Docker/`, PLAN-3424.01):
 php-fpm as `scan-api:9000` in the `apk-audio` compose project, holding only `db_status.php`,
-`get_peaks.php` and `upload_peak.php` — the other nine files in `public/api/` are hand-run
-migrations and never enter the image. It reads `SCAN_DB_*` from its environment and reaches the
+`get_peaks.php` and `upload_peak.php` — the hand-run migrations live in `Web_Front/tools/api/`
+and never enter the image. It reads `SCAN_DB_*` from its environment and reaches the
 database at `sql-proxy:3306` (DATABASE.server.SQL); with no `SCAN_DB_*` set the same files fall
 back to the cPanel host's `localhost`. The gateway (WEB.Traffic-Router) and Storage-Portal (:8080)
 both send `/scan-api/<name>.php` and the app's own `…/api/<name>.php` there by FastCGI.
