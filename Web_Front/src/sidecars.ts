@@ -3,8 +3,8 @@
 //
 // The sidecars a scan left in the folder, paired back to the files they describe.
 //
-// THE CORPUS IS THE DATABASE. `main.py scan` writes a metadata sidecar beside
-// every file it walks — `<file>.meta.json`, `<file>.exif.json`, `<file>.ocr.json`
+// THE CORPUS IS THE DATABASE. PROCESSORS.sidecar_tools/sidecar_generator.py
+// writes a metadata sidecar beside every file it walks (svg_vectorizer.py the trace) — `<file>.meta.json`, `<file>.exif.json`, `<file>.ocr.json`
 // and a traced `<file-stem>.svg` — so opening that folder later should be a READ,
 // not a re-analysis. This module is the half that makes that true in the browser.
 //

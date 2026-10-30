@@ -13,7 +13,7 @@ export interface FileItem {
   emojiBadge?: string;
   exifTagsCount?: number;
   metadata?: ImageMetadata;
-  /** What `main.py scan` wrote beside this file, if anything. Absent means the
+  /** What PROCESSORS.sidecar_tools wrote beside this file, if anything. Absent means the
    *  file has not been scanned — NOT that it has no metadata to find. */
   sidecars?: SidecarSet;
 }

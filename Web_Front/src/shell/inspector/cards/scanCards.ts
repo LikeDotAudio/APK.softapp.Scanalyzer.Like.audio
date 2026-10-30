@@ -34,7 +34,7 @@ export function sidecarCard(ctx: CardContext): string {
     <div class="data-card" style="border: 2px solid #22d3ee; background: rgba(34, 211, 238, 0.08);">
       <h4 style="color:#22d3ee;">🗄️ SIDECARS ON DISK (read, not recomputed)</h4>
       <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:0.35rem;">
-        Written beside this file by <code>main.py scan</code>. The corpus is the database.
+        Written beside this file by <code>PROCESSORS.sidecar_tools</code>. The corpus is the database.
       </div>
       <table class="meta-table">
         <tr><th>Sidecars</th><td>${[
@@ -69,7 +69,7 @@ export function sidecarCard(ctx: CardContext): string {
       <h4 style="color:#94a3b8;">🗄️ NO SIDECAR FOR THIS FILE</h4>
       <div style="font-size:0.72rem; color:#94a3b8;">
         Nothing has been written beside it. Everything below is being worked out live, now.
-        Run <code>python3 main.py scan &lt;FOLDER&gt;</code> to make this folder a read.
+        Run <code>python3 PROCESSORS.sidecar_tools/sidecar_generator.py &lt;FOLDER&gt;</code> (and <code>svg_vectorizer.py</code> for traces) to make this folder a read.
       </div>
     </div>
     `;
