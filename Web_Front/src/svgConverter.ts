@@ -111,7 +111,7 @@ function renderSVGDataUI(container: HTMLElement, fileItem: FileItem, svgXml: str
 
       <!-- Inter-Tool Cross-Sending Action Bar -->
       <div class="inter-tool-bar">
-        <label>⚡ Cross-Tool Data Pipeline: Send "${fileItem.name}" to another tool:</label>
+        <label>⚡ Cross-Tool Data Pipeline: Send "${escapeHTML(fileItem.name)}" to another tool:</label>
         <div class="button-group">
           <button id="sendToOCRFromSVG" class="btn primary" style="font-size:0.78rem; padding:0.35rem 0.7rem;">
             🔤 Send to OCR Tool
@@ -127,7 +127,7 @@ function renderSVGDataUI(container: HTMLElement, fileItem: FileItem, svgXml: str
 
       <!-- Interactive Action Buttons -->
       <div class="button-group" style="margin-top: 0.5rem;">
-        <a href="${svgUrl}" download="${fileItem.name.replace(/\.[^/.]+$/, '')}.svg" class="btn primary">
+        <a href="${svgUrl}" download="${escapeHTML(fileItem.name.replace(/\.[^/.]+$/, ''))}.svg" class="btn primary">
           ⬇️ Download SVG Vector
         </a>
         <button id="copySVGCodeBtn" class="btn secondary">
@@ -141,7 +141,7 @@ function renderSVGDataUI(container: HTMLElement, fileItem: FileItem, svgXml: str
       <!-- Structured SVG Data Metrics -->
       <h4>📊 Vector Architecture & Metrics</h4>
       <table class="meta-table">
-        <tr><th>Original Image File</th><td>${fileItem.name} (${formatBytes(fileItem.size)})</td></tr>
+        <tr><th>Original Image File</th><td>${escapeHTML(fileItem.name)} (${formatBytes(fileItem.size)})</td></tr>
         <tr><th>Vector Output Size</th><td>${formatBytes(svgData.svgSizeBytes)} (${svgData.sizeRatioPercent}% of original size)</td></tr>
         <tr><th>Canvas ViewBox & Bounds</th><td><code>${svgData.viewBox}</code> (${svgData.width} × ${svgData.height})</td></tr>
         <tr><th>Vector Path Count (<code>&lt;path&gt;</code>)</th><td><strong>${svgData.pathCount.toLocaleString()} paths</strong></td></tr>

@@ -53,11 +53,15 @@ def convert_single_image_to_svg(image_path: Path) -> str:
     except Exception as e:
         return f"error: {e}"
 
-def run_batch_svg_conversion(target_directory: str):
+def run_batch_svg_conversion(target_directory: str) -> int:
+    """Trace every raster under the target; return the process exit code.
+
+    A missing target is an error, not an empty success: it used to print and
+    return, so the caller saw exit 0 for a run that traced nothing."""
     root = Path(target_directory)
     if not root.exists():
-        print(f"Error: Target path '{target_directory}' does not exist.")
-        return
+        print(f"Error: Target path '{target_directory}' does not exist.", file=sys.stderr)
+        return 1
 
     print("==================================================")
     print("📐 High-Performance Batch Raster-to-SVG Vectorizer (Rust vtracer)")
@@ -98,8 +102,9 @@ def run_batch_svg_conversion(target_directory: str):
     print(f"Errors              : {errors}")
     print(f"Total Processing Time: {elapsed:.2f} seconds")
     print("==========================================")
+    return 1 if errors else 0
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit("usage: svg_vectorizer.py <TARGET_DIR>   (no default — see the contract above)")
-    run_batch_svg_conversion(sys.argv[1])
+    sys.exit(run_batch_svg_conversion(sys.argv[1]))
