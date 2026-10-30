@@ -5,3 +5,9 @@ target/
 # Vendored Sonic Visualiser reference source (GPL) — kept local as a study guide,
 # not part of this project's tree. See Documentation/🔍Audits/layers_rendering_audit.md.
 Documentation/layers/
+
+# The slim manifest is a rebuildable cache written at the root of a SCANNED folder
+# (Documentation/Features/manifest-cache-loader). This repo root is not one: a copy
+# committed here recorded 891 pre-rename 'apps/Beskar2d2.com/...' paths, 182 of them
+# gone, from an engine version no reader accepts.
+/sample_cloud_manifest.json
