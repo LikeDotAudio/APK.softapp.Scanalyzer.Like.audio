@@ -124,7 +124,7 @@ fn run(job: &Value, limits: Limits) -> Result<Value, String> {
     let img = decode(&bytes, limits.max_side_px)?;
 
     match op {
-        "ocr" => serde_json::to_value(OcrEngine::process_image(&img)).map_err(|e| e.to_string()),
+        "ocr" => serde_json::to_value(OcrEngine::process_image(&img)?).map_err(|e| e.to_string()),
         _ => {
             let svg = VectorizerEngine::convert_to_svg(&img, threshold);
             if svg.svg_xml.len() > limits.max_result_bytes {
@@ -253,14 +253,24 @@ mod tests {
 
     #[test]
     fn an_ocr_job_comes_back_with_the_engines_reading() {
-        let out = handle_job(&job(json!({"job_id": "o1", "op": "ocr", "filename": "p.png", "content_b64": b64(&probe_png())})), LIMITS);
+        use apkaudio_graphics_suite::ocr::{PROBE_PNG, PROBE_TEXT};
+        let out = handle_job(&job(json!({"job_id": "o1", "op": "ocr", "filename": "p.png", "content_b64": b64(PROBE_PNG)})), LIMITS);
         assert_eq!(out["job_id"], "o1");
-        assert_eq!(out["ok"], true, "{}", out["error"]);
         assert_eq!(out["op"], "ocr");
-        // The same answer the library gives for the same pixels.
-        let direct = serde_json::to_value(OcrEngine::process_image(&decode(&probe_png(), 4096).unwrap())).unwrap();
-        assert_eq!(out["result"], direct);
-        assert_eq!(out["result"]["detected_characters"].as_array().unwrap().len(), 2, "{}", out["result"]);
+        match OcrEngine::process_image(&decode(PROBE_PNG, 4096).unwrap()) {
+            // The same answer the library gives for the same pixels.
+            Ok(direct) => {
+                assert_eq!(out["ok"], true, "{}", out["error"]);
+                assert_eq!(out["result"], serde_json::to_value(direct).unwrap());
+                assert_eq!(out["result"]["extracted_text"], PROBE_TEXT, "{}", out["result"]);
+            }
+            // No Tesseract on this host: the job says so instead of guessing.
+            Err(e) => {
+                eprintln!("SKIP reading check: {e}");
+                assert_eq!(out["ok"], false);
+                assert!(out["error"].as_str().unwrap().contains("Tesseract"), "{}", out["error"]);
+            }
+        }
     }
 
     #[test]

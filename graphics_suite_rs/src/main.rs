@@ -135,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Commands::Ocr { image } => {
             let decoded = image::open(&image)?;
-            let result = OcrEngine::process_image(&decoded);
+            let result = OcrEngine::process_image(&decoded)?;
             println!("{}", serde_json::to_string_pretty(&result)?);
         }
         Commands::AnalyzeImage { image } => {
@@ -193,7 +193,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let text_content = fs::read_to_string(&text_file)?;
 
             println!("[1/6] Running OCR Engine...");
-            let ocr_result = OcrEngine::process_image(&decoded);
+            let ocr_result = OcrEngine::process_image(&decoded)?;
 
             println!("[2/6] Analyzing Image Metrics...");
             let image_result = ImageAnalyzer::analyze(&decoded);

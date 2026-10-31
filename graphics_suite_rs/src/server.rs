@@ -122,8 +122,10 @@ pub fn start_server(
                 }
                 (Method::Post, "/api/ocr") => {
                     if let Ok(img) = image::load_from_memory(&body) {
-                        let result = OcrEngine::process_image(&img);
-                        (200, serde_json::to_string(&result).unwrap_or_default())
+                        match OcrEngine::process_image(&img) {
+                            Ok(result) => (200, serde_json::to_string(&result).unwrap_or_default()),
+                            Err(e) => (500, serde_json::json!({ "error": e }).to_string()),
+                        }
                     } else {
                         (400, r#"{"error": "Invalid image payload"}"#.to_string())
                     }

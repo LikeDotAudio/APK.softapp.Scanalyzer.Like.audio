@@ -48,6 +48,10 @@ graphics_suite_rs/src/lib.rs   the library the CLI (main.rs) and the worker both
 graphics_suite_rs/SRC/, Docker/   Worker-GRAPHICS_SUITE (POD.workers, token graphics_suite):
                                 a job {op: ocr|vectorize, content_b64} answered with what the
                                 CLI's `ocr` / `to-svg` print; no port, decoded in memory
+graphics_suite_rs/src/ocr.rs    OCR is Tesseract's: the image is piped to `tesseract stdin
+                                stdout tsv makebox` (words → word_regions/extracted_text,
+                                boxes → detected_characters); no tesseract = an error, never
+                                a guess (APK_OCR_TESSERACT, APK_OCR_LANG, TESSDATA_PREFIX)
 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to each Scanalyzer softapp, by stage
                                 each module's own display.json is its menu entry; there is
                                 no suite-wide manifest (SCANALIZER_DYNAMIC_MANIFEST.json named

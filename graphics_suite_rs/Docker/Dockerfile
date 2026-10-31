@@ -7,7 +7,9 @@
 #    and apk-plugin-runner, which live outside this repository. Every COPY
 #    source below is a REAL repo-root path (PODS/README.md rule 1). Same recipe
 #    as PROCESSOR.SampleConversion's worker, without ffmpeg: the image is
-#    decoded and read in memory by the library itself.
+#    decoded in memory by the library itself. OCR is Tesseract's
+#    (LOOSE-ocr-not-recognition): the runtime installs its CLI and English
+#    data, and the library pipes each image through it on stdin/stdout.
 
 # ---------- build ----------
 FROM rust:1.94-bookworm AS build
@@ -34,8 +36,16 @@ RUN cargo build --release --locked --manifest-path "$TOOL/SRC/Cargo.toml" --bins
 
 # ---------- runtime ----------
 FROM debian:bookworm-slim
-# Nothing to install: the library decodes every format itself. Not root: the
-# worker opens no port and touches no device.
+# Tesseract and its English model: the OCR op shells out to `tesseract stdin
+# stdout tsv makebox` (graphics_suite_rs/src/ocr.rs). Its `configs/tsv` and
+# `configs/makebox` ship in tesseract-ocr. The self test reads a rendered line
+# back, so an image without them fails `an_ocr_job_reads_the_probe`.
+# OMP_THREAD_LIMIT=1: one job at a time already; OpenMP threads only contend.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng \
+ && rm -rf /var/lib/apt/lists/*
+ENV OMP_THREAD_LIMIT=1
+# Not root: the worker opens no port and touches no device.
 RUN useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin worker
 COPY --from=build /out/ /usr/local/bin/
 USER worker

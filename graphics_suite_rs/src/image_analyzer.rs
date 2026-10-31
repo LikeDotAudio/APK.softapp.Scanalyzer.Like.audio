@@ -153,14 +153,13 @@ impl ImageAnalyzer {
 
         // Crop the title block region for isolated high-accuracy OCR
         let cropped = img.crop_imm(tb_x, tb_y, tb_w, tb_h);
-        let ocr_result = crate::ocr::OcrEngine::process_image(&cropped);
-
-        let text = ocr_result.extracted_text;
+        // No Tesseract (an error) reads as nothing: the title block is then
+        // unknown, never guessed.
+        let text = crate::ocr::OcrEngine::process_image(&cropped).map(|r| r.extracted_text).unwrap_or_default();
         let read = text.trim();
-        // The built-in OCR is a glyph-shape pass, not a recogniser, and it
-        // reports this sentinel rather than an empty string when it read
-        // nothing. Treating the sentinel as text is how "No OCR text detected"
-        // ended up stored as a drawing's extracted title.
+        // The OCR reports this sentinel rather than an empty string when it
+        // read nothing. Treating the sentinel as text is how "No OCR text
+        // detected" ended up stored as a drawing's extracted title.
         let read = if read.is_empty() || read == crate::ocr::NO_TEXT { "" } else { read };
 
         // A drawing number is a number that was READ, matched against the

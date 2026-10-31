@@ -3,8 +3,10 @@
 //! The worker's self test: the runner answers `outgoing/selftest_run` with it.
 //!
 //! All `Depth::Own` — a worker has no hardware. The decisive checks run each
-//! op on a PNG built in memory, so a pass means THIS image decodes PNG and
-//! both engines answer through the job path a client uses.
+//! op on a PNG through the job path a client uses: the tracer on one built in
+//! memory, the OCR on a rendered text line it must read back word for word —
+//! so a pass means THIS image decodes PNG, carries Tesseract and its English
+//! data, and both engines answer.
 
 use apkaudio_contracts::self_test::{Check, Depth, Report};
 
@@ -27,8 +29,8 @@ pub fn self_test(depth: Depth) -> Report {
     report.record(Check::from_result(
         "an_ocr_job_reads_the_probe",
         Depth::Own,
-        "an OCR job on a two-glyph PNG comes back ok with two characters",
-        probe("ocr", |r| r["detected_characters"].as_array().map(Vec::len) == Some(2)),
+        "an OCR job on a rendered text line comes back ok with that text (Tesseract is in this image)",
+        probe_with("ocr", apkaudio_graphics_suite::ocr::PROBE_PNG, |r| r["extracted_text"] == apkaudio_graphics_suite::ocr::PROBE_TEXT),
     ));
     report.record(Check::from_result(
         "a_vectorize_job_traces_the_probe",
@@ -57,9 +59,13 @@ fn config_declares_module() -> Result<(), String> {
 }
 
 fn probe(op: &str, good: impl Fn(&serde_json::Value) -> bool) -> Result<(), String> {
+    probe_with(op, &crate::probe_png(), good)
+}
+
+fn probe_with(op: &str, png: &[u8], good: impl Fn(&serde_json::Value) -> bool) -> Result<(), String> {
     use base64::Engine as _;
     let job = serde_json::json!({"job_id": "selftest", "op": op, "filename": "probe.png",
-        "content_b64": base64::engine::general_purpose::STANDARD.encode(crate::probe_png())});
+        "content_b64": base64::engine::general_purpose::STANDARD.encode(png)});
     let out = crate::handle_job(job.to_string().as_bytes(), Limits::from_ini(CONFIG_INI));
     if out["ok"].as_bool() == Some(true) && good(&out["result"]) {
         Ok(())
@@ -79,6 +85,16 @@ mod tests {
 
     #[test]
     fn the_self_test_passes_against_this_build() {
+        // The OCR check needs Tesseract, which the image carries and a dev
+        // host may not; there the verdict is checked inside the container.
+        if std::process::Command::new(std::env::var("APK_OCR_TESSERACT").unwrap_or_else(|_| "tesseract".into()))
+            .arg("--version")
+            .output()
+            .is_err()
+        {
+            eprintln!("SKIP: no tesseract on this host");
+            return;
+        }
         let report = self_test(Depth::Own);
         assert_eq!(report.verdict(), Verdict::Pass, "{}", report.headline());
     }
