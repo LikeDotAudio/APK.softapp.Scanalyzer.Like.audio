@@ -91,3 +91,9 @@ pushes sideways to the window that owns the next screen instead of switching its
   (`Documentation/🔍Audits/KNOWN_ISSUES.md`).
 - **`Header.tsx` returns `null`** (since 382f068): the branding/progress strip is gone from
   the standalone page, and the solo-window progress strip with it.
+
+## Decided in the 2026-10-30 audit
+- **Siblings by version, never by folder.** The core crates come by git `rev`; the suite's members are data (`suite.json`), not symlinks. Locally excluded `.cargo/config.toml` files make the monorepo build the sibling folders being edited.
+- **Kept by design: images build the checkout.** `Docker/dist.Dockerfile` and `graphics_suite_rs/Docker/Dockerfile` take contexts wider than this repository and patch the git names to the copied siblings, so an image never fetches GitHub and ships what the bench runs — the house rule of `.apk.scripts/plugin_standalone.py`.
+- **Kept by design: two crates in `graphics_suite_rs`.** The library/CLI/micro-API and the worker are separate manifests on purpose: a worker builds its own image, so a broken worker never fails another build.
+- **Liveness is an answer, not a retained word.** The convert card names a retained `incoming/state = unavailable` when a job times out but never refuses on it: the same word is retained while a live worker sits on the workbench.

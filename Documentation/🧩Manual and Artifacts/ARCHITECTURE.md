@@ -115,3 +115,10 @@ re-analysed; `--force` ignores every sidecar.
 | `node scripts/check-effect-abort.mjs`, `check-discovery.mjs` | effect cancellation; gate/test discovery |
 | `npm run gen:ucs-index -- --check` | UCS tables match DATATYPE.soundfx.UCS |
 | `cargo check` in `Web_Front/src-tauri` | the desktop crate compiles |
+
+## Since the 2026-10-30 audit
+- Crates: `extractor_engine` and `oa-sample-analyzer` by git rev; `Web_Front/.cargo/config.toml` (local, excluded) patches them to `../../../CAPTURE/CAPTURE.Extractor-Engine` and `../../../PROCESSOR/PROCESSOR.SampleAnalyzer/SRC/core`.
+- Bus: `src/busLink.ts` (one link via `window.APKBus`), `src/sampleConversionJob.ts` and `src/graphicsSuiteJob.ts` (jobs; topics from `src/vendor/apk-contracts/apk-contracts.mjs`).
+- Corpus API: `public/api/db.php` (connection, CORS, upload token), `upload_columns.json` (served by `upload_peak.php?columns`).
+- Suite: `suite.json`; stage folders hold only their README.
+- Build: `Docker/dist.Dockerfile` → stage `dist`; `./check.sh` is the one check.

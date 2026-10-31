@@ -13,5 +13,14 @@
   "entry": "Web_Front/desktop.py",
   "tech": "python",
   "app": "APK:Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/index.html",
-  "requires": {"plugins": [], "services": ["osapi"]}
+  "requires": {
+    "plugins": [
+      "sample_conversion",
+      "graphics_suite"
+    ],
+    "services": [
+      "osapi",
+      "broker"
+    ]
+  }
 }

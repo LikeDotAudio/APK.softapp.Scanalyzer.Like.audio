@@ -4,6 +4,8 @@ import { classifyImage, formatConfidence, type ImageClassification } from './ima
 import { convertImageToSVG } from './svgConverter';
 import { apiUrl } from './apiBase';
 import { escapeHTML } from './lib/html';
+import { viaBus } from './graphicsSuiteJob';
+import { connectedClient } from './busLink';
 
 let worker1: any = null; // Engine 1: PSM 11 Sparse Text
 let worker2: any = null; // Engine 2: PSM 3 Auto Block Text
@@ -274,14 +276,17 @@ async function runEngine3Rust(_fileItem: FileItem, dataUrl: string): Promise<Eng
   try {
     const blob = await (await fetch(dataUrl)).blob();
     const arrayBuf = await blob.arrayBuffer();
-    const resp = await fetch(apiUrl('/api/ocr'), {
+    // Worker-GRAPHICS_SUITE's `ocr` job when this page has a bus; the micro-API
+    // only where it has none (graphicsSuiteJob.ts, SDK audit DS-02).
+    const viaWorker = await viaBus(connectedClient, 'ocr', _fileItem?.file?.name || 'image.png', arrayBuf);
+    const resp = viaWorker ? null : await fetch(apiUrl('/api/ocr'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/octet-stream' },
       body: arrayBuf
     });
 
-    if (resp.ok) {
-      const rustRes = await resp.json();
+    if (viaWorker || resp?.ok) {
+      const rustRes = viaWorker ?? await resp!.json();
       const text = rustRes.extracted_text || '';
       const words = extractWordsFromText(text);
 

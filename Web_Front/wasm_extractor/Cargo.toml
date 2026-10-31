@@ -15,5 +15,10 @@ serde = { version = "1", features = ["derive"] }
 # and the browser cuts a different file than the desktop (LOOSE-wasm-extractor-cut).
 serde_json = { version = "1", features = ["float_roundtrip"] }
 console_error_panic_hook = "0.1.7"
-extractor_engine = { path = "../../../../CAPTURE/CAPTURE.Extractor-Engine" }
-oa-sample-analyzer = { path = "../../../../PROCESSOR/PROCESSOR.SampleAnalyzer" }
+# The engine and the analyzer BY COMMIT, not by sibling path (audit 2026-10-30; the house
+# rule for a sibling, .apk.scripts/plugin_standalone.py). ONE rev each across wasm_extractor,
+# wasm_analyzer and src-tauri (and the analyzer's own pin of the engine), or cargo builds two
+# extractor_engine packages with two Region types. In the monorepo the locally excluded
+# Web_Front/.cargo/config.toml patches both URLs back to the sibling folders.
+extractor_engine = { git = "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor-Engine", rev = "e66e6bee0d863adbf94547a615ddbe9fdc431a11" }
+oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "177daacb866b8ef5db82fc2414ca6c5bdd9bd486" }

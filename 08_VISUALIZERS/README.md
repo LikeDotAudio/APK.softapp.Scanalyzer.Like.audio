@@ -2,14 +2,14 @@
 
 This folder contains the visualizer display widgets and multi-dimensional graphing components of the **Scanalyzer** system.
 
-Each module here is a **symlink** into its real home in the Softapps tree (repointed 2026-10-30 after the family reorg; the old flat `../../<name>` targets no longer exist):
+The members of this stage are listed in [`../suite.json`](../suite.json) (stage `08_VISUALIZERS`), each by its portal path and repository. Until 2026-10-30 this folder held a symlink into each sibling repository; those dangled in any standalone clone and broke silently when a sibling moved, so the list is data now (audit 2026-10-30). Where each one lives:
 
-`VISUALIZER.2D-Graphs` → `Softapps/VISUALIZER/VISUALIZER.2D-Graphs`  
-`VISUALIZER.3D-PointCloud` → `Softapps/VISUALIZER/VISUALIZER.3D-PointCloud`  
-`VISUALIZER.4D-FaceBall` → `Softapps/VISUALIZER/VISUALIZER.4D-FaceBall`  
-`VISUALIZER.5D-MultiVector` → `Softapps/VISUALIZER/VISUALIZER.5D-MultiVector`  
-`VISUALIZER.Examiner` → `Softapps/VISUALIZER/VISUALIZER.Examiner`  
-`VISUALIZER.Simple-Data-Graphing` → `Softapps/VISUALIZER/VISUALIZER.Simple-Data-Graphing`
+`VISUALIZER.2D-Graphs` → `APK:Softapps/VISUALIZER/VISUALIZER.2D-Graphs`  
+`VISUALIZER.3D-PointCloud` → `APK:Softapps/VISUALIZER/VISUALIZER.3D-PointCloud`  
+`VISUALIZER.4D-FaceBall` → `APK:Softapps/VISUALIZER/VISUALIZER.4D-FaceBall`  
+`VISUALIZER.5D-MultiVector` → `APK:Softapps/VISUALIZER/VISUALIZER.5D-MultiVector`  
+`VISUALIZER.Examiner` → `APK:Softapps/VISUALIZER/VISUALIZER.Examiner`  
+`VISUALIZER.Simple-Data-Graphing` → `APK:Softapps/VISUALIZER/VISUALIZER.Simple-Data-Graphing`
 
 ## Modules
 

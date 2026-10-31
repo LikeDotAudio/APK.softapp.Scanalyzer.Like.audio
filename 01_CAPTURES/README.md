@@ -2,20 +2,20 @@
 
 This folder contains the data ingestion, extraction, and capture modules of the **Scanalyzer** system. These modules intake external documents, audio files, images, schematics, and web pages, converting them into structured `.PEAK` metadata and search indexes.
 
-Each module here is a **symlink** into its real home in the Softapps tree (repointed 2026-10-30 after the family reorg; the old flat `../../<name>` targets no longer exist):
+The members of this stage are listed in [`../suite.json`](../suite.json) (stage `01_CAPTURES`), each by its portal path and repository. Until 2026-10-30 this folder held a symlink into each sibling repository; those dangled in any standalone clone and broke silently when a sibling moved, so the list is data now (audit 2026-10-30). Where each one lives:
 
-`CAPTURE.crawler` → `Softapps/CAPTURE/CAPTURE.crawler`  
-`CAPTURE.Czur-Fast-Capture` → `Softapps/CAPTURE/CAPTURE.Czur-Fast-Capture`  
-`CAPTURE.Document` → `Softapps/CAPTURE/CAPTURE.Document`  
-`CAPTURE.Extractor` → `Softapps/CAPTURE/CAPTURE.Extractor`  
-`CAPTURE.Extractor-Engine` → `Softapps/CAPTURE/CAPTURE.Extractor-Engine`  
-`CAPTURE.FaceID` → `Softapps/CAPTURE/CAPTURE.FaceID`  
-`CAPTURE.FolderScanner` → `Softapps/CAPTURE/CAPTURE.FolderScanner`  
-`CAPTURE.Image` → `Softapps/CAPTURE/CAPTURE.Image`  
-`CAPTURE.OCR` → `Softapps/CAPTURE/CAPTURE.OCR`  
-`CAPTURE.Schematics` → `Softapps/CAPTURE/CAPTURE.Schematics`  
-`CAPTURE.Vectorizer` → `Softapps/CAPTURE/CAPTURE.Vectorizer`  
-`CAPTURE.WebScraper` → `Softapps/CAPTURE/CAPTURE.WebScraper`
+`CAPTURE.crawler` → `APK:Softapps/CAPTURE/CAPTURE.crawler`  
+`CAPTURE.Czur-Fast-Capture` → `APK:Softapps/CAPTURE/CAPTURE.Czur-Fast-Capture`  
+`CAPTURE.Document` → `APK:Softapps/CAPTURE/CAPTURE.Document`  
+`CAPTURE.Extractor` → `APK:Softapps/CAPTURE/CAPTURE.Extractor`  
+`CAPTURE.Extractor-Engine` → `APK:Softapps/CAPTURE/CAPTURE.Extractor-Engine`  
+`CAPTURE.FaceID` → `APK:Softapps/CAPTURE/CAPTURE.FaceID`  
+`CAPTURE.FolderScanner` → `APK:Softapps/CAPTURE/CAPTURE.FolderScanner`  
+`CAPTURE.Image` → `APK:Softapps/CAPTURE/CAPTURE.Image`  
+`CAPTURE.OCR` → `APK:Softapps/CAPTURE/CAPTURE.OCR`  
+`CAPTURE.Schematics` → `APK:Softapps/CAPTURE/CAPTURE.Schematics`  
+`CAPTURE.Vectorizer` → `APK:Softapps/CAPTURE/CAPTURE.Vectorizer`  
+`CAPTURE.WebScraper` → `APK:Softapps/CAPTURE/CAPTURE.WebScraper`
 
 ## Modules
 

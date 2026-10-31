@@ -25,7 +25,7 @@ fn slim_progress(line: &str) -> Option<String> {
     serde_json::to_string(&serde_json::Value::Object(out)).ok()
 }
 
-/// Exactly what the engine can decode — sample_analyzer_rs/src/decode.rs AUDIO_EXTENSIONS.
+/// Exactly what the engine can decode — PROCESSOR.SampleAnalyzer src/Decoders/decode.rs AUDIO_EXTENSIONS.
 /// Keep the two in step, or the survey promises files the analyzer will refuse.
 const AUDIO_EXTENSIONS: &[&str] = &[
     "wav", "wave", "mp3", "flac", "aif", "aiff", "aifc", "ogg", "oga", "m4a", "mp4", "aac",
@@ -279,17 +279,18 @@ fn cloud_db_url() -> String {
     std::env::var("SCAN_DB_URL").unwrap_or_else(|_| "https://scanalyzer.like.audio/api/upload_peak.php".to_string())
 }
 
-/// The scan engine CLI. `Web_Front/desktop.py` builds `sample_analyzer_rs` (this repo's symlink to
-/// PROCESSOR/PROCESSOR.SampleAnalyzer), asks `cargo metadata` where cargo put it — in the
-/// APK.audio checkout that is the root `target/`, not the crate's — and hands the path over
-/// as `SCAN_ANALYZER_BIN`. Without it (a standalone clone, no target-dir override) the
-/// crate-local `target/` is resolved from this crate's own directory, never the cwd.
+/// The scan engine CLI. `Web_Front/desktop.py` builds it through this crate's own dependency
+/// (`cargo build -p oa-sample-analyzer --bin oa_sample_analyzer`), asks `cargo metadata`
+/// where cargo put it — in the APK.audio checkout that is the root `target/`, not the
+/// crate's — and hands the path over as `SCAN_ANALYZER_BIN`. Without it (a standalone clone,
+/// no target-dir override) this crate's own `target/` is where that build lands, resolved
+/// from this crate's directory, never the cwd.
 fn analyzer_binary() -> std::path::PathBuf {
     if let Ok(p) = std::env::var("SCAN_ANALYZER_BIN") {
         return std::path::PathBuf::from(p);
     }
     std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../sample_analyzer_rs/target/release/oa_sample_analyzer")
+        .join("target/release/oa_sample_analyzer")
 }
 
 #[tauri::command]

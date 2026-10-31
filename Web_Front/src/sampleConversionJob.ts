@@ -9,15 +9,24 @@
  * goes out on `outgoing/job`, and how an answer on `incoming/result` is read.
  * `sampleConversion.ts` beside it owns the MQTT client.
  *
- * It is a `.ts` with no imports and only erasable types on purpose: node strips
- * TypeScript natively, so `test/sample-conversion-job.test.mjs` imports THIS
- * FILE and checks the rules with nothing installed.
+ * It is a `.ts` with only erasable types on purpose: node strips TypeScript
+ * natively, so `test/sample-conversion-job.test.mjs` imports THIS FILE and
+ * checks the rules with nothing installed. Its one import is the contracts'
+ * browser build, vendored (`src/vendor/apk-contracts/`, refreshed by
+ * `.apk.scripts/vendor_contract_web.py`, drift caught by its `--check`): the
+ * topic is built by the contract, not formatted here.
  *
  * The allowed values are the worker's own (`SRC/src/lib.rs`, `convert` and
  * `demuxer_for`). They are wire constants, not a list of known devices: the
  * worker refuses anything else with `ok: false`, so offering it here would
  * only offer a refusal.
  */
+
+// The vendored bundle ships no .d.ts (a file beside it would fail the vendor
+// --check), so the one builder used here is typed at the import.
+// @ts-expect-error TS7016 — untyped vendored ES module
+import { Topics as ContractTopics } from './vendor/apk-contracts/apk-contracts.mjs';
+const Topics: { protocols: { topic(address: { proto: string; path: string[] }): string } } = ContractTopics;
 
 /** The token the worker is known by on the bus. */
 export const CONVERSION_TOKEN = 'sample_conversion';
@@ -55,11 +64,14 @@ export const DEFAULT_OPTIONS: ConversionOptions = {
 
 /** The worker's job and result leaves for a token. */
 export function conversionTopics(token: string = CONVERSION_TOKEN) {
-  const base = `APK.audio/System/Protocols/${token}`;
+  const leaf = (...path: string[]): string => Topics.protocols.topic({ proto: token, path });
   return {
-    job: `${base}/outgoing/job`,
-    result: `${base}/incoming/result`,
-    status: `${base}/status`,
+    job: leaf('outgoing', 'job'),
+    result: leaf('incoming', 'result'),
+    // The liveness leaf the runner's LAST WILL writes (`unavailable`, retained) —
+    // not `/status`, which the runner sets `online` once and nothing ever clears,
+    // so a dead worker kept reading `online` (SDK audit WS-06/OS-06).
+    state: leaf('incoming', 'state'),
   };
 }
 
@@ -169,12 +181,22 @@ export interface BusClientLike {
   removeListener(event: 'message', cb: (topic: string, payload: Uint8Array) => void): unknown;
 }
 
+/** Whether a retained `incoming/state` carries the last will's word. A hint for
+ *  the timeout message, never a refusal (see `requestConversion`). */
+export function workerIsDown(stateText: string): boolean {
+  return stateText.trim() === 'unavailable';
+}
+
 /** Send one job on a connected client and wait for its answer.
  *
  *  SUBSCRIBE FIRST, THEN PUBLISH: the result leaf is not retained, so an
  *  answer that comes back before the subscription is in place is lost.
- *  The worker's retained `status` is read on the same subscription: a worker
- *  that last said `offline` is reported at once instead of after the timeout.
+ *  The worker's retained `incoming/state` is read on the same subscription and
+ *  named in the timeout error. It is NOT a reason to refuse up front: the
+ *  runner's last will writes `unavailable` when the process dies, but the same
+ *  word is retained while a live worker is withdrawn onto the workbench (and
+ *  still answering jobs), so only the missing answer is proof. `/status` is not
+ *  read at all: the runner sets it `online` once and no will ever clears it.
  *  Rejects with the reason on a timeout, a refusal to publish, or an offline
  *  worker; a job the worker refused RESOLVES with `ok: false` and its error. */
 export function requestConversion(
@@ -187,20 +209,19 @@ export function requestConversion(
   const decoder = new TextDecoder();
   return new Promise((resolve, reject) => {
     let done = false;
+    let lastState = '';
     const finish = (fn: () => void) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
       client.removeListener('message', onMessage);
-      client.unsubscribe([topics.result, topics.status]);
+      client.unsubscribe([topics.result, topics.state]);
       fn();
     };
     const onMessage = (topic: string, payload: Uint8Array) => {
       const text = decoder.decode(payload);
-      if (topic === topics.status) {
-        if (text.trim() && text.trim() !== 'online') {
-          finish(() => reject(new Error(`the converter worker says it is ${text.trim()}`)));
-        }
+      if (topic === topics.state) {
+        lastState = text.trim();
         return;
       }
       if (topic !== topics.result) return;
@@ -208,11 +229,14 @@ export function requestConversion(
       if (read) finish(() => resolve(read));
     };
     const timer = setTimeout(
-      () => finish(() => reject(new Error(`no answer from the converter in ${Math.round(timeoutMs / 1000)} s`))),
+      () => finish(() => reject(new Error(
+        `no answer from the converter in ${Math.round(timeoutMs / 1000)} s`
+        + (workerIsDown(lastState) ? ' — its retained state is `unavailable` (its last will: is Worker-SAMPLE_CONVERSION running?)' : ''),
+      ))),
       timeoutMs,
     );
     client.on('message', onMessage);
-    client.subscribe([topics.result, topics.status], { qos: 1 }, (err) => {
+    client.subscribe([topics.result, topics.state], { qos: 1 }, (err) => {
       if (err) { finish(() => reject(new Error(`could not subscribe: ${err.message}`))); return; }
       client.publish(topics.job, JSON.stringify(job), { qos: 1, retain: false }, (perr) => {
         if (perr) finish(() => reject(new Error(`could not publish the job: ${perr.message}`)));

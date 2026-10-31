@@ -67,16 +67,20 @@ SCANALYZER.Like.audio/              (this repo — the application)
 │   ├── scripts/                    build gates (check-*.mjs) + generators (logo, UCS synonyms)
 │   ├── test/                       node --test suites  (npm test)
 │   └── public/api/, tools/api/     PHP endpoints for the optional MySQL "cloud" of .PEAK records
-├── Docker/                         scan-api: php-fpm over public/api's three endpoints, for the APK.audio bench
-├── sample_analyzer_rs   → ../../PROCESSOR/PROCESSOR.SampleAnalyzer    ── THE CORE ── (own repo)
-├── extractor_engine_rs  → ../../CAPTURE/CAPTURE.Extractor-Engine
-├── Sample_Conversion_rs → ../../PROCESSOR/PROCESSOR.SampleConversion
-├── graphing_rs          → ../../VISUALIZER/VISUALIZER.Graphing         (retired from the app, PLAN-109.04)
+├── Docker/                         scan-api (php-fpm over public/api: three endpoints + db.php), and
+│                                   dist.Dockerfile — THE recipe for Web_Front/dist (final stage `dist`)
+├── suite.json                      the suite as data: every Scanalyzer softapp by stage, portal path, repository
 ├── folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/  Folder-ScanAnalyzer stages 1–3
 │   └── graphics_suite_rs/SRC + Docker/   Worker-GRAPHICS_SUITE: its OCR and SVG tracer as jobs on the bus (POD.workers)
-├── 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to every Scanalyzer softapp, by stage
+├── 01_CAPTURES … 08_VISUALIZERS/   one README per stage, describing the members suite.json lists
+├── check.sh                        the one check (npm test, tsc -b, oxlint, cargo test ×4, php -l)
 ├── SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
 └── Documentation/                  audits, specs, plans, known issues
+
+THE CORE IS NOT HERE: PROCESSOR.SampleAnalyzer and CAPTURE.Extractor-Engine are pinned BY COMMIT
+(`git = …, rev = …` in Web_Front/{wasm_analyzer,wasm_extractor,src-tauri}/Cargo.toml — one rev each);
+in the monorepo the locally excluded Web_Front/.cargo/config.toml patches them to the sibling folders.
+The 40 symlinks into sibling repositories that used to sit here were replaced by suite.json (2026-10-30).
 
 The UCS data is not here: it lives in ../../DATATYPE/DATATYPE.soundfx.UCS
 (categories/*.json — 94 categories, 828 subcategories — producer_synonyms.json, the
@@ -104,13 +108,13 @@ WASM DSP core in a worker pool, and never uploads anything.
 ## Run — desktop (Tauri)
 
 ```bash
-cargo build --release --manifest-path sample_analyzer_rs/Cargo.toml   # the scan engine
-cd Web_Front && npm run tauri dev                                     # or: npm run tauri build
+python3 Web_Front/desktop.py      # builds the scan engine, then runs `npm run tauri dev`
 ```
 
 Requires: Node 18+, a Rust toolchain, and the Tauri v2 system dependencies.
 
-`python3 Web_Front/desktop.py` builds the engine (`sample_analyzer_rs/` → PROCESSOR/PROCESSOR.SampleAnalyzer),
+`python3 Web_Front/desktop.py` builds the engine through the Tauri crate's own dependency
+(`cargo build --release -p oa-sample-analyzer --bin oa_sample_analyzer --manifest-path Web_Front/src-tauri/Cargo.toml`),
 asks `cargo metadata` where the binary landed (the APK.audio checkout's root `target/`), hands
 that path to the app as `SCAN_ANALYZER_BIN`, then runs `npm run tauri dev`; `start_analysis` in
 `Web_Front/src-tauri/src/lib.rs` (`analyzer_binary`) spawns it. It scans with one worker per core, streams progress, and

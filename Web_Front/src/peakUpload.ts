@@ -16,35 +16,23 @@
  *  field added to the analyzer (`bioacoustic_syntax`, say) cannot silently
  *  inflate every upload.
  *
- *  Keep in sync with `Web_Front/public/api/upload_peak.php`.
+ *  THE LIST IS ONE FILE: `public/api/upload_columns.json`. `upload_peak.php`
+ *  serves it (`GET upload_peak.php?columns`) and maps each field to its column,
+ *  this module trims to it, and the analyzer's `db.rs` (PROCESSOR.SampleAnalyzer)
+ *  asks the endpoint for it before uploading. It used to be three hand-kept
+ *  lists "kept in sync" by a comment; `test/upload-columns.test.mjs` now fails
+ *  when the PHP stops storing a listed field.
  */
+import uploadColumns from '../public/api/upload_columns.json' with { type: 'json' };
 
-const METADATA_FIELDS = [
-  'name', 'folder', 'path', 'analyzer_version', 'length_seconds', 'sample_rate',
-  'bit_depth', 'channels', 'source_format', 'lossy_source', 'dc_offset',
-] as const;
+interface ListRule { limit: number; fields: readonly string[] }
+interface SectionRule { fields?: readonly string[]; lists?: Record<string, ListRule> }
+export interface UploadColumns { sections: Record<string, SectionRule> }
 
-const CLASSIFICATION_FIELDS = [
-  'group', 'subgroup', 'timbre', 'acoustic_types', 'instrument_family', 'reason',
-] as const;
+/** The endpoint's allow-list, as bundled with this build. */
+export const UPLOAD_COLUMNS: UploadColumns = uploadColumns as UploadColumns;
 
-const SPECTRAL_FIELDS = [
-  'root_mean_square_level', 'crest_factor', 'complexity', 'spectral_centroid_hz',
-  'spectral_rolloff_hz', 'spectral_flatness', 'harmonicity',
-  'total_harmonic_distortion', 'clipping_density',
-] as const;
-
-const MUSICALITY_FIELDS = [
-  'pitch_hz', 'root_note_name', 'root_midi_note', 'root_cents_offset', 'beats_per_minute',
-] as const;
-
-const ENVELOPE_FIELDS = [
-  'transient_count', 'attack_seconds', 'envelope_decay_seconds',
-  'envelope_sustain_level', 'envelope_release_seconds',
-  'envelope_temporal_centroid', 'envelope_shape',
-] as const;
-
-function pick(source: any, fields: readonly string[]): Record<string, any> {
+function pick(source: any, fields: readonly string[] = []): Record<string, any> {
   const out: Record<string, any> = {};
   if (!source || typeof source !== 'object') return out;
   for (const field of fields) {
@@ -53,31 +41,38 @@ function pick(source: any, fields: readonly string[]): Record<string, any> {
   return out;
 }
 
-/** One record, reduced to the stored columns. Roughly 1/20th the bytes. */
+/** One record, reduced to the stored columns. Roughly 1/20th the bytes. Same rule
+ *  as `slim` in the analyzer's `Encoders/db.rs`: every listed section is sent (empty
+ *  when the record has none), lists keep their first `limit` elements. */
+export function slimWith(record: any, columns: UploadColumns): any {
+  const out: Record<string, any> = {};
+  for (const [name, rule] of Object.entries(columns.sections)) {
+    const source = record?.[name];
+    const kept = pick(source, rule.fields);
+    for (const [list, spec] of Object.entries(rule.lists ?? {})) {
+      const items = Array.isArray(source?.[list]) ? source[list] : [];
+      kept[list] = items.slice(0, spec.limit).map((item: any) => pick(item, spec.fields));
+    }
+    out[name] = kept;
+  }
+  return out;
+}
+
+/** `slimWith` over the bundled list — one argument, so `records.map(slimForUpload)` is safe. */
 export function slimForUpload(record: any): any {
-  const ucs = record?.ucs ?? {};
-  return {
-    metadata: pick(record?.metadata, METADATA_FIELDS),
-    classification: pick(record?.classification, CLASSIFICATION_FIELDS),
-    // Only the top three alternatives are stored (alt_1..alt_3), and only their
-    // category/subcategory — the scores and synonyms have no column.
-    ucs: {
-      category: ucs.category,
-      subcategory: ucs.subcategory,
-      alternatives: (Array.isArray(ucs.alternatives) ? ucs.alternatives : [])
-        .slice(0, 3)
-        .map((a: any) => ({ category: a?.category, subcategory: a?.subcategory })),
-    },
-    spectral_features: pick(record?.spectral_features, SPECTRAL_FIELDS),
-    musicality: pick(record?.musicality, MUSICALITY_FIELDS),
-    envelope: pick(record?.envelope, ENVELOPE_FIELDS),
-    // Just the COUNT, never the per-region detail. The count is what makes
-    // "which files have segments" answerable from the cloud; the detail is a
-    // full nested analysis per region and would dwarf everything else here.
-    regions: typeof record?.regions?.count === 'number'
-      ? { count: record.regions.count }
-      : undefined,
-  };
+  return slimWith(record, UPLOAD_COLUMNS);
+}
+
+/** Request headers for an upload. When the server requires an upload token
+ *  (`SCAN_UPLOAD_TOKEN`, see `public/api/db.php`), the operator stores it in this
+ *  browser as localStorage `scan_upload_token`; it is sent as `X-Upload-Token`. */
+export function uploadHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  try {
+    const token = globalThis.localStorage?.getItem('scan_upload_token');
+    if (token) headers['X-Upload-Token'] = token;
+  } catch { /* no storage (private window, node): no token */ }
+  return headers;
 }
 
 /** How many records to send per POST.

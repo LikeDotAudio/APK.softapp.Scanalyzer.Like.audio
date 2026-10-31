@@ -1,0 +1,14 @@
+{
+  "$comment": "THE ONE LIST of what upload_peak.php stores. upload_peak.php serves it (GET upload_peak.php?columns) and maps each field to its column; Web_Front/src/peakUpload.ts (slimForUpload) and PROCESSOR.SampleAnalyzer src/Encoders/db.rs (slim, which asks the endpoint for this document) trim every record to it before the POST. Add a column here AND in upload_peak.php; test/upload-columns.test.mjs fails when the two disagree. `lists` keep the first `limit` elements of an array, each cut to `fields`.",
+  "format": "scanalyzer-upload-columns",
+  "version": 1,
+  "sections": {
+    "metadata": {"fields": ["name", "folder", "path", "analyzer_version", "length_seconds", "sample_rate", "bit_depth", "channels", "source_format", "lossy_source", "dc_offset"]},
+    "classification": {"fields": ["group", "subgroup", "timbre", "acoustic_types", "instrument_family", "reason"]},
+    "ucs": {"fields": ["category", "subcategory"], "lists": {"alternatives": {"limit": 3, "fields": ["category", "subcategory"]}}},
+    "spectral_features": {"fields": ["root_mean_square_level", "crest_factor", "complexity", "spectral_centroid_hz", "spectral_rolloff_hz", "spectral_flatness", "harmonicity", "total_harmonic_distortion", "clipping_density"]},
+    "musicality": {"fields": ["pitch_hz", "root_note_name", "root_midi_note", "root_cents_offset", "beats_per_minute"]},
+    "envelope": {"fields": ["transient_count", "attack_seconds", "envelope_decay_seconds", "envelope_sustain_level", "envelope_release_seconds", "envelope_temporal_centroid", "envelope_shape"]},
+    "regions": {"fields": ["count"]}
+  }
+}

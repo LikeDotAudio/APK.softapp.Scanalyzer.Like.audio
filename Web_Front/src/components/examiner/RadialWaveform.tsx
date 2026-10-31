@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { drawRadialWaveform } from './drawRadialWaveform';
+import { ACCENT } from '../../brand';
 
 // Approx momentary loudness (LUFS-ish) of a short window around a playback fraction.
 // This is the ungated BS.1770 mean-square loudness without the K-weighting filter —
@@ -94,7 +95,7 @@ export default function RadialWaveform({
   samples,
   samplesRight = null,
   size = 180,
-  color = '#f4902c',
+  color = ACCENT,
   // No hollow centre: the spokes reach all the way in. The play button below floats
   // over the middle at a fixed size rather than filling a hole.
   holeRatio = 0,

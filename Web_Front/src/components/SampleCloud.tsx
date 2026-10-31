@@ -8,6 +8,7 @@ import { subKey, ucsColor, ucsSubColor, taxonomyKeys } from '../groupColors'
 import type { Taxonomy } from '../groupColors'
 import { adsrNumber } from '../envelopeSlices'
 import { puck, puckFlyable } from '../spaceMouse'
+import { ACCENT } from '../brand';
 
 // The subgroup, but only when it is a CURATED level (Perc -> Conga) rather than
 // the auto "group + length tier" one; '' when the subgroup merely echoes its
@@ -196,10 +197,10 @@ function Axes({ xLabel, yLabel, zLabel }: { xLabel: string; yLabel: string; zLab
   const label: React.CSSProperties = { fontSize: '11px', fontWeight: 700, whiteSpace: 'nowrap', pointerEvents: 'none', userSelect: 'none', textShadow: '0 0 3px #000' };
   return (
     <group>
-      <Line points={[[-L, 0, 0], [L, 0, 0]]} color="#f4902c" lineWidth={1} transparent opacity={0.4} />
+      <Line points={[[-L, 0, 0], [L, 0, 0]]} color={ACCENT} lineWidth={1} transparent opacity={0.4} />
       <Line points={[[0, -L, 0], [0, L, 0]]} color="#0ea5e9" lineWidth={1} transparent opacity={0.4} />
       <Line points={[[0, 0, -L], [0, 0, L]]} color="#aaaaaa" lineWidth={1} transparent opacity={0.4} />
-      <Html position={[L + 1, 0, 0]} center><span style={{ ...label, color: '#f4902c' }}>X · {xLabel}</span></Html>
+      <Html position={[L + 1, 0, 0]} center><span style={{ ...label, color: ACCENT }}>X · {xLabel}</span></Html>
       <Html position={[0, L + 1, 0]} center><span style={{ ...label, color: '#0ea5e9' }}>Y · {yLabel}</span></Html>
       <Html position={[0, 0, L + 1]} center><span style={{ ...label, color: '#cbd5e1' }}>Z · {zLabel}</span></Html>
     </group>

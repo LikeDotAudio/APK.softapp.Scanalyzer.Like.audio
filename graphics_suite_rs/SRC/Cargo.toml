@@ -15,9 +15,13 @@
 # ITS OWN WORKSPACE: a worker builds its own image, so a broken worker never
 # fails the plugin build and the reverse.
 #
-# CONTRACTS BY THE SAME LEXICAL PATH THE RUNNER USES
-# (`…/NODE.BareMetal/SRC/contracts/rust`), or cargo sees two
-# apkaudio-contracts packages and refuses the build.
+# THE SDK BY TAG, like every THICK plugin (`sdk-v0.5`, APK.plugin.SDK): a clone
+# of this repository builds this worker with nothing around it. In the monorepo
+# the locally excluded SRC/.cargo/config.toml patches both names back to the
+# local runner and contracts at the SAME LEXICAL PATHS the engine workspace uses
+# (`…/NODE.BareMetal/SRC/contracts/rust`), or cargo would see two
+# apkaudio-contracts packages; the image passes the same two patches as
+# `--config` (Docker/Dockerfile), as the broker image does for SQL.
 [package]
 name = "apk-worker-graphics-suite"
 version = "0.1.0"
@@ -30,8 +34,8 @@ name = "apk_worker_graphics_suite"
 path = "src/lib.rs"
 
 [dependencies]
-apk-plugin-runner = { path = "../../../../../../POD.THICK/DISCOVERY.Engine/SRC/RUNNER" }
-apkaudio-contracts = { path = "../../../../../../POD.THICK/NODE.BareMetal/SRC/contracts/rust" }
+apk-plugin-runner = { git = "https://github.com/LikeDotAudio/APK.plugin.SDK", tag = "sdk-v0.5" }
+apkaudio-contracts = { git = "https://github.com/LikeDotAudio/APK.plugin.SDK", tag = "sdk-v0.5" }
 apkaudio-graphics-suite = { path = ".." }
 # The same image crate the library decodes with, so `DynamicImage` is one type.
 image = "0.24"
@@ -43,10 +47,8 @@ serde_json = "1"
 name = "apk-worker-graphics-suite"
 path = "src/bin/apk-worker-graphics-suite.rs"
 
-# The runner's health probe, compiled from the runner's own source file.
-[[bin]]
-name = "apk-plugin-health"
-path = "../../../../../../POD.THICK/DISCOVERY.Engine/SRC/RUNNER/src/bin/apk-plugin-health.rs"
+# The runner's health probe is the runner's own binary: the image builds it with
+# `cargo build -p apk-plugin-runner --bin apk-plugin-health`.
 
 # OCR and tracing walk every pixel: unoptimised they are an order of magnitude
 # slower, and the worker is only ever run from a release build.

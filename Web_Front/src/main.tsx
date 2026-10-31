@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './vendor/apk-contracts/apk-tokens.css' // the brand + state tokens (--apk-accent), before index.css reads them
 import './index.css'
 // THE PERCENT-FILL PRIMITIVE, MIRRORED RATHER THAN LINKED, and that is
 // PLAN-924.03's ruling (option 3) applied to a third stack rather than a new

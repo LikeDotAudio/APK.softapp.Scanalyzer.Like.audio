@@ -34,11 +34,13 @@ RUN { \
     } > /usr/local/etc/php/conf.d/zz-scan-api.ini \
  && echo 'clear_env = no' >> /usr/local/etc/php-fpm.d/www.conf
 
-# THE THREE ENDPOINTS, BY NAME, AND ONLY THOSE. The hand-run migrations and
+# THE THREE ENDPOINTS, BY NAME, AND ONLY THOSE — plus their one adapter (db.php:
+# connection, CORS, upload token) and the upload allow-list upload_peak.php
+# serves (upload_columns.json). The hand-run migrations and
 # debug scripts (init_db, fix_db, migrate_* …) live in Web_Front/tools/api/,
 # outside this context, one of them drops tables; naming the three keeps it so if
 # a fourth file ever lands in public/api/ without a caller.
-COPY ["db_status.php", "get_peaks.php", "upload_peak.php", "/srv/scan-api/"]
+COPY ["db.php", "db_status.php", "get_peaks.php", "upload_peak.php", "upload_columns.json", "/srv/scan-api/"]
 
 # Fail the BUILD, not the first request, on a syntax error.
 RUN set -eu; for f in /srv/scan-api/*.php; do php -l "$f"; done

@@ -14,7 +14,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 import {
   buildConversionJob, bytesToBase64, base64ToBytes, canConvert, conversionTopics,
-  readConversionResult, refuseBeforeSending, requestConversion, sanitizeOptions,
+  readConversionResult, workerIsDown, refuseBeforeSending, requestConversion, sanitizeOptions,
 } from '../src/sampleConversionJob.ts';
 
 test('only containers the worker reads are offered', () => {
@@ -48,6 +48,16 @@ test('topics are the worker\'s job and result leaves', () => {
   const t = conversionTopics();
   assert.equal(t.job, 'APK.audio/System/Protocols/sample_conversion/outgoing/job');
   assert.equal(t.result, 'APK.audio/System/Protocols/sample_conversion/incoming/result');
+  // Built by the contract's protocols.topic, and the liveness leaf is the will's.
+  assert.equal(t.state, 'APK.audio/System/Protocols/sample_conversion/incoming/state');
+  assert.equal(t.status, undefined, '/status is never cleared by a last will; it is not read');
+});
+
+test('the last will word is recognised (named on a timeout, never a refusal)', () => {
+  assert.equal(workerIsDown('unavailable'), true);
+  assert.equal(workerIsDown(' unavailable\n'), true);
+  assert.equal(workerIsDown('{"state":"idle"}'), false);
+  assert.equal(workerIsDown(''), false);
 });
 
 test('base64 round-trips bytes larger than one slice', () => {

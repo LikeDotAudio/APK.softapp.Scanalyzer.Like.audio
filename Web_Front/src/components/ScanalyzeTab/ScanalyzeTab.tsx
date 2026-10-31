@@ -6,7 +6,7 @@ import wasmUrl from 'wasm_analyzer/wasm_analyzer_bg.wasm?url';
 import { filterAudioFiles, isTauri, fsaSupported, pickDirectoryFiles, getDirHandle, writePeakSidecar, writeRootFile, relPathOf } from '../../audioLinking';
 import { normalizePeakRecords } from '../../peakSchema';
 import { MANIFEST_FILE, buildManifest } from '../../manifest';
-import { slimForUpload, UPLOAD_CHUNK_SIZE } from '../../peakUpload';
+import { slimForUpload, uploadHeaders, UPLOAD_CHUNK_SIZE } from '../../peakUpload';
 import TauriScan from './TauriScan';
 import CloudShareToggle from './CloudShareToggle';
 import { getCloudShare } from '../../cloudShare';
@@ -406,7 +406,7 @@ function WebScan({
         const baseUrl = isTauri() ? 'https://scanalyzer.like.audio' : '.';
         const res = await fetch(`${baseUrl}/api/upload_peak.php`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: uploadHeaders(),
           body: JSON.stringify(records.map(slimForUpload))
         });
         // Read the outcome. This was fire-and-forget: it never checked res.ok

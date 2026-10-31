@@ -24,6 +24,10 @@ services:
       SCAN_DB_NAME: ${MARIADB_DATABASE:-apkaudio}
       SCAN_DB_USER: ${MARIADB_USER:-apkaudio}
       SCAN_DB_PASS: ${MARIADB_PASSWORD:-DEV.DB}
+      # Optional (Web_Front/public/api/db.php): set to require X-Upload-Token on
+      # upload_peak.php; extra cross-origin callers beyond the Tauri app.
+      SCAN_UPLOAD_TOKEN: ${SCAN_UPLOAD_TOKEN:-}
+      SCAN_ALLOWED_ORIGINS: ${SCAN_ALLOWED_ORIGINS:-}
     healthcheck:
       test: ["CMD", "php", "-r", "exit(extension_loaded('pdo_mysql') ? 0 : 1);"]
       interval: 60s

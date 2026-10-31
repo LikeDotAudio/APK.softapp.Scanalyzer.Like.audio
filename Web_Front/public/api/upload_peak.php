@@ -1,11 +1,18 @@
 <?php
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+require __DIR__ . '/db.php';
+scan_headers('GET, POST');
 
+// GET ?columns: what this endpoint stores — the allow-list every client trims to
+// (upload_columns.json; Web_Front/src/peakUpload.ts and the analyzer's db.rs).
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['columns'])) {
+    readfile(__DIR__ . '/upload_columns.json');
+    exit;
+}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit(json_encode(['error' => 'Method Not Allowed']));
 }
+scan_require_upload_token();
 
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
@@ -34,26 +41,9 @@ function as_text($value) {
     return $value;
 }
 
-// The connection comes from the environment where there is one: the scan-api
-// stack (../../../Docker/docker-compose.yml) sets SCAN_DB_* and reaches the
-// database at sql-proxy:3306. Unset, it is the co-located cPanel host, where
-// the database is on localhost and the deploy fills in the password.
-$host = getenv('SCAN_DB_HOST') ?: 'localhost';
-$port = (int) (getenv('SCAN_DB_PORT') ?: 3306);
-$db   = getenv('SCAN_DB_NAME') ?: 'tandapho_scanalyzer';
-$user = getenv('SCAN_DB_USER') ?: 'tandapho_scanalyzer';
-$pass = getenv('SCAN_DB_PASS') !== false ? getenv('SCAN_DB_PASS') : 'GITHUB_SECRET_DB_PASSWORD';
-$charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-];
 
 try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = scan_db();
     $pdo->beginTransaction();
 
     $stmtPathFind = $pdo->prepare("SELECT id FROM paths WHERE path_key = ?");

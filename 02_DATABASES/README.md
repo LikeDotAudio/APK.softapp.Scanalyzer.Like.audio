@@ -2,23 +2,21 @@
 
 This folder contains the database schema, data routing, taxonomy, and reference corpus modules of the **Scanalyzer** system.
 
-Each module here is a **symlink** into its real home in the Softapps tree (repointed 2026-10-30 after the family reorg; the old flat `../../<name>` targets no longer exist):
+The members of this stage are listed in [`../suite.json`](../suite.json) (stage `02_DATABASES`), each by its portal path and repository. Until 2026-10-30 this folder held a symlink into each sibling repository; those dangled in any standalone clone and broke silently when a sibling moved, so the list is data now (audit 2026-10-30). Where each one lives:
 
-`DATABASE.Data-Channels` → `Softapps/DATABASE/DATABASE.Data-Channels`  
-`DATABASE.Electronics-Emoji` → `Softapps/DATABASE/DATABASE.Electronics-Emoji`  
-`DATABASE.Favorites` → `Softapps/DATABASE/DATABASE.Favorites`  
-`DATABASE.Groups` → `Softapps/DATABASE/DATABASE.Groups`  
-`DATABASE.linuxCommands` → `Softapps/DATABASE/DATABASE.linuxCommands`  
-`DATABASE.Machinist.Like.audio` → `Softapps/DATABASE/DATABASE.Machinist.Like.audio`  
-`DATABASE.Microphones.Like.audio` → `Softapps/DATABASE/DATABASE.Microphones.Like.audio`  
-`DATABASE.Schema` → `Softapps/DATABASE/DATABASE.Schema`  
-`DATABASE.UCS-Taxonomy` → `Softapps/DATABASE/DATABASE.UCS-Taxonomy`
+`DATABASE.Electronics-Emoji` → `APK:Softapps/DATABASE/DATABASE.Electronics-Emoji`  
+`DATABASE.Favorites` → `APK:Softapps/DATABASE/DATABASE.Favorites`  
+`DATABASE.Groups` → `APK:Softapps/DATABASE/DATABASE.Groups`  
+`DATABASE.linuxCommands` → `APK:Softapps/DATABASE/DATABASE.linuxCommands`  
+`DATABASE.Machinist.Like.audio` → `APK:Softapps/DATABASE/DATABASE.Machinist.Like.audio`  
+`DATABASE.Microphones.Like.audio` → `APK:Softapps/DATABASE/DATABASE.Microphones.Like.audio`  
+`DATABASE.Schema` → `APK:Softapps/DATABASE/DATABASE.Schema`  
+`DATABASE.UCS-Taxonomy` → `APK:Softapps/DATABASE/DATABASE.UCS-Taxonomy`
 
 ## Modules
 
 | Module Name | Repository / Path | Description |
 | :--- | :--- | :--- |
-| **`DATABASE.Data-Channels`** | `LikeDotAudio/APK.softapp.DATABASE.Data-Channels` | Inter-softapp messaging router and postMessage / MQTT data channel bus. |
 | **`DATABASE.Electronics-Emoji`** | `LikeDotAudio/APK.softapp.DATABASE.Electronics-Emoji` | 82 schematic symbol ES modules, 18px and 72px renders, and Unicode proposal database. |
 | **`DATABASE.Favorites`** | `LikeDotAudio/APK.softapp.DATABASE.Favorites` | Bookmarking, starring, and favorites collection store for scanned assets. |
 | **`DATABASE.Groups`** | `LikeDotAudio/APK.softapp.DATABASE.Groups` | Multi-item grouping, tagging, and category aggregation store. |

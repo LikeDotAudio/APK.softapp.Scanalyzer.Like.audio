@@ -1,0 +1,18 @@
+{
+  "name": "Graphics Suite Worker",
+  "category": "SCANALYZER",
+  "icon": "🖼️",
+  "group": "Scanalyzer",
+  "subGroup": "DSP Core",
+  "description": "OCR (Tesseract) and raster→SVG tracing for Scanalyzer — answered as jobs by the worker Worker-GRAPHICS_SUITE on APK.audio/System/Protocols/graphics_suite/outgoing/job → incoming/result (ops `ocr`, `vectorize`). The library one folder up is also the CLI and the micro-API.",
+  "entry": "SRC/src/lib.rs",
+  "tech": "rust",
+  "requires": {
+    "plugins": [
+      "graphics_suite"
+    ],
+    "services": [
+      "broker"
+    ]
+  }
+}

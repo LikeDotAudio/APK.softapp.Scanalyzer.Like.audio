@@ -3,9 +3,13 @@
 #   docker build -f 'PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/Docker/Dockerfile' -t worker-graphics-suite:local .
 #
 # ⚠️ THE BUILD CONTEXT IS THE REPO ROOT (`context: ../../../../../../..` in the
-#    compose file beside this one), because the worker links apkaudio-contracts
-#    and apk-plugin-runner, which live outside this repository. Every COPY
-#    source below is a REAL repo-root path (PODS/README.md rule 1). Same recipe
+#    compose file beside this one) — BY DESIGN, the rule every image that links
+#    the SDK follows (.apk.scripts/plugin_standalone.py; DATABUS.Broker.MQTT's
+#    Dockerfile): the crate names apk-plugin-runner and apkaudio-contracts by
+#    tag `sdk-v0.5`, so a clone of this repository builds on its own; THE IMAGE
+#    builds the checkout's runner and contracts instead, patched in with
+#    `--config`, so it never fetches GitHub and ships what the bench runs.
+#    Every COPY source below is a REAL repo-root path (PODS/README.md rule 1). Same recipe
 #    as PROCESSOR.SampleConversion's worker, without ffmpeg: the image is
 #    decoded in memory by the library itself. OCR is Tesseract's
 #    (LOOSE-ocr-not-recognition): the runtime installs its CLI and English
@@ -30,8 +34,15 @@ COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_su
 COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/src",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/src"]
 COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/SRC",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/SRC"]
 
-RUN cargo build --release --locked --manifest-path "$TOOL/SRC/Cargo.toml" --bins \
- && mkdir -p /out \
+ARG SDK=https://github.com/LikeDotAudio/APK.plugin.SDK
+RUN set -e; \
+    P1="patch.\"$SDK\".apk-plugin-runner.path=\"PODS/POD.THICK/DISCOVERY.Engine/SRC/RUNNER\""; \
+    P2="patch.\"$SDK\".apkaudio-contracts.path=\"PODS/POD.THICK/NODE.BareMetal/SRC/contracts/rust\""; \
+    cargo build --release --locked --config "$P1" --config "$P2" \
+        --manifest-path "$TOOL/SRC/Cargo.toml" --bin apk-worker-graphics-suite; \
+    cargo build --release --locked --config "$P1" --config "$P2" \
+        --manifest-path "$TOOL/SRC/Cargo.toml" -p apk-plugin-runner --bin apk-plugin-health; \
+    mkdir -p /out \
  && cp target/release/apk-worker-graphics-suite target/release/apk-plugin-health /out/
 
 # ---------- runtime ----------

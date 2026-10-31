@@ -8,7 +8,7 @@ import { FAVORITES_FILE, FAVORITES_STORAGE_KEY, favoriteKeyOf, buildFavorites, p
 import SampleFooter, { type FooterTab } from './components/SampleFooter'
 import LayersMenu from './components/examiner/LayersMenu'
 import { normalizePeakRecords, LEGACY_MIGRATION_GAPS } from './peakSchema'
-import { slimForUpload, UPLOAD_CHUNK_SIZE } from './peakUpload'
+import { slimForUpload, uploadHeaders, UPLOAD_CHUNK_SIZE } from './peakUpload'
 import Header from './components/Header'
 import ScanalyzeTab from './components/ScanalyzeTab'
 import CloudTab from './components/CloudTab'
@@ -671,7 +671,7 @@ function App() {
                  try {
                    const res = await fetch(`${baseUrl}/api/upload_peak.php`, {
                      method: 'POST',
-                     headers: { 'Content-Type': 'application/json' },
+                     headers: uploadHeaders(),
                      // Slimmed to the stored columns. Sending raw records made a
                      // 500-record POST ~5.7 MB, over post_max_size on most hosts,
                      // which PHP discards silently.

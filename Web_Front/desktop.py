@@ -25,28 +25,30 @@ def clean_env():
     return env
 
 
-def build_analyzer(root_dir, env):
+def build_analyzer(web_front_dir, env):
     """Rebuild the analyzer CLI the desktop app shells out to.
 
     The desktop app does NOT analyze in-process — start_analysis (src-tauri) runs the
-    prebuilt binary oa_sample_analyzer from sample_analyzer_rs (handed over as SCAN_ANALYZER_BIN). `tauri dev`
+    prebuilt binary oa_sample_analyzer (handed over as SCAN_ANALYZER_BIN). `tauri dev`
     recompiles the Tauri crate but never that binary, so without this step the desktop
     keeps using a stale engine: every classifier, calibration and .PEAK-schema change
     would be invisible until the CLI is rebuilt by hand. `cargo build` is a no-op when
     nothing changed, so this is cheap on the common launch.
-    """
-    # sample_analyzer_rs is the repo's symlink to PROCESSOR/PROCESSOR.SampleAnalyzer;
-    # start_analysis (src-tauri/src/lib.rs, analyzer_binary) runs the binary built here.
-    analyzer_dir = os.path.join(root_dir, "sample_analyzer_rs")
-    if not os.path.isdir(analyzer_dir):
-        print(f"Error: Could not find the analyzer at {analyzer_dir}")
-        sys.exit(1)
 
+    THE CLI IS BUILT THROUGH THE TAURI CRATE'S OWN DEPENDENCY on oa-sample-analyzer
+    (`-p oa-sample-analyzer --bin oa_sample_analyzer` against src-tauri/Cargo.toml), so it
+    is exactly the analyzer the app links: the pinned git rev in a clone, the sibling
+    PROCESSOR.SampleAnalyzer folder in the monorepo (Web_Front/.cargo/config.toml patches
+    it). This used to build inside the `sample_analyzer_rs` symlink, which a clone of
+    this repository did not have (audit 2026-10-30).
+    """
+    manifest = os.path.join(web_front_dir, "src-tauri", "Cargo.toml")
     print("Building the analyzer engine (PROCESSOR.SampleAnalyzer, release)...")
     try:
         subprocess.run(
-            ["cargo", "build", "--release"],
-            cwd=analyzer_dir,
+            ["cargo", "build", "--release", "--manifest-path", manifest,
+             "-p", "oa-sample-analyzer", "--bin", "oa_sample_analyzer"],
+            cwd=web_front_dir,
             env=env,
             check=True,
         )
@@ -58,7 +60,7 @@ def build_analyzer(root_dir, env):
               "Fix the build above before launching, or the desktop app would run a stale engine.")
         sys.exit(e.returncode)
 
-    binary = os.path.join(target_dir(analyzer_dir, env), "release", "oa_sample_analyzer")
+    binary = os.path.join(target_dir(os.path.dirname(manifest), env), "release", "oa_sample_analyzer")
     if not os.path.isfile(binary):
         print(f"Error: build reported success but {binary} is missing.")
         sys.exit(1)
@@ -84,10 +86,8 @@ def target_dir(crate_dir, env):
 
 
 def main():
-    # This file lives in Web_Front/; the repository root (where the
-    # sample_analyzer_rs symlink sits) is one folder up.
+    # This file lives in Web_Front/.
     web_front_dir = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.dirname(web_front_dir)
 
     if not os.path.isdir(web_front_dir):
         print(f"Error: Could not find the Web_Front directory at {web_front_dir}")
@@ -106,7 +106,7 @@ def main():
     # Rebuild the engine first, so the app that launches uses current code, not a stale
     # binary from a previous session.
     # start_analysis (src-tauri/src/lib.rs, analyzer_binary) spawns exactly this binary.
-    env["SCAN_ANALYZER_BIN"] = build_analyzer(root_dir, env)
+    env["SCAN_ANALYZER_BIN"] = build_analyzer(web_front_dir, env)
 
     print("\nLaunching the Scanalyzer Tauri App...")
     print("If this is your first time, it may take a few moments to compile the Rust backend.")

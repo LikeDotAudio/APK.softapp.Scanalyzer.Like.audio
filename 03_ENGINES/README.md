@@ -2,11 +2,11 @@
 
 This folder contains the core DSP and calculation engines of the **Scanalyzer** system.
 
-Each module here is a **symlink** into its real home in the Softapps tree (repointed 2026-10-30 after the family reorg; the old flat `../../<name>` targets no longer exist):
+The members of this stage are listed in [`../suite.json`](../suite.json) (stage `03_ENGINES`), each by its portal path and repository. Until 2026-10-30 this folder held a symlink into each sibling repository; those dangled in any standalone clone and broke silently when a sibling moved, so the list is data now (audit 2026-10-30). Where each one lives:
 
-`ENGINE.Graphing` → `Softapps/VISUALIZER/VISUALIZER.Graphing`  
-`ENGINE.SampleAnalyzer` → `Softapps/PROCESSOR/PROCESSOR.SampleAnalyzer`  
-`ENGINE.SampleConversion` → `Softapps/PROCESSOR/PROCESSOR.SampleConversion`
+`ENGINE.Graphing` → `APK:Softapps/VISUALIZER/VISUALIZER.Graphing`  
+`ENGINE.SampleAnalyzer` → `APK:Softapps/PROCESSOR/PROCESSOR.SampleAnalyzer`  
+`ENGINE.SampleConversion` → `APK:Softapps/PROCESSOR/PROCESSOR.SampleConversion`
 
 ## Modules
 

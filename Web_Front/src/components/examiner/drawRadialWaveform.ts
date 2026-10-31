@@ -7,6 +7,8 @@
 // baseline ring, the loudest negative peak reaches inward — the same min/max
 // envelope as the flat waveform, just bent into a circle.
 
+import { ACCENT } from '../../brand';
+
 export interface RadialWaveformOpts {
   cx: number;             // ring centre X (device px)
   cy: number;             // ring centre Y (device px)
@@ -99,7 +101,7 @@ export function drawRadialWaveform(
 
   // A tick at 0° (right) showing where the file starts and the sweep begins.
   if (startMarker) {
-    ctx.strokeStyle = '#f4902c'; // rgb(244,144,44)
+    ctx.strokeStyle = ACCENT; // the brand accent (contracts)
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(cx + innerRadius - reach * 0.15, cy);

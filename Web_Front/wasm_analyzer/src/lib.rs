@@ -16,6 +16,13 @@ use oa_sample_analyzer::decode::read_audio_buffer;
 ///
 /// This is the same constant the native binary stamps, so a library analyzed on
 /// the desktop is absorbed by the web front for free, and vice versa.
+/// The published `.PEAK` schema (PROCESSOR.SampleAnalyzer `schema/peak.schema.json`,
+/// analyzer-peak), handed to the browser through the crate rather than a copied file.
+#[wasm_bindgen]
+pub fn peak_schema() -> String {
+    oa_sample_analyzer::schema::PEAK_SCHEMA.to_string()
+}
+
 #[wasm_bindgen]
 pub fn analyzer_version() -> String {
     oa_sample_analyzer::version::ANALYZER_VERSION.to_string()

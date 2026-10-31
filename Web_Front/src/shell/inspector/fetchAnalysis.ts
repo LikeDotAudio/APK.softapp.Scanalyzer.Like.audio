@@ -4,6 +4,8 @@ import { KNOBS_HIGH_DETAIL_PRESET } from '../../svgConverter';
 import { apiUrl } from '../../apiBase';
 import type { InspectionResult } from './types';
 import { renderDxfPreview } from './preview';
+import { viaBus } from '../../graphicsSuiteJob';
+import { connectedClient } from '../../busLink';
 
 /** Ask the Rust micro-API everything it can say about one file: the four image
  *  routes (with ImageTracer as the SVG fallback), the DOCX parser, or the DXF
@@ -22,22 +24,29 @@ export async function fetchAnalysis(fileItem: FileItem, isDocx: boolean, isDxf: 
 
   if (fileItem.isImage) {
     try {
+      // OCR and to-svg are Worker-GRAPHICS_SUITE jobs when this page has a bus;
+      // the micro-API answers them only where there is none (graphicsSuiteJob.ts).
+      // analyze-image and photo-id have no worker op and stay HTTP.
+      const post = (route: string) => fetch(apiUrl(route), { method: 'POST', body: fileBytes });
+      const json = async (r: Response) => (r.ok ? r.json() : null);
+      const [ocrBus, svgBus] = await Promise.all([
+        viaBus(connectedClient, 'ocr', fileItem.file.name, fileBytes),
+        viaBus(connectedClient, 'vectorize', fileItem.file.name, fileBytes),
+      ]);
       const [ocrR, anR, svgR, photoR] = await Promise.all([
-        fetch(apiUrl('/api/ocr'), { method: 'POST', body: fileBytes }),
-        fetch(apiUrl('/api/analyze-image'), { method: 'POST', body: fileBytes }),
-        fetch(apiUrl('/api/to-svg'), { method: 'POST', body: fileBytes }),
-        fetch(apiUrl('/api/photo-id'), { method: 'POST', body: fileBytes })
+        ocrBus ?? post('/api/ocr').then(json),
+        post('/api/analyze-image').then(json),
+        svgBus ?? post('/api/to-svg').then(json),
+        post('/api/photo-id').then(json),
       ]);
 
-      if (ocrR.ok) {
-        rustOcr = await ocrR.json();
-        if (rustOcr && rustOcr.extracted_text) {
-          fileItem.ocrText = rustOcr.extracted_text;
-        }
+      rustOcr = ocrR;
+      if (rustOcr && rustOcr.extracted_text) {
+        fileItem.ocrText = rustOcr.extracted_text;
       }
-      if (anR.ok) rustAnalyzer = await anR.json();
-      if (svgR.ok) rustSvg = await svgR.json();
-      if (photoR.ok) rustPhoto = await photoR.json();
+      rustAnalyzer = anR;
+      rustSvg = svgR;
+      rustPhoto = photoR;
     } catch (err) {
       console.warn("Rust API offline, using partial local extraction", err);
     }

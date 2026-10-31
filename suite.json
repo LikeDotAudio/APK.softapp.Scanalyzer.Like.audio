@@ -1,0 +1,193 @@
+{
+  "$comment": "THE SCANALYZER SUITE, AS DATA (audit 2026-10-30). Which Softapps repositories make up the suite, filed by pipeline stage, each by its PORTAL path (`APK:Softapps/...`, the spelling the OS launcher and WEB.OsApi use in a checkout and in the image) and its repository. It replaced 40 tracked symlinks into sibling repositories (01_CAPTURES/... and the root *_rs links), which dangled in any clone of this repository and broke silently whenever a sibling moved. Nothing builds or launches through these entries: the Rust crates come by git rev (Web_Front/*/Cargo.toml) and the screens are OS displays. test/suite-manifest.test.mjs checks every portal path still resolves when the monorepo is around. The stage folders' README.md describe the members.",
+  "format": "scanalyzer-suite",
+  "version": 1,
+  "stages": {
+    "01_CAPTURES": [
+      {
+        "id": "CAPTURE.Czur-Fast-Capture",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Czur-Fast-Capture",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Czur-Fast-Capture"
+      },
+      {
+        "id": "CAPTURE.Document",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Document",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Document"
+      },
+      {
+        "id": "CAPTURE.Extractor",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Extractor",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor"
+      },
+      {
+        "id": "CAPTURE.Extractor-Engine",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Extractor-Engine",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor-Engine"
+      },
+      {
+        "id": "CAPTURE.FaceID",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.FaceID",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.FaceID"
+      },
+      {
+        "id": "CAPTURE.FolderScanner",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.FolderScanner",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.FolderScanner"
+      },
+      {
+        "id": "CAPTURE.Image",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Image",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Image"
+      },
+      {
+        "id": "CAPTURE.OCR",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.OCR",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.OCR"
+      },
+      {
+        "id": "CAPTURE.Schematics",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Schematics",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Schematics"
+      },
+      {
+        "id": "CAPTURE.Vectorizer",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.Vectorizer",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Vectorizer"
+      },
+      {
+        "id": "CAPTURE.WebScraper",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.WebScraper",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.WebScraper"
+      },
+      {
+        "id": "CAPTURE.crawler",
+        "portal": "APK:Softapps/CAPTURE/CAPTURE.crawler",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.crawler"
+      }
+    ],
+    "02_DATABASES": [
+      {
+        "id": "DATABASE.Electronics-Emoji",
+        "portal": "APK:Softapps/DATABASE/DATABASE.Electronics-Emoji",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Electronics-Emoji"
+      },
+      {
+        "id": "DATABASE.Favorites",
+        "portal": "APK:Softapps/DATABASE/DATABASE.Favorites",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Favorites"
+      },
+      {
+        "id": "DATABASE.Groups",
+        "portal": "APK:Softapps/DATABASE/DATABASE.Groups",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Groups"
+      },
+      {
+        "id": "DATABASE.Machinist.Like.audio",
+        "portal": "APK:Softapps/DATABASE/DATABASE.Machinist.Like.audio",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Machinist.Like.audio"
+      },
+      {
+        "id": "DATABASE.Microphones.Like.audio",
+        "portal": "APK:Softapps/DATABASE/DATABASE.Microphones.Like.audio",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Microphones.Like.audio"
+      },
+      {
+        "id": "DATABASE.Schema",
+        "portal": "APK:Softapps/DATABASE/DATABASE.Schema",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Schema"
+      },
+      {
+        "id": "DATABASE.UCS-Taxonomy",
+        "portal": "APK:Softapps/DATABASE/DATABASE.UCS-Taxonomy",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.UCS-Taxonomy"
+      },
+      {
+        "id": "DATABASE.linuxCommands",
+        "portal": "APK:Softapps/DATABASE/DATABASE.linuxCommands",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.linuxCommands"
+      }
+    ],
+    "03_ENGINES": [
+      {
+        "id": "VISUALIZER.Graphing",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.Graphing",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Graphing"
+      },
+      {
+        "id": "PROCESSOR.SampleAnalyzer",
+        "portal": "APK:Softapps/PROCESSOR/PROCESSOR.SampleAnalyzer",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer"
+      },
+      {
+        "id": "PROCESSOR.SampleConversion",
+        "portal": "APK:Softapps/PROCESSOR/PROCESSOR.SampleConversion",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleConversion"
+      }
+    ],
+    "04_HARDWARE": [
+      {
+        "id": "HARDWARE.Devices",
+        "portal": "APK:Softapps/HARDWARE_AND_NETWORK/HARDWARE.Devices",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.HARDWARE.Devices"
+      }
+    ],
+    "05_PROCESSORS": [
+      {
+        "id": "PROCESSOR.Arrays-In-Data-Out",
+        "portal": "APK:Softapps/PROCESSOR/PROCESSOR.Arrays-In-Data-Out",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.Arrays-In-Data-Out"
+      },
+      {
+        "id": "PROCESSOR.DroneKiln",
+        "portal": "APK:Softapps/PROCESSOR/PROCESSOR.DroneKiln",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.DroneKiln"
+      }
+    ],
+    "06_SCANNERS": [
+      {
+        "id": "SCANNER.Scanalyze",
+        "portal": "APK:Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/SCANNER.Scanalyze",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.SCANNER.Scanalyze"
+      }
+    ],
+    "07_UTILITIES": [
+      {
+        "id": "UTILITY.Rename",
+        "portal": "APK:Softapps/MANAGEMENT_AND_UTILITIES/UTILITY.Rename",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.UTILITY.Rename"
+      }
+    ],
+    "08_VISUALIZERS": [
+      {
+        "id": "VISUALIZER.2D-Graphs",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.2D-Graphs",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.2D-Graphs"
+      },
+      {
+        "id": "VISUALIZER.3D-PointCloud",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.3D-PointCloud",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.3D-PointCloud"
+      },
+      {
+        "id": "VISUALIZER.4D-FaceBall",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.4D-FaceBall",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.4D-FaceBall"
+      },
+      {
+        "id": "VISUALIZER.5D-MultiVector",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.5D-MultiVector",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.5D-MultiVector"
+      },
+      {
+        "id": "VISUALIZER.Examiner",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.Examiner",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Examiner"
+      },
+      {
+        "id": "VISUALIZER.Simple-Data-Graphing",
+        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.Simple-Data-Graphing",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Simple-Data-Graphing"
+      }
+    ]
+  }
+}

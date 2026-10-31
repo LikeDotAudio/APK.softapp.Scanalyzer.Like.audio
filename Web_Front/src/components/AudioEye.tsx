@@ -3,6 +3,7 @@ import RadialWaveform from './examiner/RadialWaveform';
 import { toMono } from './examiner/audioAnalysis';
 import { decodeWav } from './examiner/decodeWav';
 import { decodeViaWasm } from './examiner/wasmDecode';
+import { ACCENT } from '../brand';
 
 interface AudioEyeProps {
   // Resolved audio URL of the sample to play, or null to hide the player.
@@ -40,7 +41,7 @@ interface AudioEyeProps {
 export default function AudioEye({
   src,
   name = '',
-  color = '#f4902c',
+  color = ACCENT,
   size = 180,
   autoPlay = true,
   regions,
