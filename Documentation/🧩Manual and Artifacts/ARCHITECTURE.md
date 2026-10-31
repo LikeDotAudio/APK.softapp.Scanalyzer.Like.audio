@@ -28,6 +28,8 @@ Web_Front/
   src/wasmWorker.ts       browser analysis worker → wasm_analyzer
   src/extractorWorker.ts  Extractor worker → wasm_extractor
   src/soloWindow.ts       ?solo=1 contract with the OS shell
+  src/components/ConvertMenu.tsx   footer ⚙ Convert: the selected sample → Worker-SAMPLE_CONVERSION
+  src/sampleConversion.ts, sampleConversionJob.ts   its MQTT client; its job/result rules (tested)
   src/spaceMouse.ts       SpaceMouse puck frames, sense/stall rules (CloudTab, SampleCloud)
   src/ucsIndex.ts, categoryEmoji.ts, ucsSynonyms*.ts   UCS mirrors (generated tables)
   src/shell/              legacy vanilla-DOM shell; nothing loads it (kept for porting)
@@ -85,6 +87,15 @@ to the stored columns and POST it to `upload_peak.php`; `get_peaks.php` reads th
 nothing is loaded yet). On the APK.audio bench those three run in the `scan-api` container and
 reach MariaDB at `sql-proxy:3306`; on scanalyzer.like.audio they run on the cPanel host.
 
+**Convert.** The footer's ⚙ Convert (`ConvertMenu.tsx`) reads the selected sample the way
+Download does (`footerAudioFile` in `App.tsx`), and `sampleConversion.ts` sends it as one job to
+`APK.audio/System/Protocols/sample_conversion/outgoing/job` over the broker's WebSocket
+(`oa_bus_url`, else ws://<page host>:9001 on a local origin; none on a public one), with
+mqtt.js loaded from the shell (`/engine/vendor/mqtt.min.js` first). The answer on
+`incoming/result`, matched by `job_id`, comes back as a playable, downloadable file. The worker
+is `Worker-SAMPLE_CONVERSION` (PROCESSOR.SampleConversion, POD.workers); a refused job shows its
+error, and a worker whose retained `status` is not `online` is reported at once.
+
 **Incremental re-analysis.** `read_sidecar` (`Encoders/sidecar.rs`) returns nothing for a
 sidecar from a different `ANALYZER_VERSION` or a different file name, so that file is
 re-analysed; `--force` ignores every sidecar.
@@ -93,7 +104,7 @@ re-analysed; `--force` ignores every sidecar.
 
 | Command | Holds |
 |---|---|
-| `npm test` | 47 cases: depth axis, percent-fill hosts, puck qualification/flyability, sense and stall notices, stale window, UCS synonyms |
+| `npm test` | 57 cases: depth axis, percent-fill hosts, puck qualification/flyability, sense and stall notices, stale window, UCS synonyms, the convert job (with a live round trip to the worker when ws://127.0.0.1:9001 answers; skipped otherwise) |
 | `npm run build` | `tsc -b` then `vite build` |
 | `node scripts/check-mount-reach.mjs` | every screen reachable from `main.tsx` |
 | `node scripts/check-public-api.mjs` | every served `.php` has a caller |

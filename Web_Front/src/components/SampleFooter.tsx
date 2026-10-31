@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useIsNarrow } from '../useIsNarrow';
+import ConvertMenu from './ConvertMenu';
 
 // One footer shared by every tab: the selected sample's transport (download / copy-data /
 // play-stop / dig / autoplay) and "push to" buttons that send the selected file to any other
@@ -35,6 +36,9 @@ interface SampleFooterProps {
   // own button is disabled.
   current: FooterTab;
   onPush?: (tab: FooterTab, name: string) => void;
+  // The selected sample's audio, read as Download reads it. When given, the footer offers
+  // ⚙ Convert: the sample sent to Worker-SAMPLE_CONVERSION on the bus (ConvertMenu.tsx).
+  getAudio?: () => Promise<File | null>;
   // Extra control rendered after Copy Peak Data — the Examiner's 🎚 Layers menu.
   layersMenu?: React.ReactNode;
   // DB status for the live web deployment
@@ -49,7 +53,7 @@ const TAB_LABEL: Record<FooterTab, { icon: string; text: string }> = {
 };
 
 export default function SampleFooter({
-  item, playing, digging, autoPlay, autoLoop, favorite, onToggleFavorite, onDownload, onCopyData, onPlay, onDig, onToggleAutoPlay, onToggleAutoLoop, current, onPush, layersMenu, dbStatus,
+  item, playing, digging, autoPlay, autoLoop, favorite, onToggleFavorite, onDownload, onCopyData, onPlay, onDig, onToggleAutoPlay, onToggleAutoLoop, current, onPush, layersMenu, dbStatus, getAudio,
   onBack, onForward, canBack, canForward,
 }: SampleFooterProps) {
   const narrow = useIsNarrow();
@@ -80,6 +84,7 @@ export default function SampleFooter({
       {/* File actions (left) */}
       {onDownload && <button className="btn secondary" style={btn} onClick={onDownload} disabled={!item} title="Download with rename options">{lbl('⬇', 'Download')}</button>}
       {onCopyData && <button className="btn secondary" style={copyBtn} onClick={handleCopy} disabled={!item} title="Copy this sample's full .PEAK record to the clipboard">{copied ? (narrow ? '✓' : '✓ Copied') : lbl('📋', 'Copy Peak Data')}</button>}
+      {getAudio && <ConvertMenu item={item} getAudio={getAudio} buttonStyle={btn} />}
       {layersMenu}
 
       {!narrow && <div style={{ flex: 1 }} />}

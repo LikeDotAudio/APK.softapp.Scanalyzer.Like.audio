@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import './index.css'
-import { fsaSupported, getDirHandle, scanDirectoryHandle, clearDirHandle, setAudioRoot, getAudioRoot, filterAudioFiles, isTauri, getLastFolderName, clearLastFolderName, resolveAudioUrl, readRootFile, writeRootFile, ensureReadwrite } from './audioLinking'
+import { fsaSupported, getDirHandle, scanDirectoryHandle, clearDirHandle, setAudioRoot, getAudioRoot, filterAudioFiles, isTauri, getLastFolderName, clearLastFolderName, resolveAudioUrl, findAudioFile, readRootFile, writeRootFile, ensureReadwrite } from './audioLinking'
 import { MANIFEST_FILE, manifestIsCurrent } from './manifest'
 import { FAVORITES_FILE, FAVORITES_STORAGE_KEY, favoriteKeyOf, buildFavorites, parseFavorites, type Favorites } from './favorites'
 import SampleFooter, { type FooterTab } from './components/SampleFooter'
@@ -588,6 +588,22 @@ function App() {
     a.download = footerItem.metadata?.name || 'sample'
     document.body.appendChild(a); a.click(); document.body.removeChild(a)
   }
+  // The selected sample as a File, for the footer's ⚙ Convert. A file the browser already
+  // holds is handed over as-is; otherwise it is read through the same resolver Download
+  // uses, and the throwaway object URL that resolver makes is released once read.
+  const footerAudioFile = async (): Promise<File | null> => {
+    if (!footerItem) return null;
+    const held = findAudioFile(audioFiles, footerItem);
+    if (held) return held;
+    const url = await resolveAudioUrl(audioFiles, footerItem);
+    if (!url) return null;
+    try {
+      const blob = await (await fetch(url)).blob();
+      return new File([blob], footerItem.metadata?.name || 'sample', { type: blob.type });
+    } finally {
+      if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+    }
+  }
   // Pushing a file to another tab (the footer's push buttons, the cloud's Examine /
   // Extract) filters that tab to the file AND opens it there — landing on a filtered
   // list that still needs a click is half a push. `pushedName` carries the open-this
@@ -944,6 +960,7 @@ function App() {
         onToggleAutoPlay={setAutoPlay}
         onToggleAutoLoop={setAutoLoop}
         onDownload={footerDownload}
+        getAudio={footerAudioFile}
         onCopyData={() => {
           if (footerItem) {
             navigator.clipboard.writeText(JSON.stringify(footerItem, null, 2));
