@@ -12,8 +12,9 @@
 #
 # A job: publish JSON to APK.audio/System/Protocols/graphics_suite/outgoing/job
 #     {"job_id": "<yours>", "op": "ocr" | "vectorize", "filename": "page.png",
-#      "content_b64": "<the image bytes>", "threshold": 128}
-#     (threshold for vectorize only; never a path)
+#      "content_b64": "<the image bytes>", "threshold": 128,
+#      "psm": 8, "whitelist": "ABCDEFGHIJKLMNOPQRSTUVWXYZ-"}
+#     (threshold for vectorize only; psm/whitelist for ocr only; never a path)
 # The answer, with the same job_id, on .../graphics_suite/incoming/result.
 # Its self-description, retained, on .../graphics_suite/incoming/api.
 #

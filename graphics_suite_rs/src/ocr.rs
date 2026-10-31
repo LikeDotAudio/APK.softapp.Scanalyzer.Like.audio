@@ -21,6 +21,16 @@
 //! * `APK_OCR_TESSERACT` — the binary (default `tesseract` on PATH);
 //! * `APK_OCR_LANG`      — the language(s), as `-l` takes them (default `eng`);
 //! * `TESSDATA_PREFIX`   — Tesseract's own: where the `.traineddata` live.
+//!
+//! CODE-LIKE TOKENS (LOOSE-ocr-code-tokens): Tesseract's English model reads a
+//! sans-serif capital I and O as 1 and 0 when no word context says otherwise
+//! ("IO-AE" → "10-AE"). A caller that knows its text is a code passes
+//! [`OcrOptions`] per job: `psm` (Tesseract's page segmentation mode — 8 "one
+//! word" or 13 "raw line" for a lone label) and `whitelist` (the only
+//! characters it may answer). The two go together: with a whitelist under the
+//! default psm 3 the LSTM still segments "1", finds it banned and drops it
+//! ("O-AE"); under psm 8 or 13 it answers "IO-AE". Defaults (psm 3, no
+//! whitelist) are the reading every caller had before.
 
 use std::io::{Cursor, Read, Write};
 use std::process::{Command, Stdio};
@@ -71,6 +81,45 @@ pub struct OcrResult {
     pub word_regions: Vec<OcrWordRegion>,
 }
 
+/// Per-job settings for one OCR run. `Default` is the page reading: psm 3,
+/// every character allowed.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct OcrOptions {
+    /// Tesseract's `--psm` (0-13); None = 3, fully automatic page layout.
+    pub psm: Option<u8>,
+    /// The only characters Tesseract may answer (`tessedit_char_whitelist`);
+    /// None = any.
+    pub whitelist: Option<String>,
+}
+
+/// The longest whitelist a job may carry, in characters.
+pub const MAX_WHITELIST_CHARS: usize = 512;
+
+impl OcrOptions {
+    /// Check the options before any pixel is touched. A psm outside 0-13, or
+    /// a whitelist that is empty, too long or holds a control character, is
+    /// an error naming the field: Tesseract would only warn and read anyway.
+    pub fn validate(&self) -> Result<(), String> {
+        if let Some(p) = self.psm {
+            if p > 13 {
+                return Err(format!("psm {p} is not a Tesseract page segmentation mode (0-13)"));
+            }
+        }
+        if let Some(w) = &self.whitelist {
+            if w.is_empty() {
+                return Err("whitelist is empty: it would allow no character at all (leave it out for any)".into());
+            }
+            if w.chars().count() > MAX_WHITELIST_CHARS {
+                return Err(format!("whitelist is longer than {MAX_WHITELIST_CHARS} characters"));
+            }
+            if w.chars().any(char::is_control) {
+                return Err("whitelist holds a control character".into());
+            }
+        }
+        Ok(())
+    }
+}
+
 pub struct OcrEngine;
 
 impl OcrEngine {
@@ -82,16 +131,29 @@ impl OcrEngine {
         Self::process_image_with(img, &bin, &lang)
     }
 
+    /// `process_image` with per-job [`OcrOptions`] (psm, whitelist).
+    pub fn process_image_opts(img: &DynamicImage, opts: &OcrOptions) -> Result<OcrResult, String> {
+        let bin = std::env::var("APK_OCR_TESSERACT").ok().filter(|s| !s.trim().is_empty()).unwrap_or_else(|| "tesseract".into());
+        let lang = std::env::var("APK_OCR_LANG").ok().filter(|s| !s.trim().is_empty()).unwrap_or_else(|| "eng".into());
+        Self::process_image_full(img, &bin, &lang, opts)
+    }
+
     /// `process_image` with the binary and language named rather than read
     /// from the environment.
     pub fn process_image_with(img: &DynamicImage, bin: &str, lang: &str) -> Result<OcrResult, String> {
+        Self::process_image_full(img, bin, lang, &OcrOptions::default())
+    }
+
+    /// Everything named: binary, language and per-job options.
+    pub fn process_image_full(img: &DynamicImage, bin: &str, lang: &str, opts: &OcrOptions) -> Result<OcrResult, String> {
+        opts.validate()?;
         let height = img.height();
         // Grey is all Tesseract binarises from, and a quarter of the bytes.
         let mut png = Vec::new();
         DynamicImage::ImageLuma8(img.to_luma8())
             .write_to(&mut Cursor::new(&mut png), image::ImageOutputFormat::Png)
             .map_err(|e| format!("the image does not encode as PNG for Tesseract: {e}"))?;
-        let out = run_tesseract(&png, bin, lang)?;
+        let out = run_tesseract(&png, bin, lang, opts)?;
         // Without its `tsv` config file Tesseract only warns and prints plain
         // text; reading that as "no words" would be a silent NO_TEXT.
         if !out.lines().any(|l| l.starts_with("level\tpage_num")) {
@@ -101,9 +163,24 @@ impl OcrEngine {
     }
 }
 
-fn run_tesseract(png: &[u8], bin: &str, lang: &str) -> Result<String, String> {
+/// The argument list after the binary: input, output, language, psm, the
+/// whitelist as one `-c` (one argv entry, so no shell and no quoting), then
+/// the two renderers, which must come last.
+fn tesseract_args(lang: &str, opts: &OcrOptions) -> Vec<String> {
+    let mut a: Vec<String> = ["stdin", "stdout", "-l", lang, "--psm"].iter().map(|s| s.to_string()).collect();
+    a.push(opts.psm.unwrap_or(3).to_string());
+    if let Some(w) = &opts.whitelist {
+        a.push("-c".into());
+        a.push(format!("tessedit_char_whitelist={w}"));
+    }
+    a.push("tsv".into());
+    a.push("makebox".into());
+    a
+}
+
+fn run_tesseract(png: &[u8], bin: &str, lang: &str, opts: &OcrOptions) -> Result<String, String> {
     let mut child = Command::new(bin)
-        .args(["stdin", "stdout", "-l", lang, "--psm", "3", "tsv", "makebox"])
+        .args(tesseract_args(lang, opts))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -260,6 +337,47 @@ mod tests {
         assert!(t == "IO-AE" || t == "10-AE" || t == "I0-AE" || t == "1O-AE", "{t:?}");
         assert_eq!(r.detected_characters.len(), 5, "{:?}", r.detected_characters);
         assert_eq!(r.detected_characters[2].character, '-');
+    }
+
+    #[test]
+    fn options_shape_the_command_line_and_default_to_the_page_reading() {
+        assert_eq!(tesseract_args("eng", &OcrOptions::default()).join(" "), "stdin stdout -l eng --psm 3 tsv makebox");
+        let code = OcrOptions { psm: Some(8), whitelist: Some("ABC -".into()) };
+        let a = tesseract_args("eng", &code);
+        assert_eq!(a.join("|"), "stdin|stdout|-l|eng|--psm|8|-c|tessedit_char_whitelist=ABC -|tsv|makebox");
+    }
+
+    #[test]
+    fn bad_options_are_refused_before_tesseract_runs() {
+        let img = DynamicImage::ImageLuma8(image::GrayImage::from_pixel(8, 8, image::Luma([255])));
+        for (o, why) in [
+            (OcrOptions { psm: Some(14), whitelist: None }, "psm"),
+            (OcrOptions { psm: None, whitelist: Some(String::new()) }, "empty"),
+            (OcrOptions { psm: None, whitelist: Some("A\nB".into()) }, "control"),
+            (OcrOptions { psm: None, whitelist: Some("A".repeat(MAX_WHITELIST_CHARS + 1)) }, "longer"),
+        ] {
+            // The binary does not exist: an options error proves it was never started.
+            let err = OcrEngine::process_image_full(&img, "/nonexistent/tesseract-for-test", "eng", &o).unwrap_err();
+            assert!(err.contains(why), "{why}: {err}");
+        }
+        assert!(OcrOptions { psm: Some(13), whitelist: Some("IO-AE".into()) }.validate().is_ok());
+    }
+
+    #[test]
+    fn a_code_token_reads_as_letters_with_psm_and_whitelist() {
+        if !tesseract_here() {
+            return;
+        }
+        // LOOSE-ocr-code-tokens: the same pixels io_ae_keeps_its_dash_in_place
+        // reads as "10-AE" come back "IO-AE" when the job says it is one
+        // word of capitals and dashes.
+        let img = image::load_from_memory(include_bytes!("ocr_fixtures/ioae.png")).unwrap();
+        let caps = "ABCDEFGHIJKLMNOPQRSTUVWXYZ-";
+        for psm in [8, 13] {
+            let r = OcrEngine::process_image_opts(&img, &OcrOptions { psm: Some(psm), whitelist: Some(caps.into()) }).unwrap();
+            assert_eq!(r.extracted_text, "IO-AE", "psm {psm}");
+            assert_eq!(r.detected_characters.iter().map(|c| c.character).collect::<String>(), "IO-AE");
+        }
     }
 
     #[test]

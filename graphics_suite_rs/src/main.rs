@@ -24,7 +24,7 @@
 // links as well.
 use apkaudio_graphics_suite::file_sorter::FileSorter;
 use apkaudio_graphics_suite::image_analyzer::ImageAnalyzer;
-use apkaudio_graphics_suite::ocr::OcrEngine;
+use apkaudio_graphics_suite::ocr::{OcrEngine, OcrOptions};
 use apkaudio_graphics_suite::photo_id::PhotoIdentifier;
 use apkaudio_graphics_suite::server::start_server;
 use apkaudio_graphics_suite::sorting::benchmark::BenchmarkSuite;
@@ -73,6 +73,13 @@ enum Commands {
     Ocr {
         #[arg(short, long)]
         image: PathBuf,
+        /// Tesseract page segmentation mode (0-13; default 3). 8 = one word,
+        /// 13 = raw line: what a code-like label such as "IO-AE" wants.
+        #[arg(long)]
+        psm: Option<u8>,
+        /// The only characters OCR may answer, e.g. "ABCDEFGHIJKLMNOPQRSTUVWXYZ-".
+        #[arg(long)]
+        whitelist: Option<String>,
     },
     /// Perform Image Analysis (dimensions, color metrics, contrast, dHash)
     AnalyzeImage {
@@ -133,9 +140,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let report = FileSorter::index_and_sort(&dir, &sort_by)?;
             println!("{}", serde_json::to_string_pretty(&report)?);
         }
-        Commands::Ocr { image } => {
+        Commands::Ocr { image, psm, whitelist } => {
             let decoded = image::open(&image)?;
-            let result = OcrEngine::process_image(&decoded)?;
+            let result = OcrEngine::process_image_opts(&decoded, &OcrOptions { psm, whitelist })?;
             println!("{}", serde_json::to_string_pretty(&result)?);
         }
         Commands::AnalyzeImage { image } => {

@@ -24,7 +24,7 @@ use std::io::Cursor;
 use std::time::{Duration, Instant};
 
 use apkaudio_contracts::baremetal_io;
-use apkaudio_graphics_suite::ocr::OcrEngine;
+use apkaudio_graphics_suite::ocr::{OcrEngine, OcrOptions};
 use apkaudio_graphics_suite::vectorizer::VectorizerEngine;
 use base64::Engine as _;
 use image::DynamicImage;
@@ -112,6 +112,20 @@ fn run(job: &Value, limits: Limits) -> Result<Value, String> {
             .and_then(|t| u8::try_from(t).ok())
             .ok_or_else(|| format!("threshold {v} is not a whole number 0-255"))?,
     };
+    // OCR's per-job options (LOOSE-ocr-code-tokens): a code-like label reads
+    // as letters only when the job says so (psm 8/13 + a whitelist).
+    let ocr_opts = OcrOptions {
+        psm: match job.get("psm") {
+            None | Some(Value::Null) => None,
+            Some(v) => Some(v.as_u64().and_then(|p| u8::try_from(p).ok()).ok_or_else(|| format!("psm {v} is not a whole number 0-13"))?),
+        },
+        whitelist: match job.get("whitelist") {
+            None | Some(Value::Null) => None,
+            Some(Value::String(w)) => Some(w.clone()),
+            Some(v) => return Err(format!("whitelist {v} is not a string of the characters allowed")),
+        },
+    };
+    ocr_opts.validate()?;
     let bytes = match job.get("content_b64") {
         Some(Value::String(b)) => base64::engine::general_purpose::STANDARD
             .decode(b.trim())
@@ -124,7 +138,7 @@ fn run(job: &Value, limits: Limits) -> Result<Value, String> {
     let img = decode(&bytes, limits.max_side_px)?;
 
     match op {
-        "ocr" => serde_json::to_value(OcrEngine::process_image(&img)?).map_err(|e| e.to_string()),
+        "ocr" => serde_json::to_value(OcrEngine::process_image_opts(&img, &ocr_opts)?).map_err(|e| e.to_string()),
         _ => {
             let svg = VectorizerEngine::convert_to_svg(&img, threshold);
             if svg.svg_xml.len() > limits.max_result_bytes {
@@ -274,6 +288,24 @@ mod tests {
     }
 
     #[test]
+    fn an_ocr_job_carries_psm_and_whitelist_to_the_engine() {
+        use apkaudio_graphics_suite::ocr::{OcrEngine, OcrOptions};
+        // LOOSE-ocr-code-tokens: "IO-AE" in sans-serif, which a plain job reads "10-AE".
+        let png: &[u8] = include_bytes!("../../src/ocr_fixtures/ioae.png");
+        let opts = OcrOptions { psm: Some(13), whitelist: Some("ABCDEFGHIJKLMNOPQRSTUVWXYZ-".into()) };
+        let body = json!({"job_id": "c1", "op": "ocr", "content_b64": b64(png), "psm": 13, "whitelist": opts.whitelist});
+        let out = handle_job(&job(body), LIMITS);
+        match OcrEngine::process_image_opts(&decode(png, 4096).unwrap(), &opts) {
+            Ok(direct) => {
+                assert_eq!(out["ok"], true, "{}", out["error"]);
+                assert_eq!(out["result"], serde_json::to_value(direct).unwrap());
+                assert_eq!(out["result"]["extracted_text"], "IO-AE", "{}", out["result"]);
+            }
+            Err(e) => eprintln!("SKIP reading check: {e}"),
+        }
+    }
+
+    #[test]
     fn a_vectorize_job_comes_back_as_svg_with_the_ring_hole_kept() {
         let out = handle_job(
             &job(json!({"job_id": "v1", "op": "vectorize", "filename": "scans/p.png", "content_b64": b64(&probe_png()), "threshold": 100})),
@@ -304,6 +336,10 @@ mod tests {
             (json!({"job_id": "b", "content_b64": b64(&probe_png())}), "no op"),
             (json!({"job_id": "b", "op": "vectorize", "threshold": 300, "content_b64": b64(&probe_png())}), "threshold > 255"),
             (json!({"job_id": "b", "op": "vectorize", "threshold": "128", "content_b64": b64(&probe_png())}), "threshold as text"),
+            (json!({"job_id": "b", "op": "ocr", "psm": 14, "content_b64": b64(&probe_png())}), "psm > 13"),
+            (json!({"job_id": "b", "op": "ocr", "psm": "8", "content_b64": b64(&probe_png())}), "psm as text"),
+            (json!({"job_id": "b", "op": "ocr", "whitelist": "", "content_b64": b64(&probe_png())}), "empty whitelist"),
+            (json!({"job_id": "b", "op": "ocr", "whitelist": ["A"], "content_b64": b64(&probe_png())}), "whitelist as list"),
         ] {
             let out = handle_job(&job(body), LIMITS);
             assert_eq!((out["job_id"].as_str(), out["ok"].as_bool()), (Some("b"), Some(false)), "{why}: {}", out);
