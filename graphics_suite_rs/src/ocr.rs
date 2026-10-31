@@ -50,7 +50,10 @@ impl OcrEngine {
         for y in 0..height {
             for x in 0..width {
                 let pixel = gray.get_pixel(x, y)[0];
-                let value = if pixel < threshold { 0 } else { 255 };
+                // `<=`, not `<`: Otsu's t is the LAST level of the dark class.
+                // With `<` a pure black-and-white scan (t = 0) had no ink at
+                // all and read as NO_TEXT (LOOSE-workers-convert-rest).
+                let value = if pixel <= threshold { 0 } else { 255 };
                 binary.put_pixel(x, y, Luma([value]));
             }
         }
@@ -284,5 +287,24 @@ impl OcrEngine {
         } else {
             'E'
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_pure_black_and_white_page_is_read() {
+        // Two glyph-sized blocks on white: only levels 0 and 255, so Otsu's t is 0.
+        let mut g = GrayImage::from_pixel(48, 16, Luma([255]));
+        for y in 2..14 {
+            for x in (4..14).chain(20..32) {
+                g.put_pixel(x, y, Luma([0]));
+            }
+        }
+        let r = OcrEngine::process_image(&DynamicImage::ImageLuma8(g));
+        assert_eq!(r.detected_characters.len(), 2, "{:?}", r.extracted_text);
+        assert_ne!(r.extracted_text, NO_TEXT);
     }
 }
