@@ -6,7 +6,7 @@
 #    compose file beside this one) — BY DESIGN, the rule every image that links
 #    the SDK follows (.apk.scripts/plugin_standalone.py; DATABUS.Broker.MQTT's
 #    Dockerfile): the crate names apk-plugin-runner and apkaudio-contracts by
-#    tag `sdk-v0.5`, so a clone of this repository builds on its own; THE IMAGE
+#    the tag `SRC/Cargo.toml` pins, so a clone of this repository builds on its own; THE IMAGE
 #    builds the checkout's runner and contracts instead, patched in with
 #    `--config`, so it never fetches GitHub and ships what the bench runs.
 #    Every COPY source below is a REAL repo-root path (PODS/README.md rule 1). Same recipe
