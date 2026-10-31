@@ -62,6 +62,7 @@ const STATE_WORDS: Record<string, string> = {
   stale: 'kinda', quiet: 'kinda', pending: 'kinda',
   starting: 'kinda', stopping: 'kinda', stub: 'kinda',
   listening: 'good', unavailable: 'dead', partial: 'kinda', under_test: 'kinda', cleared: 'kinda',
+  absent: 'kinda',
 };
 const STATE_DEFAULT = 'kinda';
 const statusColor = (status: string) =>
