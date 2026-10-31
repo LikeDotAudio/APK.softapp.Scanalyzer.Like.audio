@@ -20,7 +20,7 @@ How it is built, tested and shipped, and where it lands.
   `wasm-pack build wasm_extractor --target web --release`, `npm ci`,
   `npx vite build --base ./` (relative base, because the bundle is served from a deep path; vite.config.ts now sets `base: './'` itself).
   **The image recipe is `Docker/dist.Dockerfile`** (context `PODS/POD.THIN/Softapps`, final stage `dist` = the built tree): it patches the two git-pinned crates to the copied siblings, so it builds offline. WEB.Frontend-Assets takes `Web_Front/dist` from it.
-  The root deploy (`WEB.Frontend-Assets/.apk.scripts/deploy.py`) then uploads the site by FTPS.
+  The root deploy (`.apk.scripts/deploy.py (root)`) then uploads the site by FTPS.
   Locally `npm run build` runs `tsc -b && vite build`; both pass as of 2026-10-30.
 - **Desktop.** `Web_Front/desktop.py` builds `oa_sample_analyzer` through `src-tauri`'s dependency (`-p oa-sample-analyzer`), asks
   `cargo metadata` for the target directory (the APK.audio checkout sets one at the root),
