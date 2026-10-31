@@ -66,6 +66,12 @@ The repo's smoke result is in [SMOKE.md](../🧩Manual%20and%20Artifacts/SMOKE.m
 - **Rotating the database password** after its exposure in git history is the owner's step.
 - **The desktop app is not packaged or released**; it runs from a checkout.
 
+## Delivered 2026-10-31: portable file names (no `:` `|` or case twins)
+
+- The monorepo now checks out on Windows and macOS: no tracked name holds `<>:"|?*`, a trailing dot or space, a device name or a case-only twin. Colon folders became dot folders (the POD.x convention).
+- `graphics_suite_rs/src/` → `graphics_suite_rs/lib/`: it and the worker's `SRC/` were the same folder on Windows and macOS. `Cargo.toml` `[lib]`/`[[bin]]` paths, the worker's `include_bytes!` fixture, the Dockerfile `COPY`, `Web_Front` comments/tests and the docs follow. `SRC/` keeps the stack shape.
+- Verified: `cargo check` of `graphics_suite_rs` and `cargo test --no-run` of `graphics_suite_rs/SRC`.
+
 ## Delivered from the 2026-10-30 audit
 - **Owner-held (owner decision 2026-10-31): `SCAN_UPLOAD_TOKEN` on the cPanel public host.** The bench is wired (token in `~/.apk.secrets.env`, Scanalyzer-API and the analyzer worker pass it). Steps: in cPanel, set the environment variable `SCAN_UPLOAD_TOKEN` for the site to the envelope value; `upload_peak.php` then refuses writes without `X-Upload-Token`.
 - **Release tags** — app `v0.1.0` (1ca9915) and its pinned crates `CAPTURE.Extractor-Engine v0.2.0` and `PROCESSOR.SampleAnalyzer sampleanalyzer-v0.1.0`, pushed 2026-10-31 with the owner's go-ahead. Consumers may move from `rev` to these tags.
