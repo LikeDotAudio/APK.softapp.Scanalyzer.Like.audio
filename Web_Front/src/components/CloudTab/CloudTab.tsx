@@ -39,11 +39,13 @@ interface CloudTabProps {
 const PREF = 'scanalyzer_cloud_v2_';
 const getPref = (key: string, def: string) => localStorage.getItem(PREF + key) || def;
 
-/* THE AMBER A QUALIFIER IS DRAWN IN, and it is the token's rather than this
-   file's. `contracts/tokens/state.json` is where the three tones are DECIDED;
-   this is this app's copy of ONE of them, because Web_Front has no dependency
-   on the contracts package — the same arrangement, and the same reason, as the
-   `STATE_TONE` map in `DevicesTab.tsx` one directory over.
+/* THE AMBER A QUALIFIER IS DRAWN IN, and it is the token's, read rather than
+   copied. `contracts/tokens/state.json` is where the three tones are DECIDED;
+   main.tsx loads the vendored `vendor/apk-contracts/apk-tokens.css` (held to its
+   source by the root `check.sh webtokens` lane) before anything renders, so
+   `var(--apk-state-kinda)` is that decision itself and there is no hex here to
+   drift. (DevicesTab.tsx one directory over still carries a hex copy because it
+   maps WORDS to tones, and `check.sh statewords` holds that copy hex-for-hex.)
 
    WHY A QUALIFIER IS A STATE AT ALL, which is the question `PLAN-1061.01` had
    to answer before it could route this. `kinda`'s own role text in the token
@@ -55,20 +57,15 @@ const getPref = (key: string, def: string) => localStorage.getItem(PREF + key) |
    colour from the same place.
 
    IT WAS HAND-TYPED UNTIL 2026-09-10, at `#e0a33a` — 6.07 dE from this value in
-   CIELAB, which is inside the 17-unit radius `check_state_words.py` fails on and
-   was invisible to it, because that census reads files that map a state WORD to
-   a colour and this one branches on a boolean. `state.json`'s comment block
-   calls that the harder half of the family: a colour copied NEARLY rather than
-   wrongly. `CloudTab.tsx` is now named in that checker's `PALETTE_IS_TOKEN`, so
-   the value below is asserted hex-for-hex on every run and a fourth amber in
-   this file fails.
+   CIELAB, a colour copied NEARLY rather than wrongly, which `state.json`'s
+   comment block calls the harder half of the family. Then it was a hex copy of
+   the token (PLAN-3434.01 replaced it with the var); reading the var is what
+   makes a fourth amber here impossible rather than merely checked.
 
-   ONLY `kinda` IS DECLARED. The badge draws no green and no red — a puck that is
+   ONLY `kinda` IS USED. The badge draws no green and no red — a puck that is
    there and a puck that is gone are drawn in the shell's own text tones, not in
-   the state tones — and declaring two custom colours nothing reads would be dead
-   code written to satisfy a gate (CLAUDE.md §7). The `PALETTE_IS_TOKEN` entry
-   declares the subset, and carrying a tone it does not name is a failure there. */
-const STATE_KINDA = '#d29922';
+   the state tones. */
+const STATE_KINDA = 'var(--apk-state-kinda)';
 
 // Shown when the 3D subtree threw a real rendering error (caught by WebGLBoundary) —
 // distinct from WebGL being unavailable, so a plain bug never masquerades as a GPU
@@ -336,7 +333,7 @@ export default function CloudTab({
             /* The scrim is NOT the token's `kinda` tint and deliberately so. This
                badge floats over a moving 3D cloud, so it needs an opaque ground to
                stay readable against whatever is behind it; the token's tint is
-               rgba(210,153,34,0.12), which over that canvas is no ground at all.
+               `--apk-state-kinda-tint` (12% amber), which over that canvas is no ground at all.
                47.73 dE from `kinda` — far outside the near-miss band — so it reads
                as a dark surface rather than as a fourth amber. */
             background: qualified ? 'rgba(90,60,0,0.75)' : 'rgba(0,0,0,0.55)',
