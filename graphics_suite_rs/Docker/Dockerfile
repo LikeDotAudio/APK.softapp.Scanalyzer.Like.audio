@@ -31,7 +31,7 @@ COPY ["PODS/POD.THICK/DISCOVERY.Engine/SRC/RUNNER",     "./PODS/POD.THICK/DISCOV
 # and the worker crate in its SRC/. Not the rest of Scanalyzer.
 ARG TOOL=PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs
 COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/Cargo.toml", "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/Cargo.toml"]
-COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/src",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/src"]
+COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/lib",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/lib"]
 COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/SRC",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/SRC"]
 
 ARG SDK=https://github.com/LikeDotAudio/APK.plugin.SDK
@@ -48,7 +48,7 @@ RUN set -e; \
 # ---------- runtime ----------
 FROM debian:bookworm-slim
 # Tesseract and its English model: the OCR op shells out to `tesseract stdin
-# stdout tsv makebox` (graphics_suite_rs/src/ocr.rs). Its `configs/tsv` and
+# stdout tsv makebox` (graphics_suite_rs/lib/ocr.rs). Its `configs/tsv` and
 # `configs/makebox` ship in tesseract-ocr. The self test reads a rendered line
 # back, so an image without them fails `an_ocr_job_reads_the_probe`.
 # OMP_THREAD_LIMIT=1: one job at a time already; OpenMP threads only contend.

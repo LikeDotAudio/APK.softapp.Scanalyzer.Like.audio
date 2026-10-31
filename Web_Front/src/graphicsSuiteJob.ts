@@ -33,7 +33,7 @@ export function graphicsTopics(token: string = GRAPHICS_TOKEN) {
   return { job: leaf('outgoing', 'job'), result: leaf('incoming', 'result') };
 }
 
-/** An OCR job's reading options (graphics_suite_rs/src/ocr.rs `OcrOptions`,
+/** An OCR job's reading options (graphics_suite_rs/lib/ocr.rs `OcrOptions`,
  *  LOOSE-web-front-ocr-options): `psm` is Tesseract's page segmentation mode
  *  (8 one word, 13 raw line for a lone label) and `whitelist` the only
  *  characters it may answer. Together they read a code token like "IO-AE",
@@ -75,7 +75,7 @@ export function buildGraphicsJob(jobId: string, op: GraphicsOp, filename: string
 }
 
 /** The micro-API's `/api/ocr` URL path for the same options (`?psm=…&whitelist=…`,
- *  graphics_suite_rs/src/server.rs), for the page with no bus. */
+ *  graphics_suite_rs/lib/server.rs), for the page with no bus. */
 export function ocrApiPath(opts: OcrJobOptions = {}): string {
   const f = ocrJobFields(opts);
   const q = new URLSearchParams();
@@ -144,7 +144,7 @@ export async function viaBus(
 }
 
 /** What the worker's / micro-API's `extracted_text` says when Tesseract read
- *  nothing (graphics_suite_rs/src/ocr.rs `NO_TEXT`). Wire constant. */
+ *  nothing (graphics_suite_rs/lib/ocr.rs `NO_TEXT`). Wire constant. */
 export const OCR_NO_TEXT = 'No OCR text detected';
 
 type Box = { x0: number; y0: number; x1: number; y1: number };

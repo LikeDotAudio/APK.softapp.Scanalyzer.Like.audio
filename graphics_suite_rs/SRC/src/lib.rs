@@ -291,7 +291,7 @@ mod tests {
     fn an_ocr_job_carries_psm_and_whitelist_to_the_engine() {
         use apkaudio_graphics_suite::ocr::{OcrEngine, OcrOptions};
         // LOOSE-ocr-code-tokens: "IO-AE" in sans-serif, which a plain job reads "10-AE".
-        let png: &[u8] = include_bytes!("../../src/ocr_fixtures/ioae.png");
+        let png: &[u8] = include_bytes!("../../lib/ocr_fixtures/ioae.png");
         let opts = OcrOptions { psm: Some(13), whitelist: Some("ABCDEFGHIJKLMNOPQRSTUVWXYZ-".into()) };
         let body = json!({"job_id": "c1", "op": "ocr", "content_b64": b64(png), "psm": 13, "whitelist": opts.whitelist});
         let out = handle_job(&job(body), LIMITS);

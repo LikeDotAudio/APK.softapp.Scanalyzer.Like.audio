@@ -39,7 +39,7 @@ Run in `Web_Front/`: `npm test` (47 node --test cases), `npm run build`, `npx ox
 `npm run gen:ucs-index -- --check`. The desktop crate: `cargo check` in `Web_Front/src-tauri`.
 The Folder-ScanAnalyzer tools: `cargo test` in `folder_scanner_rs` and `graphics_suite_rs`.
 The worker: `cargo test` in `graphics_suite_rs/SRC` (needs the APK.audio checkout: it links
-`apk-plugin-runner` and `apkaudio-contracts` by path); after a change to `graphics_suite_rs/src`
+`apk-plugin-runner` and `apkaudio-contracts` by path); after a change to `graphics_suite_rs/lib`
 or `SRC/`, `docker compose -f PODS/POD.workers/Docker/docker-compose.yml up -d --build graphics-suite`.
 
 In CI, the APK.audio root `.github/workflows/scanalyzer.yml` runs all of the above except the

@@ -92,7 +92,7 @@ test('live: a vectorize job comes back from Worker-GRAPHICS_SUITE', async (t) =>
 });
 
 test('an ocr answer is kept as a reading with its confidence (LOOSE-web-front-engine3-shape-only)', () => {
-  // The shape of graphics_suite_rs/src/ocr.rs OcrResult: two lines, 0-1 confidences.
+  // The shape of graphics_suite_rs/lib/ocr.rs OcrResult: two lines, 0-1 confidences.
   const r = readingFromOcrResult({
     extracted_text: 'OCR probe\n42', line_count: 2, word_count: 3, detected_characters: [],
     word_regions: [
@@ -129,7 +129,7 @@ test('a low-confidence or one-letter word is read but not counted, as for tesser
 });
 
 test('live: the worker\'s ocr answer becomes a measured reading (LOOSE-web-front-engine3-shape-only)', async (t) => {
-  const PROBE = new URL('../../graphics_suite_rs/src/ocr_fixtures/probe.png', import.meta.url);
+  const PROBE = new URL('../../graphics_suite_rs/lib/ocr_fixtures/probe.png', import.meta.url);
   if (!existsSync(MQTT_JS) || !existsSync(PROBE)) { t.skip('no mqtt.min.js or probe.png in the tree'); return; }
   globalThis.window ??= globalThis;
   globalThis.document ??= {};
