@@ -6,6 +6,7 @@
 import type { PlotGeo } from '../audioAnalysis';
 import { freqMapper, midiToFreq } from './freqScale';
 import type { ExaminerLayer, LayerData } from './types';
+import { accentRgba } from '../../../brand';
 
 const BLACK = new Set([1, 3, 6, 8, 10]);
 
@@ -31,7 +32,7 @@ export const PianoScaleLayer: ExaminerLayer = {
       const x1 = xFor(midiToFreq(midi + 0.5));
       if (x1 < 0 || x0 > geo.w) continue;
       const black = BLACK.has(midi % 12);
-      if (midi === 60) ctx.fillStyle = 'rgba(244,144,44,0.95)';       // middle C
+      if (midi === 60) ctx.fillStyle = accentRgba(0.95);       // middle C
       else ctx.fillStyle = black ? 'rgba(12,14,18,0.95)' : 'rgba(201,205,214,0.85)';
       ctx.fillRect(x0, y0, Math.max(0.6, x1 - x0 - 0.4), black ? keyH * 0.62 : keyH);
     }

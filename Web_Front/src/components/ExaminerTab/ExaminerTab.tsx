@@ -17,6 +17,7 @@ import EyeMeters from '../examiner/EyeMeters';
 import { useAudioPrefetch } from '../examiner/useAudioPrefetch';
 import { favoriteKeyOf } from '../../favorites';
 import { previewBuffer } from '../../peakPreview';
+import { ACCENT, accentRgba } from '../../brand';
 
 interface ExaminerTabProps {
   analysisResult: any[];
@@ -826,7 +827,7 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
                                           })}>{item.envelope.transient_count}</td>}
                                           {activeColumns.find(c => c.key === 'spectral_centroid_hz') && <td style={cell({
                                               background: item.spectral_features?.spectral_centroid_hz 
-                                                  ? `linear-gradient(90deg, rgba(244, 144, 44, 0.25) ${(item.spectral_features.spectral_centroid_hz / maxBrightness) * 100}%, transparent ${(item.spectral_features.spectral_centroid_hz / maxBrightness) * 100}%)` 
+                                                  ? `linear-gradient(90deg, ${accentRgba(0.25)} ${(item.spectral_features.spectral_centroid_hz / maxBrightness) * 100}%, transparent ${(item.spectral_features.spectral_centroid_hz / maxBrightness) * 100}%)` 
                                                   : undefined
                                           })}>{item.spectral_features.spectral_centroid_hz ? Math.round(item.spectral_features.spectral_centroid_hz) : 0}</td>}
                                           {activeColumns.find(c => c.key === 'harmonicity') && <td style={cell({
@@ -878,10 +879,10 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
                           <canvas ref={canvasRef} style={{ width: '100%', height: '100%', background: '#0A0A0A', border: '1px solid rgba(255,255,255,0.1)', display: 'block' }} />
                           <div ref={playheadRef} style={{
                             position: 'absolute', top: 0, bottom: 0, left: 0,
-                            width: '2px', backgroundColor: 'rgb(244, 144, 44)', zIndex: 10,
+                            width: '2px', backgroundColor: ACCENT, zIndex: 10,
                             pointerEvents: 'none', display: 'none'
                           }}>
-                            <div style={{ position: 'absolute', top: 0, left: '-4px', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '6px solid rgb(244, 144, 44)' }} />
+                            <div style={{ position: 'absolute', top: 0, left: '-4px', width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: `6px solid ${ACCENT}` }} />
                           </div>
                         </div>
                       </div>

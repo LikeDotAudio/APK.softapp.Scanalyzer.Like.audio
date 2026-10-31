@@ -2,7 +2,7 @@
 
 This folder contains the data ingestion, extraction, and capture modules of the **Scanalyzer** system. These modules intake external documents, audio files, images, schematics, and web pages, converting them into structured `.PEAK` metadata and search indexes.
 
-The members of this stage are listed in [`../suite.json`](../suite.json) (stage `01_CAPTURES`), each by its portal path and repository. Until 2026-10-30 this folder held a symlink into each sibling repository; those dangled in any standalone clone and broke silently when a sibling moved, so the list is data now (audit 2026-10-30). Where each one lives:
+The members of this stage are listed in [`../SUITE/suite.json`](../SUITE/suite.json) (stage `01_CAPTURES`), each by its portal path and repository. Until 2026-10-30 this folder held a symlink into each sibling repository; those dangled in any standalone clone and broke silently when a sibling moved, so the list is data now (audit 2026-10-30). Where each one lives:
 
 `CAPTURE.crawler` → `APK:Softapps/CAPTURE/CAPTURE.crawler`  
 `CAPTURE.Czur-Fast-Capture` → `APK:Softapps/CAPTURE/CAPTURE.Czur-Fast-Capture`  

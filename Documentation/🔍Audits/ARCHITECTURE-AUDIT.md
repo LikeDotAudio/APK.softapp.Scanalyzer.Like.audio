@@ -14,7 +14,7 @@ Sampled: `display.json`, `Docker/`, `graphics_suite_rs/{Cargo.toml,SRC/Cargo.tom
 | PROCESSOR.SampleAnalyzer, CAPTURE.Extractor-Engine | Cargo `git = …, rev = …` in `Web_Front/{wasm_extractor,wasm_analyzer,src-tauri}/Cargo.toml`; local `[patch]` (excluded `Web_Front/.cargo/config.toml`, written again inside `Docker/dist.Dockerfile`) | Customer–Supplier (versioned by commit) |
 | `.PEAK` schema (owned by PROCESSOR.SampleAnalyzer) | `oa_sample_analyzer::schema` through the crate; `wasm_analyzer::peak_schema()` for the browser | Conformist to a Published Language |
 | APK.plugin.SDK (runner, contracts) | `graphics_suite_rs/SRC/Cargo.toml` by `tag = "sdk-v0.5"`; image patches to the checkout with `--config` | Conformist (versioned) |
-| Sibling Scanalyzer softapps | `suite.json` (portal path + repository per member) | Published Language (data, no file reach) |
+| Sibling Scanalyzer softapps | `SUITE/suite.json` (portal path + repository per member) | Published Language (data, no file reach) |
 | Worker-SAMPLE_CONVERSION, Worker-GRAPHICS_SUITE | MQTT `…/{sample_conversion,graphics_suite}/outgoing/job` → `incoming/result`, topics from the vendored contracts build | Customer–Supplier over the bus |
 | WEB.Frontend-Assets | `/FrontEnd/shared/apk-bus.js` (`window.APKBus`); takes `Web_Front/dist` from `Docker/dist.Dockerfile` | Conformist / Supplier |
 | DATABASE.server.SQL | PDO through `Web_Front/public/api/db.php` to `sql-proxy:3306` | Customer–Supplier (schema owned there) |
@@ -24,10 +24,10 @@ Sampled: `display.json`, `Docker/`, `graphics_suite_rs/{Cargo.toml,SRC/Cargo.tom
 ## Scorecard
 | Category | Score (0–3) | Finding |
 |---|---|---|
-| Coupling & Cohesion | 3 | No symlink or `path =` into a sibling: crates by git rev (patched locally), the suite as `suite.json`; image contexts outside the repo are the house rule (kept by design) |
+| Coupling & Cohesion | 3 | No symlink or `path =` into a sibling: crates by git rev (patched locally), the suite as `SUITE/suite.json`; image contexts outside the repo are the house rule (kept by design) |
 | Boundary Integrity | 2 | Rows translated into `.PEAK`; one `db.php` adapter, CORS narrowed; the upload token is opt-in and not yet set on any host (needs owner) |
 | Duplication Control | 3 | Shared bus helper, contract topic builders and brand token; one upload column file; the `.PEAK` schema lives with its owner |
-| Testing & Contracts | 3 | `./check.sh` (70 node tests incl. live bus round trips, tsc, 4 cargo suites incl. every shipped `.PEAK` against the published schema, php -l) |
+| Testing & Contracts | 3 | `Docker/check.sh` (70 node tests incl. live bus round trips, tsc, 4 cargo suites incl. every shipped `.PEAK` against the published schema, php -l) |
 | Change management | 2 | `package.json` 0.1.0, crates pinned by commit; no tags yet (needs owner) |
 Score key: 3 meets the standard · 2 minor gaps · 1 significant gaps · 0 absent / violated.
 

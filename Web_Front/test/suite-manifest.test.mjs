@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-// suite.json replaced 40 symlinks into sibling repositories (audit 2026-10-30).
+// SUITE/suite.json replaced 40 symlinks into sibling repositories (audit 2026-10-30).
 // Hold it: no symlink comes back, every entry is well formed, and — when this
 // checkout sits inside APK.audio — every portal path still resolves.
 import { test } from 'node:test';
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const repo = fileURLToPath(new URL('../..', import.meta.url));
-const suite = JSON.parse(readFileSync(path.join(repo, 'suite.json'), 'utf8'));
+const suite = JSON.parse(readFileSync(path.join(repo, 'SUITE', 'suite.json'), 'utf8'));
 const softapps = path.resolve(repo, '../..');   // …/PODS/POD.THIN/Softapps in a monorepo checkout
 
 test('suite.json is a scanalyzer-suite document with well-formed members', () => {

@@ -10,3 +10,11 @@
 import { ACCENT as CONTRACT_ACCENT } from './vendor/apk-contracts/apk-contracts.mjs';
 
 export const ACCENT: string = CONTRACT_ACCENT;
+
+/** The accent at `alpha` as `rgba(r, g, b, a)` — for inline styles and canvas
+ *  fills (a canvas cannot read `var(--apk-accent-rgb)`). */
+export function accentRgba(alpha = 1): string {
+  const hex = ACCENT.replace('#', '');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}

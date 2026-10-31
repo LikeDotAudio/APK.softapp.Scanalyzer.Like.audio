@@ -66,7 +66,7 @@ interface RadialWaveformProps {
   color?: string;
   // Fraction of the radius left hollow in the centre (0–1).
   holeRatio?: number;
-  // Draw the 0°/start tick (rgb(244,144,44)) at the 3 o'clock position.
+  // Draw the 0°/start tick (the brand accent) at the 3 o'clock position.
   startMarker?: boolean;
   // When provided, a play/stop button sits in the hollow centre of the ring.
   onPlay?: () => void;

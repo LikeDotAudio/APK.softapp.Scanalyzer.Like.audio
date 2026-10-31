@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { type PlotGeo } from '../examiner/audioAnalysis';
 import { drawWaveform } from '../examiner/drawWaveform';
 import { regionColor, HANDLE_H, type ExtractorRegion } from './shared';
+import { ACCENT } from '../../brand';
 
 interface WavePlayerProps {
   samples: Float32Array | null;
@@ -192,7 +193,7 @@ export default function WavePlayer({ samples, length, regions, color, onUpdateRe
           onWheel={onWheel} onContextMenu={(e) => e.preventDefault()}
           onMouseDown={(e) => { if (e.button === 1) e.preventDefault(); }} // suppress middle-click autoscroll
           style={{ width: '100%', height: '100%', display: 'block', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }} />
-        <div ref={playheadRef} style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 2, background: 'rgb(244,144,44)', pointerEvents: 'none', display: 'none' }} />
+        <div ref={playheadRef} style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 2, background: ACCENT, pointerEvents: 'none', display: 'none' }} />
         {zoom > 1 && (
           <div style={{ position: 'absolute', top: 4, right: 6, fontSize: '0.65rem', color: 'var(--text-secondary)', background: 'rgba(0,0,0,0.5)', padding: '0 4px', borderRadius: 3, pointerEvents: 'none' }}>
             {zoom.toFixed(1)}× · wheel zoom, middle/right-drag pan

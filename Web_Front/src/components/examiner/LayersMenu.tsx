@@ -14,12 +14,13 @@ import {
   subscribeLayerSettings, updateLayerSettings,
 } from './layers/registry';
 import type { ExaminerLayer, LayerDomain, LayerPlacement, StackMode } from './layers/types';
+import { ACCENT } from '../../brand';
 
 interface LayersMenuProps {
   stereo: boolean;
 }
 
-const ORANGE = 'rgb(244,144,44)';
+const ORANGE = ACCENT;
 const PLACEMENT_COLS: { placement: LayerPlacement; label: string; hint: string }[] = [
   { placement: 'top', label: 'top', hint: 'top (frequency) pane' },
   { placement: 'bottom', label: 'btm', hint: 'bottom (time) pane' },

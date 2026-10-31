@@ -7,7 +7,7 @@
   --bg-surface-hover: rgba(45, 53, 72, 0.9);
   
   --accent-primary: var(--apk-accent); /* the brand token (vendor/apk-contracts/apk-tokens.css) */
-  --accent-primary-glow: rgba(244, 144, 44, 0.4);
+  --accent-primary-glow: rgba(var(--apk-accent-rgb), 0.4);
   --accent-secondary: #0ea5e9;
   
   --text-primary: #f8fafc;

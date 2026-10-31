@@ -69,18 +69,18 @@ SCANALYZER.Like.audio/              (this repo — the application)
 │   └── public/api/, tools/api/     PHP endpoints for the optional MySQL "cloud" of .PEAK records
 ├── Docker/                         scan-api (php-fpm over public/api: three endpoints + db.php), and
 │                                   dist.Dockerfile — THE recipe for Web_Front/dist (final stage `dist`)
-├── suite.json                      the suite as data: every Scanalyzer softapp by stage, portal path, repository
+├── SUITE/suite.json                      the suite as data: every Scanalyzer softapp by stage, portal path, repository
 ├── folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/  Folder-ScanAnalyzer stages 1–3
 │   └── graphics_suite_rs/SRC + Docker/   Worker-GRAPHICS_SUITE: its OCR and SVG tracer as jobs on the bus (POD.workers)
-├── 01_CAPTURES … 08_VISUALIZERS/   one README per stage, describing the members suite.json lists
-├── check.sh                        the one check (npm test, tsc -b, oxlint, cargo test ×4, php -l)
+├── 01_CAPTURES … 08_VISUALIZERS/   one README per stage, describing the members SUITE/suite.json lists
+├── (Docker/check.sh)               the one check (npm test, tsc -b, oxlint, cargo test ×4, php -l)
 ├── SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
 └── Documentation/                  audits, specs, plans, known issues
 
 THE CORE IS NOT HERE: PROCESSOR.SampleAnalyzer and CAPTURE.Extractor-Engine are pinned BY COMMIT
 (`git = …, rev = …` in Web_Front/{wasm_analyzer,wasm_extractor,src-tauri}/Cargo.toml — one rev each);
 in the monorepo the locally excluded Web_Front/.cargo/config.toml patches them to the sibling folders.
-The 40 symlinks into sibling repositories that used to sit here were replaced by suite.json (2026-10-30).
+The 40 symlinks into sibling repositories that used to sit here were replaced by SUITE/suite.json (2026-10-30).
 
 The UCS data is not here: it lives in ../../DATATYPE/DATATYPE.soundfx.UCS
 (categories/*.json — 94 categories, 828 subcategories — producer_synonyms.json, the

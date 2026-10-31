@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { buildScript, type RenamePlan, type ScriptKind, type Mode, type BitDepth } from '../../renameScript';
 import { TOKEN_LABELS, type Slot, getSavedSubfolders, getSavedPrepend, getSavedAppend, tokenValue, generateNewName } from '../../renameConfig';
 import { useIsNarrow } from '../../useIsNarrow';
+import { accentRgba } from '../../brand';
 
 interface RenameTabProps {
   analysisResult: any[];
@@ -193,7 +194,7 @@ export default function RenameTab({ analysisResult, filteredData }: RenameTabPro
           {renderOrderedList('Append to file name (top → first)', append, setAppend)}
         </div>
 
-        <div style={{ background: 'rgba(244, 144, 44, 0.1)', border: '1px solid var(--accent-primary)', padding: '0.6rem 0.75rem', fontSize: '0.82rem', lineHeight: 1.5 }}>
+        <div style={{ background: accentRgba(0.1), border: '1px solid var(--accent-primary)', padding: '0.6rem 0.75rem', fontSize: '0.82rem', lineHeight: 1.5 }}>
           <strong style={{ color: 'var(--accent-primary)' }}>⚠ Run these scripts at your own risk.</strong> The browser can't touch your
           local files, so the script must be run <strong>on your own machine</strong>. Test it on a <strong>small folder first</strong>.
           By default it <strong>copies</strong> files from their original location to the new location (creating the destination

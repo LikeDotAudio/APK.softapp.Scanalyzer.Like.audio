@@ -15,6 +15,7 @@ import WavePlayer from './WavePlayer';
 import WaveCircle from './WaveCircle';
 import { regionColor } from './shared';
 import { staleReason, rescanRegionCounts, applyCounts, type RescanProgress } from './regionRescan';
+import { accentRgba } from '../../brand';
 
 interface ExtractorTabProps {
   analysisResult: any[];
@@ -719,7 +720,7 @@ export default function ExtractorTab({ analysisResult, filteredData, audioFiles,
               counts are the problem rather than the library. */}
           {(stale.length > 0 || rescanning) && (
             <div style={{ padding: '0.5rem 0.75rem', borderBottom: '1px solid var(--border-color)',
-              background: 'rgba(244,144,44,0.10)', display: 'flex', alignItems: 'center',
+              background: accentRgba(0.1), display: 'flex', alignItems: 'center',
               gap: '0.75rem', flexWrap: 'wrap', fontSize: '0.78rem' }}>
               {rescanning ? (
                 <>
