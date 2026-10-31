@@ -4,7 +4,7 @@ import { classifyImage, formatConfidence, type ImageClassification } from './ima
 import { convertImageToSVG } from './svgConverter';
 import { apiUrl } from './apiBase';
 import { escapeHTML } from './lib/html';
-import { viaBus, ocrApiPath, type OcrJobOptions } from './graphicsSuiteJob';
+import { viaBus, ocrApiPath, readingFromOcrResult, type OcrJobOptions } from './graphicsSuiteJob';
 import { connectedClient } from './busLink';
 
 let worker1: any = null; // Engine 1: PSM 11 Sparse Text
@@ -40,16 +40,14 @@ interface TextLine {
 interface EngineResult {
   engineName: string;
   wordCount: number;
-  /** null = the engine measures no confidence; never a stand-in number. */
+  /** null = no reading was measured (the engine was unreachable or read no word);
+   *  never a stand-in number. Such a result never wins an angle nor adds words. */
   confidence: number | null;
   text: string;
   lines: TextLine[];
-  /** true = layout skeleton (shape labels), not recognised text: it never wins an angle
-   *  and its tokens never enter the vocabulary. */
-  layoutOnly?: boolean;
 }
 
-/** A recognition engine's result: Tesseract reports a measured confidence. */
+/** A result with a measured confidence: a reading that may win and grow the vocabulary. */
 type MeasuredResult = EngineResult & { confidence: number };
 
 interface OCRRotationResult {
@@ -267,10 +265,11 @@ function renderOCRCanvas(
 }
 
 /**
- * Engine 3: the Rust pass (POST /api/ocr). It boxes glyphs and labels each by shape alone
- * (I, -, O/A/E by ink density), so its text is a layout skeleton, not a reading. It reports
- * how many glyph-words it laid out, with no confidence, and is marked layoutOnly so it can
- * neither win an angle nor add pseudo-words to the vocabulary (Refusal over fabrication).
+ * Engine 3: Worker-GRAPHICS_SUITE's `ocr` job (or POST /api/ocr with no bus), which is the
+ * `tesseract` CLI since LOOSE-ocr-not-recognition. Its words, boxes and confidences are a
+ * real reading, so they are kept (readingFromOcrResult) and Engine 3 competes with the two
+ * tesseract.js engines for the angle and grows the vocabulary (LOOSE-web-front-engine3-shape-only).
+ * Unreachable, or a page it read nothing on: confidence null, and it can do neither.
  */
 async function runEngine3Rust(_fileItem: FileItem, dataUrl: string, ocrOptions?: OcrJobOptions): Promise<EngineResult> {
   // Checked first and thrown, not caught below as "offline": a bad option is the caller's error.
@@ -289,30 +288,19 @@ async function runEngine3Rust(_fileItem: FileItem, dataUrl: string, ocrOptions?:
     });
 
     if (viaWorker || resp?.ok) {
-      const rustRes = viaWorker ?? await resp!.json();
-      const text = rustRes.extracted_text || '';
-      const words = extractWordsFromText(text);
-
-      return {
-        engineName: '🦀 Engine 3 (Rust layout pass)',
-        wordCount: words.length,
-        confidence: null,
-        text,
-        lines: [],
-        layoutOnly: true
-      };
+      const reading = readingFromOcrResult(viaWorker ?? await resp!.json());
+      return { engineName: '🦀 Engine 3 (Tesseract CLI)', ...reading };
     }
   } catch (err) {
     // API offline
   }
 
   return {
-    engineName: '🦀 Engine 3 (Rust layout pass — offline)',
+    engineName: '🦀 Engine 3 (Tesseract CLI — offline)',
     wordCount: 0,
     confidence: null,
     text: '',
-    lines: [],
-    layoutOnly: true
+    lines: []
   };
 }
 
@@ -348,7 +336,7 @@ export async function runOCR(fileItem: FileItem, container: HTMLElement, ocrOpti
     <div class="inspector-detail">
       <h3>⚡ 3 Parallel Engines OCR Pipeline & 4-Angle Rotation Scan...</h3>
       <p style="color: var(--text-muted); font-size: 0.88rem;">
-        Running <strong>Engine 1 (PSM 11 Sparse)</strong>, <strong>Engine 2 (PSM 3 Block)</strong>, and <strong>Engine 3 (Rust Engine)</strong> in parallel across 0° ➔ 90° ➔ 180° ➔ 270°.
+        Running <strong>Engine 1 (PSM 11 Sparse)</strong>, <strong>Engine 2 (PSM 3 Block)</strong>, and <strong>Engine 3 (Tesseract CLI worker)</strong> in parallel across 0° ➔ 90° ➔ 180° ➔ 270°.
       </p>
       <div id="ocrProgressStatus" class="empty-state" style="color: var(--accent);">
         ⏳ Initializing 3 Parallel OCR Workers & Pre-Processing Canvas...
@@ -389,16 +377,19 @@ export async function runOCR(fileItem: FileItem, container: HTMLElement, ocrOpti
       const res2 = parseTesseractResult(ret2, '⚡ Engine 2 (Tesseract PSM 3 Block)');
 
       const engineResults = [res1, res2, res3];
+      // Every engine that measured a reading competes; an unreachable Engine 3 (null) does not.
+      const measured = engineResults.filter((r): r is MeasuredResult => r.confidence !== null);
 
-      // Consensus between the two recognising engines only: the Rust layout pass is shown
-      // beside them but cannot win (its shape labels are not words).
+      // Consensus: most valid words, ties broken by confidence.
       let winningEngineRes: MeasuredResult = res1;
-      if (res2.wordCount > winningEngineRes.wordCount || (res2.wordCount === winningEngineRes.wordCount && res2.confidence > winningEngineRes.confidence)) {
-        winningEngineRes = res2;
+      for (const r of measured) {
+        if (r.wordCount > winningEngineRes.wordCount || (r.wordCount === winningEngineRes.wordCount && r.confidence > winningEngineRes.confidence)) {
+          winningEngineRes = r;
+        }
       }
 
-      // Unique words from the recognising engines grow the vocabulary
-      [res1, res2].forEach(engRes => {
+      // Unique words from every measured reading grow the vocabulary
+      measured.forEach(engRes => {
         const words = extractWordsFromText(engRes.text);
         words.forEach(w => {
           const key = w.toLowerCase();
@@ -558,8 +549,8 @@ function renderInteractiveOCRUI(
           return `
             <div class="engine-card ${isWinner ? 'winner' : ''}">
               <strong>${eng.engineName} ${isWinner ? '👑' : ''}</strong>
-              <span>${eng.layoutOnly
-                ? `Glyph-words laid out: <strong>${eng.wordCount}</strong> (layout only — no confidence measured)`
+              <span>${eng.confidence === null
+                ? `No reading (no confidence measured)`
                 : `Words: <strong>${eng.wordCount}</strong> (${eng.confidence}% Confidence)`}</span>
             </div>
           `;

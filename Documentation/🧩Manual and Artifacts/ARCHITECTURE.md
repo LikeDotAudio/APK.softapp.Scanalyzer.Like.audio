@@ -123,7 +123,7 @@ re-analysed; `--force` ignores every sidecar.
 
 ## Since the 2026-10-30 audit
 - Crates: `extractor_engine` and `oa-sample-analyzer` by git rev; `Web_Front/.cargo/config.toml` (local, excluded) patches them to `../../../CAPTURE/CAPTURE.Extractor-Engine` and `../../../PROCESSOR/PROCESSOR.SampleAnalyzer/SRC/core`.
-- Bus: `src/busLink.ts` (one link via `window.APKBus`), `src/sampleConversionJob.ts` and `src/graphicsSuiteJob.ts` (jobs; topics from `src/vendor/apk-contracts/apk-contracts.mjs`). An `ocr` job (and the micro-API fallback, `POST /api/ocr?psm=…&whitelist=…`) carries `OcrJobOptions` `{psm, whitelist}` for a code-token reading; `runOCR(…, ocrOptions)` hands them to Engine 3.
+- Bus: `src/busLink.ts` (one link via `window.APKBus`), `src/sampleConversionJob.ts` and `src/graphicsSuiteJob.ts` (jobs; topics from `src/vendor/apk-contracts/apk-contracts.mjs`). An `ocr` job (and the micro-API fallback, `POST /api/ocr?psm=…&whitelist=…`) carries `OcrJobOptions` `{psm, whitelist}` for a code-token reading; `runOCR(…, ocrOptions)` hands them to Engine 3. Engine 3 is the worker's Tesseract CLI: `readingFromOcrResult` keeps its words, boxes and mean word confidence (0-100), so it competes with the two tesseract.js engines for each angle and grows the vocabulary; unreachable or empty, its confidence is null and it does neither.
 - Corpus API: `public/api/db.php` (connection, CORS, upload token), `upload_columns.json` (served by `upload_peak.php?columns`).
 - Suite: `SUITE/suite.json`; stage folders hold only their README.
 - Build: `Docker/dist.Dockerfile` → stage `dist`; `Docker/check.sh` is the one check.

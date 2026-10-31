@@ -142,3 +142,68 @@ export async function viaBus(
     return null;
   }
 }
+
+/** What the worker's / micro-API's `extracted_text` says when Tesseract read
+ *  nothing (graphics_suite_rs/src/ocr.rs `NO_TEXT`). Wire constant. */
+export const OCR_NO_TEXT = 'No OCR text detected';
+
+type Box = { x0: number; y0: number; x1: number; y1: number };
+export interface OcrReadingWord { text: string; confidence: number; bbox: Box }
+export interface OcrReadingLine { text: string; confidence: number; bbox: Box; words: OcrReadingWord[] }
+/** One Tesseract reading in the page's terms: confidence 0-100 as tesseract.js
+ *  reports it, or null when there is no word to measure. */
+export interface OcrReading { text: string; confidence: number | null; wordCount: number; lines: OcrReadingLine[] }
+
+/**
+ * An `ocr` answer (ocr.rs `OcrResult`: `extracted_text`, `word_regions` with
+ * 0-1 confidences and x/y/width/height boxes) as a reading the page can weigh
+ * beside tesseract.js (LOOSE-web-front-engine3-shape-only). Engine 3 is real
+ * Tesseract since LOOSE-ocr-not-recognition, so its words and confidence are
+ * kept, not thrown away. Lines follow the text's newlines (one TSV word per
+ * space-separated token, in order); the page confidence is the mean word
+ * confidence; `wordCount` counts words as the tesseract.js engines do (longer
+ * than one character, confidence above 15). The NO_TEXT sentinel is no text.
+ */
+export function readingFromOcrResult(res: any): OcrReading {
+  const raw = typeof res?.extracted_text === 'string' ? res.extracted_text : '';
+  const text = raw === OCR_NO_TEXT ? '' : raw;
+  const regions: any[] = Array.isArray(res?.word_regions) ? res.word_regions : [];
+  const words: OcrReadingWord[] = regions
+    .filter(r => r && typeof r.text === 'string' && r.text.length > 0)
+    .map(r => {
+      const x = Number(r.x) || 0, y = Number(r.y) || 0;
+      return {
+        text: r.text,
+        confidence: Math.round(Math.min(1, Math.max(0, Number(r.confidence) || 0)) * 100),
+        bbox: { x0: x, y0: y, x1: x + (Number(r.width) || 0), y1: y + (Number(r.height) || 0) },
+      };
+    });
+
+  const mean = (ws: OcrReadingWord[]) => Math.round(ws.reduce((s, w) => s + w.confidence, 0) / ws.length);
+  const lineOf = (lw: OcrReadingWord[]): OcrReadingLine => ({
+    text: lw.map(w => w.text).join(' '),
+    confidence: mean(lw),
+    bbox: {
+      x0: Math.min(...lw.map(w => w.bbox.x0)), y0: Math.min(...lw.map(w => w.bbox.y0)),
+      x1: Math.max(...lw.map(w => w.bbox.x1)), y1: Math.max(...lw.map(w => w.bbox.y1)),
+    },
+    words: lw,
+  });
+  const lines: OcrReadingLine[] = [];
+  let next = 0;
+  for (const lineText of text.split('\n')) {
+    const n = lineText.split(' ').filter(Boolean).length;
+    const lw = words.slice(next, next + n);
+    next += n;
+    if (lw.length) lines.push(lineOf(lw));
+  }
+  // Words the text did not account for (a reply from an older build) still count.
+  if (next < words.length) lines.push(lineOf(words.slice(next)));
+
+  return {
+    text: text.trim(),
+    confidence: words.length ? mean(words) : null,
+    wordCount: words.filter(w => w.text.length > 1 && w.confidence > 15).length,
+    lines,
+  };
+}

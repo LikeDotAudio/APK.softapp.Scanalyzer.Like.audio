@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildGraphicsJob, graphicsTopics, readGraphicsResult, requestGraphicsJob, GRAPHICS_OPS, ocrApiPath, MAX_WHITELIST_CHARS } from '../src/graphicsSuiteJob.ts';
+import { buildGraphicsJob, graphicsTopics, readGraphicsResult, requestGraphicsJob, GRAPHICS_OPS, ocrApiPath, MAX_WHITELIST_CHARS, readingFromOcrResult, OCR_NO_TEXT } from '../src/graphicsSuiteJob.ts';
 
 const MQTT_JS = new URL('../../../../../WEB.Frontend-Assets/SRC/FrontEnd/vendor/mqtt.min.js', import.meta.url);
 
@@ -86,6 +86,70 @@ test('live: a vectorize job comes back from Worker-GRAPHICS_SUITE', async (t) =>
     }
     assert.match(result.svg_xml, /<svg/);
     assert.ok(result.path_count >= 1, JSON.stringify(result).slice(0, 200));
+  } finally {
+    client.end(true);
+  }
+});
+
+test('an ocr answer is kept as a reading with its confidence (LOOSE-web-front-engine3-shape-only)', () => {
+  // The shape of graphics_suite_rs/src/ocr.rs OcrResult: two lines, 0-1 confidences.
+  const r = readingFromOcrResult({
+    extracted_text: 'OCR probe\n42', line_count: 2, word_count: 3, detected_characters: [],
+    word_regions: [
+      { text: 'OCR', x: 10, y: 5, width: 40, height: 20, confidence: 0.96 },
+      { text: 'probe', x: 60, y: 6, width: 70, height: 22, confidence: 0.90 },
+      { text: '42', x: 12, y: 40, width: 20, height: 18, confidence: 0.81 },
+    ],
+  });
+  assert.equal(r.text, 'OCR probe\n42');
+  assert.equal(r.confidence, 89); // mean of 96, 90, 81
+  assert.equal(r.wordCount, 3);
+  assert.equal(r.lines.length, 2);
+  assert.deepEqual(r.lines[0].bbox, { x0: 10, y0: 5, x1: 130, y1: 28 });
+  assert.equal(r.lines[0].confidence, 93);
+  assert.deepEqual(r.lines[1].words.map(w => w.text), ['42']);
+  assert.deepEqual(r.lines[1].words[0].bbox, { x0: 12, y0: 40, x1: 32, y1: 58 });
+});
+
+test('an ocr answer that read nothing has no confidence, not a stand-in', () => {
+  const r = readingFromOcrResult({ extracted_text: OCR_NO_TEXT, line_count: 0, word_count: 0, detected_characters: [], word_regions: [] });
+  assert.deepEqual(r, { text: '', confidence: null, wordCount: 0, lines: [] });
+  assert.equal(readingFromOcrResult(null).confidence, null);
+});
+
+test('a low-confidence or one-letter word is read but not counted, as for tesseract.js', () => {
+  const r = readingFromOcrResult({ extracted_text: 'a IO-AE zz', word_regions: [
+    { text: 'a', x: 0, y: 0, width: 5, height: 5, confidence: 0.9 },
+    { text: 'IO-AE', x: 10, y: 0, width: 50, height: 5, confidence: 0.88 },
+    { text: 'zz', x: 70, y: 0, width: 10, height: 5, confidence: 0.1 },
+  ] });
+  assert.equal(r.wordCount, 1);
+  assert.equal(r.lines.length, 1);
+  assert.equal(r.lines[0].words.length, 3);
+});
+
+test('live: the worker\'s ocr answer becomes a measured reading (LOOSE-web-front-engine3-shape-only)', async (t) => {
+  const PROBE = new URL('../../graphics_suite_rs/src/ocr_fixtures/probe.png', import.meta.url);
+  if (!existsSync(MQTT_JS) || !existsSync(PROBE)) { t.skip('no mqtt.min.js or probe.png in the tree'); return; }
+  globalThis.window ??= globalThis;
+  globalThis.document ??= {};
+  if (!globalThis.mqtt) vm.runInThisContext(readFileSync(MQTT_JS, 'utf8') + '\n;globalThis.mqtt = mqtt;');
+  const client = globalThis.mqtt.connect('ws://127.0.0.1:9001', { reconnectPeriod: 0, connectTimeout: 2000, clientId: 'scanalyzer-ocr-test', timerVariant: 'native' });
+  const ok = await new Promise(resolve => { client.once('connect', () => resolve(true)); client.once('error', () => resolve(false)); setTimeout(() => resolve(false), 2500); });
+  if (!ok) { client.end(true); t.skip('no broker on ws://127.0.0.1:9001'); return; }
+  try {
+    let result;
+    try {
+      result = await requestGraphicsJob(client, buildGraphicsJob(`test-${Date.now()}`, 'ocr', 'probe.png', readFileSync(PROBE).toString('base64')), 20_000);
+    } catch (err) {
+      if (/no answer/.test(err.message)) { t.skip(err.message); return; }
+      throw err;
+    }
+    const r = readingFromOcrResult(result);
+    assert.equal(r.text, 'OCR probe 42', JSON.stringify(result).slice(0, 300));
+    assert.ok(r.confidence !== null && r.confidence > 50, `confidence ${r.confidence}`);
+    assert.equal(r.lines.length, 1);
+    assert.deepEqual(r.lines[0].words.map(w => w.text), ['OCR', 'probe', '42']);
   } finally {
     client.end(true);
   }
