@@ -65,6 +65,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a4385e2e34eb35d6b3efe798b9eb88096925d87726c0798709bf56d9ed84af3"
 
 [[package]]
+name = "apk-ucs-bundle"
+version = "8.2.1-apk.1"
+
+[[package]]
 name = "app"
 version = "0.1.0"
 dependencies = [
@@ -1990,6 +1994,7 @@ dependencies = [
 name = "oa-sample-analyzer"
 version = "0.1.0"
 dependencies = [
+ "apk-ucs-bundle",
  "ebur128",
  "extractor_engine",
  "hound",

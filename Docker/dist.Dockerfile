@@ -13,8 +13,8 @@
 #    CAPTURE.Extractor-Engine by git rev (a clone builds alone, fetching them);
 #    this image builds the CHECKOUT's copies instead, patched in through the same
 #    Web_Front/.cargo/config.toml a checkout uses, so it never fetches GitHub and
-#    ships the analyzer the bench runs. The analyzer's build.rs reads
-#    DATATYPE.soundfx.UCS from beside it (see PROCESSOR.SampleAnalyzer's README).
+#    ships the analyzer the bench runs; DATATYPE.soundfx.UCS (apk-ucs-bundle,
+#    pinned by the analyzer) is patched the same way.
 
 FROM rust:1-slim AS wasm
 ARG WASM_PACK_VERSION=0.13.1
@@ -28,7 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certifi
 WORKDIR /src
 # The siblings, at their checkout paths relative to Web_Front.
 COPY ["DATATYPE/DATATYPE.soundfx.UCS/categories", "DATATYPE/DATATYPE.soundfx.UCS/categories"]
-COPY ["DATATYPE/DATATYPE.soundfx.UCS/producer_synonyms.json", "DATATYPE/DATATYPE.soundfx.UCS/"]
+COPY ["DATATYPE/DATATYPE.soundfx.UCS/producer_synonyms.json", "DATATYPE/DATATYPE.soundfx.UCS/Cargo.toml", "DATATYPE/DATATYPE.soundfx.UCS/build.rs", "DATATYPE/DATATYPE.soundfx.UCS/"]
+COPY ["DATATYPE/DATATYPE.soundfx.UCS/src", "DATATYPE/DATATYPE.soundfx.UCS/src"]
 COPY ["CAPTURE/CAPTURE.Extractor-Engine/Cargo.toml", "CAPTURE/CAPTURE.Extractor-Engine/Cargo.lock", "CAPTURE/CAPTURE.Extractor-Engine/build.rs", "CAPTURE/CAPTURE.Extractor-Engine/"]
 COPY ["CAPTURE/CAPTURE.Extractor-Engine/src", "CAPTURE/CAPTURE.Extractor-Engine/src"]
 COPY ["PROCESSOR/PROCESSOR.SampleAnalyzer/SRC/core", "PROCESSOR/PROCESSOR.SampleAnalyzer/SRC/core"]
@@ -43,6 +44,8 @@ RUN mkdir -p .cargo && printf '%s\n' \
       'extractor_engine = { path = "../../../CAPTURE/CAPTURE.Extractor-Engine" }' \
       '[patch."https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer"]' \
       'oa-sample-analyzer = { path = "../../../PROCESSOR/PROCESSOR.SampleAnalyzer/SRC/core" }' \
+      '[patch."https://github.com/LikeDotAudio/APK.softapp.DATATYPE.soundfx.UCS"]' \
+      'apk-ucs-bundle = { path = "../../../DATATYPE/DATATYPE.soundfx.UCS" }' \
       > .cargo/config.toml \
  && wasm-pack build wasm_analyzer --target web --release \
  && wasm-pack build wasm_extractor --target web --release \
