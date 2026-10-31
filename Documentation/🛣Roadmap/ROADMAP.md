@@ -1,4 +1,3 @@
-# Roadmap — Scanalyzer.Like.audio
+# 🛣 Roadmap — Scanalyzer.Like.audio
 
-## 🛣 Development Goals
-Expand 5D multi-vector clustering, real-time GPU instanced point cloud rendering, automated UCS Gold verification, and multi-threaded Rust WASM parallel scanning.
+Nothing to do is kept here: every roadmap item lives in the APK.audio monorepo's `Documentation/🛣Roadmap/roadmap.htm`.
