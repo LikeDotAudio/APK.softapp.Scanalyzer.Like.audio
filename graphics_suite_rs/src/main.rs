@@ -17,28 +17,20 @@
 // --inventory serves 404 rather than a guess, and that is the honest answer.
 //
 // Talks to nothing on the bus. It is an HTTP server and a CLI, and every
-// analysis is a pure function of the bytes handed to it.
+// analysis is a pure function of the bytes handed to it. The bus door is the
+// worker in SRC/, which links the same library.
 
-mod face_detector;
-mod file_sorter;
-mod image_analyzer;
-mod ocr;
-mod photo_id;
-mod plugins;
-mod server;
-mod sorting;
-mod vectorizer;
-mod word_analyzer;
-
+// The modules live in the library (src/lib.rs), which the bus worker in SRC/
+// links as well.
+use apkaudio_graphics_suite::file_sorter::FileSorter;
+use apkaudio_graphics_suite::image_analyzer::ImageAnalyzer;
+use apkaudio_graphics_suite::ocr::OcrEngine;
+use apkaudio_graphics_suite::photo_id::PhotoIdentifier;
+use apkaudio_graphics_suite::server::start_server;
+use apkaudio_graphics_suite::sorting::benchmark::BenchmarkSuite;
+use apkaudio_graphics_suite::vectorizer::VectorizerEngine;
+use apkaudio_graphics_suite::word_analyzer::WordAnalyzer;
 use clap::{Parser, Subcommand};
-use file_sorter::FileSorter;
-use image_analyzer::ImageAnalyzer;
-use ocr::OcrEngine;
-use photo_id::PhotoIdentifier;
-use server::start_server;
-use sorting::benchmark::BenchmarkSuite;
-use vectorizer::VectorizerEngine;
-use word_analyzer::WordAnalyzer;
 
 use std::fs;
 use std::path::PathBuf;

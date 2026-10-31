@@ -42,6 +42,10 @@ Docker/                   scan-api image (the three endpoints only)
 sample_analyzer_rs → PROCESSOR.SampleAnalyzer     the engine (own repo)
 extractor_engine_rs → CAPTURE.Extractor-Engine    region detection / slicing (own repo)
 folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/   Folder-ScanAnalyzer stages
+graphics_suite_rs/src/lib.rs   the library the CLI (main.rs) and the worker both link
+graphics_suite_rs/SRC/, Docker/   Worker-GRAPHICS_SUITE (POD.workers, token graphics_suite):
+                                a job {op: ocr|vectorize, content_b64} answered with what the
+                                CLI's `ocr` / `to-svg` print; no port, decoded in memory
 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to each Scanalyzer softapp, by stage
                                 each module's own display.json is its menu entry; there is
                                 no suite-wide manifest (SCANALIZER_DYNAMIC_MANIFEST.json named

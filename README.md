@@ -73,6 +73,7 @@ SCANALYZER.Like.audio/              (this repo — the application)
 ├── Sample_Conversion_rs → ../../PROCESSOR/PROCESSOR.SampleConversion
 ├── graphing_rs          → ../../VISUALIZER/VISUALIZER.Graphing         (retired from the app, PLAN-109.04)
 ├── folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/  Folder-ScanAnalyzer stages 1–3
+│   └── graphics_suite_rs/SRC + Docker/   Worker-GRAPHICS_SUITE: its OCR and SVG tracer as jobs on the bus (POD.workers)
 ├── 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to every Scanalyzer softapp, by stage
 ├── SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
 └── Documentation/                  audits, specs, plans, known issues

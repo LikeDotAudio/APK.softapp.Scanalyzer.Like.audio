@@ -11,6 +11,7 @@ How it is built, tested and shipped, and where it lands.
 | **scan-api container** (bench) | `db_status.php`, `get_peaks.php`, `upload_peak.php` on php-fpm :9000 | `Docker/docker-compose.yml` (project `apk-audio`), image `scanalyzer-api:local` |
 | **scanalyzer.like.audio** | the app's public home and the cPanel PHP endpoints the desktop uploads to | no workflow in this repo (see *Not automated*) |
 | **Desktop** | a Tauri window run from the checkout | `python3 Web_Front/desktop.py` |
+| **Worker-GRAPHICS_SUITE** (bench) | `graphics_suite_rs`'s OCR and SVG tracer as jobs on `graphics_suite/outgoing/job` | `graphics_suite_rs/Docker/docker-compose.yml` (project `workers`, included by `PODS/POD.workers`), image `worker-graphics-suite:local`, built from the repo root |
 
 ## Build
 
@@ -36,6 +37,9 @@ Run in `Web_Front/`: `npm test` (47 node --test cases), `npm run build`, `npx ox
 `node scripts/check-effect-abort.mjs`, `node scripts/check-discovery.mjs`,
 `npm run gen:ucs-index -- --check`. The desktop crate: `cargo check` in `Web_Front/src-tauri`.
 The Folder-ScanAnalyzer tools: `cargo test` in `folder_scanner_rs` and `graphics_suite_rs`.
+The worker: `cargo test` in `graphics_suite_rs/SRC` (needs the APK.audio checkout: it links
+`apk-plugin-runner` and `apkaudio-contracts` by path); after a change to `graphics_suite_rs/src`
+or `SRC/`, `docker compose -f PODS/POD.workers/Docker/docker-compose.yml up -d --build graphics-suite`.
 
 In CI, the APK.audio root `.github/workflows/scanalyzer.yml` runs all of the above except the
 desktop crate on every push that moves this submodule, the engine, the extractor or the UCS

@@ -1,0 +1,54 @@
+# apk-worker-graphics-suite — OCR and raster→SVG vectorization as a worker on
+# the bus (LOOSE-workers-convert-rest: the jobs CAPTURE.OCR and
+# CAPTURE.Vectorizer stand for).
+#
+# Owns: the container entry point that answers `outgoing/job` with
+# `incoming/result` by running `apkaudio_graphics_suite::ocr::OcrEngine` or
+# `apkaudio_graphics_suite::vectorizer::VectorizerEngine` on one posted image —
+# the library one directory up that the CLI and the micro-API run too, linked
+# by path.
+#
+# BUILT ON apk-plugin-runner, the crate every THICK plugin links: it publishes
+# the config, the last will, the self-test door and the retained `incoming/api`
+# description; this crate adds only the job loop.
+#
+# ITS OWN WORKSPACE: a worker builds its own image, so a broken worker never
+# fails the plugin build and the reverse.
+#
+# CONTRACTS BY THE SAME LEXICAL PATH THE RUNNER USES
+# (`…/NODE.BareMetal/SRC/contracts/rust`), or cargo sees two
+# apkaudio-contracts packages and refuses the build.
+[package]
+name = "apk-worker-graphics-suite"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+[lib]
+name = "apk_worker_graphics_suite"
+path = "src/lib.rs"
+
+[dependencies]
+apk-plugin-runner = { path = "../../../../../../POD.THICK/DISCOVERY.Engine/SRC/RUNNER" }
+apkaudio-contracts = { path = "../../../../../../POD.THICK/NODE.BareMetal/SRC/contracts/rust" }
+apkaudio-graphics-suite = { path = ".." }
+# The same image crate the library decodes with, so `DynamicImage` is one type.
+image = "0.24"
+base64 = "0.22"
+rumqttc = "0.24"
+serde_json = "1"
+
+[[bin]]
+name = "apk-worker-graphics-suite"
+path = "src/bin/apk-worker-graphics-suite.rs"
+
+# The runner's health probe, compiled from the runner's own source file.
+[[bin]]
+name = "apk-plugin-health"
+path = "../../../../../../POD.THICK/DISCOVERY.Engine/SRC/RUNNER/src/bin/apk-plugin-health.rs"
+
+# OCR and tracing walk every pixel: unoptimised they are an order of magnitude
+# slower, and the worker is only ever run from a release build.
+[profile.release]
+opt-level = 3

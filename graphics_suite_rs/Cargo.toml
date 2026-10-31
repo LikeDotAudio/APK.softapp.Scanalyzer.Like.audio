@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2021"
 description = "Per-file graphics analysis: OCR, image metrics, vectorization, photo id, format plugins, and the micro-API that serves them"
 
+# The library is what the CLI below and the bus worker in SRC/ both link.
+[lib]
+name = "apkaudio_graphics_suite"
+path = "src/lib.rs"
+
 [[bin]]
 name = "apkaudio_graphics_suite"
 path = "src/main.rs"
