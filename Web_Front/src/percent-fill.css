@@ -60,7 +60,7 @@
        fill an identity — "this is the progress colour" — when what it carries
        is a magnitude. The literal fallback is theme.css's own `--accent`, so
        the ramp survives in GANTT, which does not load theme.css at all. */
-    --apk-pct-warm: var(--accent, rgb(244, 144, 44));
+    --apk-pct-warm: var(--accent, var(--apk-accent));
 
     /* The digits sit on BOTH halves of the track, so the wash has to read as a
        fill and still leave the glyphs legible — and this is the one number here
