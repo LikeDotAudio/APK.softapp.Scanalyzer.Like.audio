@@ -5,5 +5,8 @@ Loose notes and ideas not yet filed.
 ← [Wiki home](../README.md)
 
 <!-- wiki:index -->
-_Nothing filed here yet._
+| Page | What |
+|---|---|
+| [Feature table export.md](Feature%20table%20export.md) | Feature table export (directory → CSV) |
+| [Pad Browser.md](Pad%20Browser.md) | Pad Browser — drum-machine-style quick audition |
 <!-- /wiki:index -->

@@ -1,6 +1,8 @@
-# Pad Browser — drum-machine-style quick audition (roadmap)
+# Pad Browser — drum-machine-style quick audition
 
-Status: **proposed, not started** (filed 2026-07-17).
+An idea, not agreed work: proposed 2026-07-17, not started (checked 2026-10-31: no pad view in
+`Web_Front/src`; the footer is still the one `<audio>` element, `footerAudioRef` in `App.tsx`).
+Line references below are from 2026-07-17.
 
 ## The idea
 
