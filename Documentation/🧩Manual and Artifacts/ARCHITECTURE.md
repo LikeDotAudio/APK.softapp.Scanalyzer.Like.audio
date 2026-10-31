@@ -55,6 +55,8 @@ graphics_suite_rs/src/ocr.rs    OCR is Tesseract's: the image is piped to `tesse
                                 per job `psm` (0-13, default 3) and `whitelist` (OcrOptions;
                                 CLI --psm/--whitelist) — a code label like "IO-AE", read
                                 "10-AE" by default, reads right with psm 8/13 + a whitelist
+                                (whitelisted runs add `hocr` with char boxes: Tesseract gives
+                                such words conf 0, so chars take their hOCR x_conf, words the mean)
 01_CAPTURES … 08_VISUALIZERS/   hub folders: symlinks to each Scanalyzer softapp, by stage
                                 each module's own display.json is its menu entry; there is
                                 no suite-wide manifest (SCANALIZER_DYNAMIC_MANIFEST.json named

@@ -31,6 +31,17 @@
 //! default psm 3 the LSTM still segments "1", finds it banned and drops it
 //! ("O-AE"); under psm 8 or 13 it answers "IO-AE". Defaults (psm 3, no
 //! whitelist) are the reading every caller had before.
+//!
+//! CONFIDENCE UNDER A WHITELIST (LOOSE-ocr-whitelist-confidence): Tesseract
+//! 5.3.0 reports word confidence 0 for every word read under a
+//! `tessedit_char_whitelist` (`ioae.png`, psm 8 and 13: TSV `conf` 0.000000
+//! for a correct "IO-AE"), so a caller filtering by confidence would drop
+//! every correct code reading. Its per-character confidences are still real,
+//! and only hOCR prints them (`-c hocr_char_boxes=1`, `x_conf` per
+//! `ocrx_cinfo`). So a whitelisted job adds the `hocr` renderer to the same
+//! run; each character takes its OWN `x_conf`, and each word the mean of the
+//! characters in its box. Without a whitelist nothing changes: TSV's word
+//! confidence is real there, and characters take their word's.
 
 use std::io::{Cursor, Read, Write};
 use std::process::{Command, Stdio};
@@ -57,7 +68,8 @@ pub struct OcrCharacterMatch {
     pub y: u32,
     pub width: u32,
     pub height: u32,
-    /// The confidence (0-1) of the word this character was read in.
+    /// The confidence (0-1) of the word this character was read in; under a
+    /// whitelist, this character's own (see the module notes).
     pub confidence: f32,
 }
 
@@ -68,7 +80,8 @@ pub struct OcrWordRegion {
     pub y: u32,
     pub width: u32,
     pub height: u32,
-    /// Tesseract's word confidence scaled to 0-1.
+    /// Tesseract's word confidence scaled to 0-1; under a whitelist, the
+    /// mean of its characters' (Tesseract reports 0 there).
     pub confidence: f32,
 }
 
@@ -165,16 +178,22 @@ impl OcrEngine {
 
 /// The argument list after the binary: input, output, language, psm, the
 /// whitelist as one `-c` (one argv entry, so no shell and no quoting), then
-/// the two renderers, which must come last.
+/// the renderers, which must come last: `tsv` and `makebox`, plus `hocr`
+/// with its per-character boxes under a whitelist (LOOSE-ocr-whitelist-confidence).
 fn tesseract_args(lang: &str, opts: &OcrOptions) -> Vec<String> {
     let mut a: Vec<String> = ["stdin", "stdout", "-l", lang, "--psm"].iter().map(|s| s.to_string()).collect();
     a.push(opts.psm.unwrap_or(3).to_string());
     if let Some(w) = &opts.whitelist {
         a.push("-c".into());
         a.push(format!("tessedit_char_whitelist={w}"));
+        a.push("-c".into());
+        a.push("hocr_char_boxes=1".into());
     }
     a.push("tsv".into());
     a.push("makebox".into());
+    if opts.whitelist.is_some() {
+        a.push("hocr".into());
+    }
     a
 }
 
@@ -203,16 +222,32 @@ fn run_tesseract(png: &[u8], bin: &str, lang: &str, opts: &OcrOptions) -> Result
     Ok(stdout)
 }
 
-/// Turn the concatenated `tsv` + `makebox` output into an OcrResult.
+/// One hOCR `ocrx_cinfo` line: `x_bboxes x0 y0 x1 y1; x_conf c` → the box
+/// (top-left origin, like ours) and the confidence 0-100. Anything else: None.
+fn hocr_char(row: &str) -> Option<([u32; 4], f32)> {
+    if !row.contains("ocrx_cinfo") {
+        return None;
+    }
+    let after = |key: &str| row.split(key).nth(1);
+    let b: Vec<u32> = after("x_bboxes ")?.split(';').next()?.split_whitespace().map(|s| s.parse().ok()).collect::<Option<_>>()?;
+    let conf: f32 = after("x_conf ")?.split(|c: char| c == '\'' || c == '"' || c == ';').next()?.trim().parse().ok()?;
+    (b.len() == 4).then(|| ([b[0], b[1], b[2], b[3]], conf))
+}
+
+/// Turn the interleaved `tsv` + `makebox` (+ `hocr`, under a whitelist)
+/// output into an OcrResult.
 /// `height` is the image's, because box rows count y from the bottom.
 fn parse(out: &str, height: u32) -> OcrResult {
     let mut words: Vec<OcrWordRegion> = Vec::new();
     let mut text = String::new();
     let mut last_line: Option<(u32, u32, u32)> = None;
     let mut chars: Vec<OcrCharacterMatch> = Vec::new();
+    let mut hocr_chars: Vec<([u32; 4], f32)> = Vec::new();
 
     for row in out.lines() {
-        if row.contains('\t') {
+        if let Some(h) = hocr_char(row) {
+            hocr_chars.push(h);
+        } else if row.contains('\t') {
             // level page block par line word left top width height conf text
             let f: Vec<&str> = row.split('\t').collect();
             if f.len() < 12 || f[0] != "5" {
@@ -260,11 +295,34 @@ fn parse(out: &str, height: u32) -> OcrResult {
         }
     }
 
-    // A character takes the confidence of the word whose box holds its centre.
-    for c in &mut chars {
+    let inside = |c: &OcrCharacterMatch, w: &OcrWordRegion| {
         let (cx, cy) = (c.x + c.width / 2, c.y + c.height / 2);
-        if let Some(w) = words.iter().find(|w| cx >= w.x && cx <= w.x + w.width && cy >= w.y && cy <= w.y + w.height) {
-            c.confidence = w.confidence;
+        cx >= w.x && cx <= w.x + w.width && cy >= w.y && cy <= w.y + w.height
+    };
+    if hocr_chars.is_empty() {
+        // A character takes the confidence of the word whose box holds its centre.
+        for c in &mut chars {
+            if let Some(w) = words.iter().find(|w| inside(c, w)) {
+                c.confidence = w.confidence;
+            }
+        }
+    } else {
+        // Whitelisted: TSV's word confidence is a flat 0. Each character takes
+        // its own hOCR x_conf (same box; by position when the two lists are
+        // the same length and a box does not match), each word their mean.
+        let same_len = hocr_chars.len() == chars.len();
+        for (i, c) in chars.iter_mut().enumerate() {
+            let bx = [c.x, c.y, c.x + c.width, c.y + c.height];
+            let hit = hocr_chars.iter().find(|(b, _)| *b == bx).or_else(|| same_len.then(|| &hocr_chars[i]));
+            if let Some((_, conf)) = hit {
+                c.confidence = (conf / 100.0).clamp(0.0, 1.0);
+            }
+        }
+        for w in &mut words {
+            let mine: Vec<f32> = chars.iter().filter(|c| inside(c, w)).map(|c| c.confidence).collect();
+            if !mine.is_empty() {
+                w.confidence = mine.iter().sum::<f32>() / mine.len() as f32;
+            }
         }
     }
 
@@ -317,6 +375,33 @@ mod tests {
     }
 
     #[test]
+    fn whitelisted_confidence_comes_from_hocr_characters_not_the_flat_zero() {
+        // LOOSE-ocr-whitelist-confidence: Tesseract 5.3.0's own interleaved
+        // output for ioae.png at psm 8 under a capitals whitelist (trimmed).
+        let out = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n <body>\n\
+level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n\
+      <span class='ocrx_word' id='word_1_1' title='bbox 13 21 108 44; x_wconf 0'>\n\
+       <span class='ocrx_cinfo' title='x_bboxes 13 21 19 44; x_conf 53.12809'>I</span>\n\
+       <span class='ocrx_cinfo' title='x_bboxes 24 21 48 44; x_conf 66.104538'>O</span>\n\
+       <span class='ocrx_cinfo' title='x_bboxes 52 32 62 37; x_conf 98.083557'>-</span>\n\
+       <span class='ocrx_cinfo' title='x_bboxes 63 21 108 44; x_conf 98.965271'>A</span>\n\
+       <span class='ocrx_cinfo' title='x_bboxes 100 21 108 44; x_conf 75.387207'>E</span>\n\
+      </span>\n\
+I 13 16 19 39 0\nO 24 16 48 39 0\n- 52 23 62 28 0\nA 63 16 108 39 0\nE 100 16 108 39 0\n\
+5\t1\t1\t1\t1\t1\t13\t21\t95\t23\t0.000000\tIO-AE\n </body>\n</html>\n";
+        let r = parse(out, 60);
+        assert_eq!(r.extracted_text, "IO-AE");
+        assert_eq!(r.detected_characters.iter().map(|c| c.character).collect::<String>(), "IO-AE");
+        let confs: Vec<f32> = r.detected_characters.iter().map(|c| c.confidence).collect();
+        for (got, want) in confs.iter().zip([0.5312809, 0.66104538, 0.98083557, 0.98965271, 0.75387207]) {
+            assert!((got - want).abs() < 1e-5, "{confs:?}");
+        }
+        let mean = confs.iter().sum::<f32>() / 5.0;
+        assert!((r.word_regions[0].confidence - mean).abs() < 1e-5, "{:?}", r.word_regions);
+        assert!(r.word_regions[0].confidence > 0.7);
+    }
+
+    #[test]
     fn an_empty_answer_is_the_no_text_sentinel() {
         let r = parse("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n", 10);
         assert_eq!(r.extracted_text, NO_TEXT);
@@ -344,7 +429,7 @@ mod tests {
         assert_eq!(tesseract_args("eng", &OcrOptions::default()).join(" "), "stdin stdout -l eng --psm 3 tsv makebox");
         let code = OcrOptions { psm: Some(8), whitelist: Some("ABC -".into()) };
         let a = tesseract_args("eng", &code);
-        assert_eq!(a.join("|"), "stdin|stdout|-l|eng|--psm|8|-c|tessedit_char_whitelist=ABC -|tsv|makebox");
+        assert_eq!(a.join("|"), "stdin|stdout|-l|eng|--psm|8|-c|tessedit_char_whitelist=ABC -|-c|hocr_char_boxes=1|tsv|makebox|hocr");
     }
 
     #[test]
@@ -377,6 +462,9 @@ mod tests {
             let r = OcrEngine::process_image_opts(&img, &OcrOptions { psm: Some(psm), whitelist: Some(caps.into()) }).unwrap();
             assert_eq!(r.extracted_text, "IO-AE", "psm {psm}");
             assert_eq!(r.detected_characters.iter().map(|c| c.character).collect::<String>(), "IO-AE");
+            // LOOSE-ocr-whitelist-confidence: not Tesseract's flat 0.
+            assert!(r.word_regions[0].confidence > 0.3, "psm {psm}: {:?}", r.word_regions);
+            assert!(r.detected_characters.iter().all(|c| c.confidence > 0.3), "psm {psm}: {:?}", r.detected_characters);
         }
     }
 
