@@ -11,7 +11,7 @@ The members of this stage are listed in [`../suite.json`](../suite.json) (stage 
 `DATABASE.Machinist.Like.audio` → `APK:Softapps/DATABASE/DATABASE.Machinist.Like.audio`  
 `DATABASE.Microphones.Like.audio` → `APK:Softapps/DATABASE/DATABASE.Microphones.Like.audio`  
 `DATABASE.Schema` → `APK:Softapps/DATABASE/DATABASE.Schema`  
-`DATABASE.UCS-Taxonomy` → `APK:Softapps/DATABASE/DATABASE.UCS-Taxonomy`
+`DATATYPE.soundfx.UCS` → `APK:Softapps/DATATYPE/DATATYPE.soundfx.UCS` (the one UCS tile; DATABASE.UCS-Taxonomy is a pointer to it)
 
 ## Modules
 

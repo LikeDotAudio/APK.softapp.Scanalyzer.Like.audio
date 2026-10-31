@@ -97,9 +97,9 @@
         "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.Schema"
       },
       {
-        "id": "DATABASE.UCS-Taxonomy",
-        "portal": "APK:Softapps/DATABASE/DATABASE.UCS-Taxonomy",
-        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATABASE.UCS-Taxonomy"
+        "id": "DATATYPE.soundfx.UCS",
+        "portal": "APK:Softapps/DATATYPE/DATATYPE.soundfx.UCS",
+        "repository": "https://github.com/LikeDotAudio/APK.softapp.DATATYPE.soundfx.UCS"
       },
       {
         "id": "DATABASE.linuxCommands",
@@ -182,11 +182,6 @@
         "id": "VISUALIZER.Examiner",
         "portal": "APK:Softapps/VISUALIZER/VISUALIZER.Examiner",
         "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Examiner"
-      },
-      {
-        "id": "VISUALIZER.Simple-Data-Graphing",
-        "portal": "APK:Softapps/VISUALIZER/VISUALIZER.Simple-Data-Graphing",
-        "repository": "https://github.com/LikeDotAudio/APK.softapp.VISUALIZER.Simple-Data-Graphing"
       }
     ]
   }

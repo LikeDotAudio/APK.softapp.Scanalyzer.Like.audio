@@ -9,8 +9,6 @@ The members of this stage are listed in [`../suite.json`](../suite.json) (stage 
 `VISUALIZER.4D-FaceBall` → `APK:Softapps/VISUALIZER/VISUALIZER.4D-FaceBall`  
 `VISUALIZER.5D-MultiVector` → `APK:Softapps/VISUALIZER/VISUALIZER.5D-MultiVector`  
 `VISUALIZER.Examiner` → `APK:Softapps/VISUALIZER/VISUALIZER.Examiner`  
-`VISUALIZER.Simple-Data-Graphing` → `APK:Softapps/VISUALIZER/VISUALIZER.Simple-Data-Graphing`
-
 ## Modules
 
 | Module Name | Repository / Path | Description |
@@ -20,4 +18,3 @@ The members of this stage are listed in [`../suite.json`](../suite.json) (stage 
 | **`VISUALIZER.4D-FaceBall`** | `LikeDotAudio/APK.softapp.VISUALIZER.4D-FaceBall` | 4D spherical projection and faceball vector visualizer. |
 | **`VISUALIZER.5D-MultiVector`** | `LikeDotAudio/APK.softapp.VISUALIZER.5D-MultiVector` | 5D multi-vector tensor and high-dimensional audio descriptor visualizer. |
 | **`VISUALIZER.Examiner`** | `LikeDotAudio/APK.softapp.VISUALIZER.Examiner` | Deep item examination widget showing raw binary structure, tags, and sidecar inspection. |
-| **`VISUALIZER.Simple-Data-Graphing`** | `LikeDotAudio/APK.softapp.VISUALIZER.Simple-Data-Graphing` | Lightweight bar chart and data graphing faceplate component. |

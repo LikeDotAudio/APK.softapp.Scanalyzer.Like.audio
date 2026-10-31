@@ -612,7 +612,7 @@ the stock UCS 8.2.1 set plus the 13 `8.2.APK` instrument categories) carries an
 `acoustic_signature`: a `morphology`, a `separability` tier, hard `gates`, and
 weighted Gaussian `priors`. `build.rs` splices those files into the binary, so the
 scorer and the taxonomy can never drift apart. The grammar and the scoring math are
-specified in `Documentation/Specs/ucs_signature_spec.md`.
+specified in DATATYPE.soundfx.UCS `Documentation/🧩Manual and Artifacts/ucs_signature_spec.md`.
 
 ### UCS synonyms — searching by any word for the sound (`Web_Front/src/ucsSynonyms.ts`)
 
