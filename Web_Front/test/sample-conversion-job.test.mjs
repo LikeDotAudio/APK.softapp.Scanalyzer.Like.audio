@@ -14,7 +14,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 import {
   buildConversionJob, bytesToBase64, base64ToBytes, canConvert, conversionTopics,
-  readConversionResult, workerIsDown, refuseBeforeSending, requestConversion, sanitizeOptions,
+  readConversionResult, workerIsDown, buildUrlConversionJob, fileStorePaths, refuseBeforeSending, requestConversion, sanitizeOptions,
 } from '../src/sampleConversionJob.ts';
 
 test('only containers the worker reads are offered', () => {
@@ -133,4 +133,26 @@ test('live: a WAV sent to Worker-SAMPLE_CONVERSION comes back as FLAC', async (t
   } finally {
     client.end(true);
   }
+});
+
+test('the by-URL job (schema 2) carries file-store PATHS, never the audio', () => {
+  const job = buildUrlConversionJob('scanalyzer-x1', 'Loops/My Kick.wav', sanitizeOptions({ target_format: 'FLAC' }));
+  assert.equal(job.source_url, '/api/files/sample_conversion/scanalyzer-x1/My%20Kick.wav');
+  assert.equal(job.result_url, '/api/files/sample_conversion/scanalyzer-x1/My%20Kick.flac');
+  assert.equal(job.filename, 'My Kick.wav');
+  assert.equal(job.content_b64, undefined);
+  assert.equal(fileStorePaths('j', 'a.aif', 'WAV').result, '/api/files/sample_conversion/j/a.wav');
+});
+
+test('a schema 2 answer is read by its url; the inline answer still reads', () => {
+  const v2 = readConversionResult(JSON.stringify({ schema: 2, job_id: 'j', ok: true, result: { filename: 'a.flac', format: 'FLAC', bytes: 9, url: '/api/files/sample_conversion/j/a.flac' }, error: null, elapsed_ms: 5 }), 'j');
+  assert.equal(v2.ok, true);
+  assert.equal(v2.url, '/api/files/sample_conversion/j/a.flac');
+  assert.equal(v2.contentB64, '');
+  const v1 = readConversionResult(JSON.stringify({ job_id: 'j', ok: true, result: { filename: 'a.flac', format: 'FLAC', bytes: 3, content_b64: 'AAAA' } }), 'j');
+  assert.equal(v1.ok, true);
+  assert.equal(v1.contentB64, 'AAAA');
+  const refused = readConversionResult(JSON.stringify({ schema: 2, job_id: 'j', ok: false, result: null, error: 'source_url: 404' }), 'j');
+  assert.equal(refused.ok, false);
+  assert.match(refused.error, /404/);
 });

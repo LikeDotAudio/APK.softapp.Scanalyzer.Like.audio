@@ -149,8 +149,30 @@ export interface ConversionResult {
   filename: string;
   format: string;
   bytes: number;
+  /** The inline (schema 1) answer's bytes; '' on a by-URL answer. */
   contentB64: string;
+  /** The by-URL (schema 2) answer: where the converted file sits in the file store. */
+  url: string;
   elapsedMs: number | null;
+}
+
+/** Where a by-URL job's files live in Storage-Portal's file store (PROCESSOR.SampleConversion
+ *  schema 2). PATHS, not full URLs: the page resolves them against its own origin, the
+ *  worker against its in-network Storage-Portal, so both reach the same file. */
+export function fileStorePaths(jobId: string, filename: string, targetFormat: string) {
+  const leaf = filename.split(/[\\/]/).pop() || 'upload.wav';
+  const dot = leaf.lastIndexOf('.');
+  const stem = dot > 0 ? leaf.slice(0, dot) : leaf;
+  const ext = String(targetFormat).toUpperCase() === 'WAV' ? 'wav' : 'flac';
+  const base = `/api/files/sample_conversion/${encodeURIComponent(jobId)}`;
+  return { source: `${base}/${encodeURIComponent(leaf)}`, result: `${base}/${encodeURIComponent(stem + '.' + ext)}`, leaf };
+}
+
+/** The schema-2 job: the audio goes up by PUT to `source_url` first, never in the job. */
+export function buildUrlConversionJob(jobId: string, filename: string, options: ConversionOptions) {
+  const clean = sanitizeOptions(options);
+  const paths = fileStorePaths(jobId, filename, clean.target_format);
+  return { job_id: jobId, source_url: paths.source, result_url: paths.result, filename: paths.leaf, ...clean };
 }
 
 /** Read a payload off `incoming/result`. Null when it is not JSON or answers
@@ -160,14 +182,18 @@ export function readConversionResult(payload: string, jobId: string): Conversion
   try { doc = JSON.parse(payload); } catch { return null; }
   if (!doc || typeof doc !== 'object' || doc.job_id !== jobId) return null;
   const result = doc.result && typeof doc.result === 'object' ? doc.result : {};
-  const ok = doc.ok === true && typeof result.content_b64 === 'string';
+  // Schema 2 answers with `result.url`; the inline (schema 1) answer with `result.content_b64`.
+  const url = typeof result.url === 'string' && result.url ? result.url : '';
+  const inline = typeof result.content_b64 === 'string' ? result.content_b64 : '';
+  const ok = doc.ok === true && (url !== '' || inline !== '');
   return {
     ok,
     error: ok ? null : String(doc.error || 'the converter answered without a file'),
     filename: typeof result.filename === 'string' ? result.filename : '',
     format: typeof result.format === 'string' ? result.format : '',
     bytes: typeof result.bytes === 'number' ? result.bytes : 0,
-    contentB64: ok ? result.content_b64 : '',
+    contentB64: ok ? inline : '',
+    url: ok ? url : '',
     elapsedMs: typeof doc.elapsed_ms === 'number' ? doc.elapsed_ms : null,
   };
 }

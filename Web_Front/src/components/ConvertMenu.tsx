@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useIsNarrow } from '../useIsNarrow';
 import { convertSample } from '../sampleConversion';
 import {
-  base64ToBytes, canConvert, DEFAULT_OPTIONS, sanitizeOptions,
+  canConvert, DEFAULT_OPTIONS, sanitizeOptions,
   TARGET_BIT_DEPTHS, TARGET_CHANNELS, TARGET_FORMATS, TARGET_SAMPLE_RATES,
   type ConversionOptions,
 } from '../sampleConversionJob';
@@ -101,8 +101,8 @@ export default function ConvertMenu({ item, getAudio, buttonStyle }: ConvertMenu
       const result = await convertSample(file, sanitizeOptions(options), s => { if (current()) setStage(s); });
       if (!current()) return;
       if (!result.ok) throw new Error(`the converter refused it: ${result.error || 'no reason given'}`);
-      const bytes = base64ToBytes(result.contentB64);
-      const blob = new Blob([bytes.buffer as ArrayBuffer], { type: result.format === 'FLAC' ? 'audio/flac' : 'audio/wav' });
+      // By URL (schema 2) or inline (the one-release fallback): sampleConversion.ts hands back the file.
+      const blob = result.blob;
       setDone({ filename: result.filename, format: result.format, bytes: blob.size, elapsedMs: result.elapsedMs, url: URL.createObjectURL(blob) });
     } catch (err) {
       if (current()) setError(err instanceof Error ? err.message : String(err));
