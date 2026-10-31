@@ -111,7 +111,9 @@ export function toMono(buffer: AudioBuffer): Float32Array {
   return mono;
 }
 
-// Heuristic BPM from a mono signal (used when a loop has no ACID tempo tag):
+// Heuristic BPM from a mono signal (used when a loop has no ACID tempo tag).
+// NOT a pitch detector (that is /FrontEnd/shared/pitch-detect.js): this one
+// autocorrelates the onset envelope over 60–200 BPM lags, not the waveform.
 // autocorrelation of the onset-strength envelope (positive RMS increases).
 // Mirrors the Rust core's tempo estimator. Returns 0 when undecidable.
 export function estimateBpm(mono: Float32Array, sr: number): number {
