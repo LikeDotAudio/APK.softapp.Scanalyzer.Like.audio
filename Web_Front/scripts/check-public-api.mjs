@@ -63,10 +63,34 @@ function calledBasenames() {
     return called;
 }
 
+/**
+ * Includes, not endpoints: a .php under public/ that a published endpoint loads with
+ * `require __DIR__ . '/name.php'` AND that refuses a direct request (it compares
+ * SCRIPT_FILENAME with __FILE__ and answers 404). Both, or it counts as an endpoint:
+ * an unguarded include in the web root is served like any page.
+ */
+function guardedIncludes(endpoints) {
+    const required = new Set();
+    for (const rel of endpoints) {
+        const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+        for (const m of text.matchAll(/require(?:_once)?\s*\(?\s*__DIR__\s*\.\s*['"]\/([^'"]+\.php)['"]/g)) {
+            required.add(path.join(path.dirname(rel), m[1]));
+        }
+    }
+    return new Set([...required].filter(rel => {
+        try {
+            const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+            return /SCRIPT_FILENAME/.test(text) && /__FILE__/.test(text) && /http_response_code\(\s*404\s*\)/.test(text);
+        } catch { return false; }
+    }));
+}
+
 function survey() {
     required(PUBLIC, "Web_Front's public/ tree");
     required(SRC, "Web_Front's src/ tree");
-    const endpoints = publishedEndpoints(PUBLIC);
+    const all = publishedEndpoints(PUBLIC);
+    const includes = guardedIncludes(all);
+    const endpoints = all.filter(e => !includes.has(e));
     const called = calledBasenames();
     const uncalled = endpoints.filter(e => !called.has(path.basename(e)));
     return { endpoints, called, uncalled };

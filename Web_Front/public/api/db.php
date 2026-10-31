@@ -18,6 +18,17 @@
  *  crowd-filled). Whether to set it is the operator's call.
  */
 
+// AN INCLUDE, NOT AN ENDPOINT. It ships in public/ because its three callers
+// `require __DIR__ . '/db.php'` on every host they deploy to, so a direct request
+// must find nothing: no connection attempt, no CORS, no header. The public-api
+// gate (scripts/check-public-api.mjs) only exempts a required file that carries
+// this guard.
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === realpath(__FILE__)) {
+    http_response_code(404);
+    exit;
+}
+
+
 const SCAN_DEFAULT_ORIGINS = ['tauri://localhost', 'http://tauri.localhost', 'https://tauri.localhost'];
 
 function scan_headers(string $methods = 'GET'): void {
