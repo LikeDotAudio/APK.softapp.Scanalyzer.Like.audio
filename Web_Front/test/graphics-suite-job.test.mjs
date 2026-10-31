@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
-import { buildGraphicsJob, graphicsTopics, readGraphicsResult, requestGraphicsJob, GRAPHICS_OPS } from '../src/graphicsSuiteJob.ts';
+import { buildGraphicsJob, graphicsTopics, readGraphicsResult, requestGraphicsJob, GRAPHICS_OPS, ocrApiPath, MAX_WHITELIST_CHARS } from '../src/graphicsSuiteJob.ts';
 
 const MQTT_JS = new URL('../../../../../WEB.Frontend-Assets/SRC/FrontEnd/vendor/mqtt.min.js', import.meta.url);
 
@@ -23,6 +23,24 @@ test('a job names no path and carries a threshold only for vectorize', () => {
   assert.deepEqual(j, { job_id: 'j1', op: 'ocr', filename: 'page.png', content_b64: 'AAAA' });
   assert.equal(buildGraphicsJob('j2', 'vectorize', 'p.png', 'A', 99).threshold, 99);
   assert.equal(buildGraphicsJob('j3', 'vectorize', 'p.png', 'A', 300).threshold, undefined);
+});
+
+test('an ocr job can ask for a code-token reading: psm + whitelist (LOOSE-web-front-ocr-options)', () => {
+  const caps = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-';
+  assert.deepEqual(buildGraphicsJob('c1', 'ocr', 'label.png', 'AAAA', { psm: 8, whitelist: caps }),
+    { job_id: 'c1', op: 'ocr', filename: 'label.png', content_b64: 'AAAA', psm: 8, whitelist: caps });
+  // Options for the other op are not carried.
+  assert.deepEqual(buildGraphicsJob('c2', 'vectorize', 'p.png', 'A', { psm: 8, whitelist: caps, threshold: 40 }),
+    { job_id: 'c2', op: 'vectorize', filename: 'p.png', content_b64: 'A', threshold: 40 });
+  assert.equal(buildGraphicsJob('c3', 'ocr', 'p.png', 'A', { threshold: 40 }).threshold, undefined);
+  // Bad values are refused by name, not dropped into a page reading.
+  for (const [o, why] of [[{ psm: 14 }, 'psm'], [{ psm: 2.5 }, 'psm'], [{ whitelist: '' }, 'empty'],
+    [{ whitelist: 'A\nB' }, 'control'], [{ whitelist: 'A'.repeat(MAX_WHITELIST_CHARS + 1) }, 'longer']]) {
+    assert.throws(() => buildGraphicsJob('b', 'ocr', 'p.png', 'A', o), (e) => e instanceof RangeError && e.message.includes(why), why);
+  }
+  // The micro-API fallback takes the same two as a query.
+  assert.equal(ocrApiPath(), '/api/ocr');
+  assert.equal(ocrApiPath({ psm: 13, whitelist: 'AB -+' }), '/api/ocr?psm=13&whitelist=AB+-%2B');
 });
 
 test('only the answer to this job is read; a refusal carries its error', () => {

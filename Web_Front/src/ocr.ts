@@ -4,7 +4,7 @@ import { classifyImage, formatConfidence, type ImageClassification } from './ima
 import { convertImageToSVG } from './svgConverter';
 import { apiUrl } from './apiBase';
 import { escapeHTML } from './lib/html';
-import { viaBus } from './graphicsSuiteJob';
+import { viaBus, ocrApiPath, type OcrJobOptions } from './graphicsSuiteJob';
 import { connectedClient } from './busLink';
 
 let worker1: any = null; // Engine 1: PSM 11 Sparse Text
@@ -272,14 +272,17 @@ function renderOCRCanvas(
  * how many glyph-words it laid out, with no confidence, and is marked layoutOnly so it can
  * neither win an angle nor add pseudo-words to the vocabulary (Refusal over fabrication).
  */
-async function runEngine3Rust(_fileItem: FileItem, dataUrl: string): Promise<EngineResult> {
+async function runEngine3Rust(_fileItem: FileItem, dataUrl: string, ocrOptions?: OcrJobOptions): Promise<EngineResult> {
+  // Checked first and thrown, not caught below as "offline": a bad option is the caller's error.
+  const apiPath = ocrApiPath(ocrOptions);
   try {
     const blob = await (await fetch(dataUrl)).blob();
     const arrayBuf = await blob.arrayBuffer();
     // Worker-GRAPHICS_SUITE's `ocr` job when this page has a bus; the micro-API
     // only where it has none (graphicsSuiteJob.ts, SDK audit DS-02).
-    const viaWorker = await viaBus(connectedClient, 'ocr', _fileItem?.file?.name || 'image.png', arrayBuf);
-    const resp = viaWorker ? null : await fetch(apiUrl('/api/ocr'), {
+    // `ocrOptions` (psm + whitelist) ask both for a code-token reading.
+    const viaWorker = await viaBus(connectedClient, 'ocr', _fileItem?.file?.name || 'image.png', arrayBuf, undefined, ocrOptions);
+    const resp = viaWorker ? null : await fetch(apiUrl(apiPath), {
       method: 'POST',
       headers: { 'Content-Type': 'application/octet-stream' },
       body: arrayBuf
@@ -336,7 +339,9 @@ function parseTesseractResult(ret: any, engineName: string): MeasuredResult {
   };
 }
 
-export async function runOCR(fileItem: FileItem, container: HTMLElement): Promise<string> {
+/** `ocrOptions` go to Engine 3 (Worker-GRAPHICS_SUITE / the micro-API): e.g.
+ *  `{psm: 8, whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-'}` reads a code label. */
+export async function runOCR(fileItem: FileItem, container: HTMLElement, ocrOptions?: OcrJobOptions): Promise<string> {
   const angles = [0, 90, 180, 270];
 
   container.innerHTML = `
@@ -377,7 +382,7 @@ export async function runOCR(fileItem: FileItem, container: HTMLElement): Promis
       const [ret1, ret2, res3] = await Promise.all([
         worker1.recognize(dataUrl),
         worker2.recognize(dataUrl),
-        runEngine3Rust(fileItem, dataUrl)
+        runEngine3Rust(fileItem, dataUrl, ocrOptions)
       ]);
 
       const res1 = parseTesseractResult(ret1, '⚡ Engine 1 (Tesseract PSM 11 Sparse)');

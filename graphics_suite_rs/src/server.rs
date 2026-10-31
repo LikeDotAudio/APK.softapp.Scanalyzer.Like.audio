@@ -25,7 +25,7 @@ use std::sync::Arc;
 
 use crate::file_sorter::FileSorter;
 use crate::image_analyzer::ImageAnalyzer;
-use crate::ocr::OcrEngine;
+use crate::ocr::{OcrEngine, OcrOptions};
 use crate::photo_id::PhotoIdentifier;
 use crate::sorting::benchmark::BenchmarkSuite;
 use crate::vectorizer::VectorizerEngine;
@@ -120,9 +120,14 @@ pub fn start_server(
                         (500, r#"{"error": "Failed to index directory"}"#.to_string())
                     }
                 }
-                (Method::Post, "/api/ocr") => {
-                    if let Ok(img) = image::load_from_memory(&body) {
-                        match OcrEngine::process_image(&img) {
+                // `?psm=8&whitelist=…` asks for a code-token reading, as the
+                // worker's job fields do (LOOSE-web-front-ocr-options).
+                (Method::Post, u) if u == "/api/ocr" || u.starts_with("/api/ocr?") => {
+                    let opts = ocr_options_from_url(u).and_then(|o| o.validate().map(|_| o));
+                    if let Err(e) = opts {
+                        (400, serde_json::json!({ "error": e }).to_string())
+                    } else if let Ok(img) = image::load_from_memory(&body) {
+                        match OcrEngine::process_image_opts(&img, &opts.unwrap()) {
                             Ok(result) => (200, serde_json::to_string(&result).unwrap_or_default()),
                             Err(e) => (500, serde_json::json!({ "error": e }).to_string()),
                         }
@@ -333,6 +338,43 @@ except Exception as e:
     Ok(())
 }
 
+/// The OCR options in a `/api/ocr?psm=…&whitelist=…` query (URL-encoded, `+`
+/// a space, as URLSearchParams writes it). Absent = the page reading; an
+/// unknown key or a malformed value is an error, never ignored.
+fn ocr_options_from_url(url: &str) -> Result<OcrOptions, String> {
+    let mut opts = OcrOptions::default();
+    let Some((_, query)) = url.split_once('?') else { return Ok(opts) };
+    for pair in query.split('&').filter(|p| !p.is_empty()) {
+        let (k, v) = pair.split_once('=').unwrap_or((pair, ""));
+        let v = percent_decode(v)?;
+        match k {
+            "psm" => opts.psm = Some(v.parse().map_err(|_| format!("psm {v:?} is not a whole number 0-13"))?),
+            "whitelist" => opts.whitelist = Some(v),
+            _ => return Err(format!("/api/ocr takes psm and whitelist, not {k:?}")),
+        }
+    }
+    Ok(opts)
+}
+
+fn percent_decode(s: &str) -> Result<String, String> {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        match b[i] {
+            b'+' => out.push(b' '),
+            b'%' => {
+                let hex = s.get(i + 1..i + 3).and_then(|h| u8::from_str_radix(h, 16).ok());
+                out.push(hex.ok_or_else(|| format!("{s:?} has a bad %-escape"))?);
+                i += 2;
+            }
+            c => out.push(c),
+        }
+        i += 1;
+    }
+    String::from_utf8(out).map_err(|_| format!("{s:?} is not UTF-8"))
+}
+
 fn rust_base64_encode(data: &[u8]) -> String {
     const CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let mut out = String::new();
@@ -358,4 +400,19 @@ fn rust_base64_encode(data: &[u8]) -> String {
         i += 3;
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ocr_query_carries_psm_and_whitelist_and_refuses_strangers() {
+        assert_eq!(ocr_options_from_url("/api/ocr").unwrap(), OcrOptions::default());
+        let o = ocr_options_from_url("/api/ocr?psm=8&whitelist=ABC+-%2B%C3%89").unwrap();
+        assert_eq!(o, OcrOptions { psm: Some(8), whitelist: Some("ABC -+\u{c9}".into()) });
+        assert!(ocr_options_from_url("/api/ocr?psm=x").unwrap_err().contains("psm"));
+        assert!(ocr_options_from_url("/api/ocr?lang=deu").unwrap_err().contains("lang"));
+        assert!(ocr_options_from_url("/api/ocr?whitelist=%G1").unwrap_err().contains("escape"));
+    }
 }

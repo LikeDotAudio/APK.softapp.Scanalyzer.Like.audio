@@ -5,7 +5,8 @@
  * graphics_suite_rs/SRC, pod POD.workers) instead of private HTTP routes (SDK
  * audit DS-02).
  *
- *   outgoing/job     {"job_id", "op": "ocr" | "vectorize", "filename", "content_b64"[, "threshold"]}
+ *   outgoing/job     {"job_id", "op": "ocr" | "vectorize", "filename", "content_b64"[, "threshold"]
+ *                    | ocr only: [, "psm", "whitelist"]}
  *   incoming/result  {"job_id", "ok", "result", "error"}   (result = what /api/ocr and
  *                    /api/to-svg answered: `extracted_text`…, `svg_xml`/`path_count`)
  *
@@ -32,10 +33,56 @@ export function graphicsTopics(token: string = GRAPHICS_TOKEN) {
   return { job: leaf('outgoing', 'job'), result: leaf('incoming', 'result') };
 }
 
-export function buildGraphicsJob(jobId: string, op: GraphicsOp, filename: string, contentB64: string, threshold?: number) {
+/** An OCR job's reading options (graphics_suite_rs/src/ocr.rs `OcrOptions`,
+ *  LOOSE-web-front-ocr-options): `psm` is Tesseract's page segmentation mode
+ *  (8 one word, 13 raw line for a lone label) and `whitelist` the only
+ *  characters it may answer. Together they read a code token like "IO-AE",
+ *  which the page reading answers "10-AE". Absent = the page reading. */
+export interface OcrJobOptions { psm?: number; whitelist?: string }
+/** The worker's limit (ocr.rs `MAX_WHITELIST_CHARS`). Wire constant. */
+export const MAX_WHITELIST_CHARS = 512;
+
+/** The checked OCR fields, or a thrown RangeError naming the bad one: the
+ *  worker would refuse them anyway, and quietly dropping one would answer a
+ *  reading the caller did not ask for. */
+export function ocrJobFields(opts: OcrJobOptions = {}): { psm?: number; whitelist?: string } {
+  const out: { psm?: number; whitelist?: string } = {};
+  if (opts.psm !== undefined) {
+    if (!Number.isInteger(opts.psm) || opts.psm < 0 || opts.psm > 13) throw new RangeError(`psm ${opts.psm} is not a Tesseract page segmentation mode (0-13)`);
+    out.psm = opts.psm;
+  }
+  if (opts.whitelist !== undefined) {
+    const w = opts.whitelist;
+    if (typeof w !== 'string' || w.length === 0) throw new RangeError('whitelist is empty: it would allow no character at all (leave it out for any)');
+    if ([...w].length > MAX_WHITELIST_CHARS) throw new RangeError(`whitelist is longer than ${MAX_WHITELIST_CHARS} characters`);
+    if (/\p{Cc}/u.test(w)) throw new RangeError('whitelist holds a control character');
+    out.whitelist = w;
+  }
+  return out;
+}
+
+/** `threshold` (vectorize, 0-255) as a bare number, as before, or an options
+ *  object: `{threshold}` for vectorize, `{psm, whitelist}` for ocr. */
+export type GraphicsJobOptions = number | ({ threshold?: number } & OcrJobOptions);
+
+export function buildGraphicsJob(jobId: string, op: GraphicsOp, filename: string, contentB64: string, options?: GraphicsJobOptions) {
   const job: Record<string, unknown> = { job_id: jobId, op, filename: filename.split(/[\\/]/).pop() || 'image.png', content_b64: contentB64 };
+  const o = typeof options === 'number' ? { threshold: options } : (options ?? {});
+  const threshold = o.threshold;
   if (op === 'vectorize' && Number.isInteger(threshold) && (threshold as number) >= 0 && (threshold as number) <= 255) job.threshold = threshold;
+  if (op === 'ocr') Object.assign(job, ocrJobFields(o));
   return job as { job_id: string };
+}
+
+/** The micro-API's `/api/ocr` URL path for the same options (`?psm=…&whitelist=…`,
+ *  graphics_suite_rs/src/server.rs), for the page with no bus. */
+export function ocrApiPath(opts: OcrJobOptions = {}): string {
+  const f = ocrJobFields(opts);
+  const q = new URLSearchParams();
+  if (f.psm !== undefined) q.set('psm', String(f.psm));
+  if (f.whitelist !== undefined) q.set('whitelist', f.whitelist);
+  const s = q.toString();
+  return s ? `/api/ocr?${s}` : '/api/ocr';
 }
 
 /** The `result` of the answer to `jobId`, `{error}` for a refusal, or null when
@@ -82,11 +129,14 @@ export function requestGraphicsJob(client: BusClientLike, job: { job_id: string 
  *  worker does not answer), so the caller can fall back to the micro-API. */
 export async function viaBus(
   connect: () => Promise<BusClientLike>, op: GraphicsOp, filename: string, bytes: ArrayBuffer, timeoutMs = 15_000,
+  options?: GraphicsJobOptions,
 ): Promise<any | null> {
+  // Bad options are the caller's error, not a reason to try the micro-API.
+  const job = buildGraphicsJob(newJobId(), op, filename, bytesToBase64(new Uint8Array(bytes)), options);
   let client: BusClientLike;
   try { client = await connect(); } catch { return null; }
   try {
-    return await requestGraphicsJob(client, buildGraphicsJob(newJobId(), op, filename, bytesToBase64(new Uint8Array(bytes))), timeoutMs);
+    return await requestGraphicsJob(client, job, timeoutMs);
   } catch (err) {
     console.warn(`graphics_suite ${op} over the bus failed; using the micro-API`, err);
     return null;
