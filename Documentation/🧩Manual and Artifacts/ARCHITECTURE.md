@@ -32,7 +32,11 @@ Web_Front/
   src/sampleConversion.ts, sampleConversionJob.ts   its MQTT client; its job/result rules (tested)
   src/spaceMouse.ts       SpaceMouse puck frames, sense/stall rules (CloudTab, SampleCloud)
   src/ucsIndex.ts, categoryEmoji.ts, ucsSynonyms*.ts   UCS mirrors (generated tables)
-  src/shell/              legacy vanilla-DOM shell; nothing loads it (kept for porting)
+  (no OCR here)           the legacy vanilla-DOM shell (src/shell/) and the modules only it
+                          reached — browser OCR (tesseract.js), vectorize, image/document
+                          analysers, the Worker-GRAPHICS_SUITE client — were deleted
+                          2026-11-01; nothing loaded them. OCR lives in SPOG's ⌕ OCR panel
+                          (WEB.SPOG, self-hosted Tesseract, ROAD-3475)
   src-tauri/src/lib.rs    desktop commands (Tauri v2)
   wasm_analyzer/, wasm_extractor/   wasm-bindgen wrappers; committed pkg/ for builds without Rust
   public/api/             db_status.php, get_peaks.php, upload_peak.php — served
@@ -123,7 +127,7 @@ re-analysed; `--force` ignores every sidecar.
 
 ## Since the 2026-10-30 audit
 - Crates: `extractor_engine` and `oa-sample-analyzer` by git rev; `Web_Front/.cargo/config.toml` (local, excluded) patches them to `../../../CAPTURE/CAPTURE.Extractor-Engine` and `../../../PROCESSOR/PROCESSOR.SampleAnalyzer/SRC/core`.
-- Bus: `src/busLink.ts` (one link via `window.APKBus`), `src/sampleConversionJob.ts` and `src/graphicsSuiteJob.ts` (jobs; topics from `src/vendor/apk-contracts/apk-contracts.mjs`). An `ocr` job (and the micro-API fallback, `POST /api/ocr?psm=…&whitelist=…`) carries `OcrJobOptions` `{psm, whitelist}` for a code-token reading; `runOCR(…, ocrOptions)` hands them to Engine 3. Engine 3 is the worker's Tesseract CLI: `readingFromOcrResult` keeps its words, boxes and mean word confidence (0-100), so it competes with the two tesseract.js engines for each angle and grows the vocabulary; unreachable or empty, its confidence is null and it does neither.
+- Bus: `src/busLink.ts` (one link via `window.APKBus`) and `src/sampleConversionJob.ts` (jobs; topics from `src/vendor/apk-contracts/apk-contracts.mjs`). Web_Front sends no `ocr` / `vectorize` job since 2026-11-01: `src/graphicsSuiteJob.ts` and its three-engine OCR went with the legacy shell; Worker-GRAPHICS_SUITE still answers them for other callers.
 - Corpus API: `public/api/db.php` (connection, CORS, upload token), `upload_columns.json` (served by `upload_peak.php?columns`).
 - Suite: `SUITE/suite.json`; stage folders hold only their README.
 - Build: `Docker/dist.Dockerfile` → stage `dist`; `Docker/check.sh` is the one check.

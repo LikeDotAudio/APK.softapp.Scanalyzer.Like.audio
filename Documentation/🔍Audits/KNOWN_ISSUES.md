@@ -13,7 +13,8 @@ Tracked: WASM linear memory heap growth when scanning sound libraries exceeding 
   shell's absorbed modules import (`pdfjs-dist`, `jszip`, `exifreader`, `tesseract.js`) are
   declared, and the type-only imports say so. `npm run build` (tsc + vite) passes; the
   parent deploy still runs `vite build` alone, and the root `scanalyzer.yml` runs tsc,
-  `npm test`, the gates and `cargo test` beside it.
+  `npm test`, the gates and `cargo test` beside it. (2026-11-01: the legacy shell and those
+  four packages are gone; OCR lives in SPOG's ⌕ OCR panel.)
 - ~~13 of 44 `npm test` cases fail~~ — fixed 2026-10-30. The tests were right: when the
   monorepo's `APK:Softapps/SCAN` copy became this submodule (4e8604b54), the helper modules
   (`spaceMouse.ts`, `percentFill.ts`, `Pct.tsx`, `percent-fill.css`) came across but the

@@ -15,8 +15,7 @@
   "app": "APK:Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/index.html",
   "requires": {
     "plugins": [
-      "sample_conversion",
-      "graphics_suite"
+      "sample_conversion"
     ],
     "services": [
       "osapi",

@@ -60,7 +60,7 @@ exact same UI run whether you launch the native app or open the web page:
 ```
 SCANALYZER.Like.audio/              (this repo — the application)
 ├── Web_Front/                      THE APP (React + Vite; Tauri on the desktop)
-│   ├── src/                        UI: tabs, shell, UCS index/colours/emoji, synonym library
+│   ├── src/                        UI: tabs, UCS index/colours/emoji, synonym library (no OCR: SPOG's ⌕ OCR panel)
 │   ├── src-tauri/                  desktop shell (Tauri v2) — links the core natively
 │   ├── wasm_analyzer/              the core compiled to WebAssembly (wasm-bindgen wrapper)
 │   ├── wasm_extractor/             the extractor engine compiled to WebAssembly
@@ -71,7 +71,7 @@ SCANALYZER.Like.audio/              (this repo — the application)
 │                                   dist.Dockerfile — THE recipe for Web_Front/dist (final stage `dist`)
 ├── SUITE/suite.json                      the suite as data: every Scanalyzer softapp by stage, portal path, repository
 ├── folder_scanner_rs/, graphics_suite_rs/, PROCESSORS.sidecar_tools/  Folder-ScanAnalyzer stages 1–3
-│   └── graphics_suite_rs/SRC + Docker/   Worker-GRAPHICS_SUITE: its OCR and SVG tracer as jobs on the bus (POD.workers)
+│   └── graphics_suite_rs/SRC + Docker/   Worker-GRAPHICS_SUITE: its OCR and SVG tracer as jobs on the bus (POD.workers; Web_Front no longer calls it)
 ├── 01_CAPTURES … 08_VISUALIZERS/   one README per stage, describing the members SUITE/suite.json lists
 ├── (Docker/check.sh)               the one check (npm test, tsc -b, oxlint, cargo test ×4, php -l)
 ├── SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
