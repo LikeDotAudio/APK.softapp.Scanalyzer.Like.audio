@@ -1,0 +1,413 @@
+.song-tab-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  gap: 1.25rem;
+  background-color: var(--bg-main, #0b0e14);
+  color: var(--text-primary, #f8fafc);
+  font-family: var(--font-body, inherit);
+}
+
+.song-header-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+}
+
+.song-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.song-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.song-glyph {
+  font-size: 1.5rem;
+}
+
+.song-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.song-sub {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.song-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.song-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 4px;
+  min-width: 80px;
+}
+
+.song-badge.highlight {
+  border-color: var(--apk-accent);
+  background: rgba(var(--apk-accent-rgb), 0.1);
+}
+
+.song-badge-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #64748b);
+}
+
+.song-badge-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary, #fff);
+  font-family: monospace;
+}
+
+.song-badge.highlight .song-badge-val {
+  color: var(--apk-accent);
+}
+
+.song-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.song-drop-zone {
+  flex: 1;
+  min-width: 260px;
+  border: 1px dashed var(--border-color, rgba(255, 255, 255, 0.15));
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.song-drop-zone:hover {
+  border-color: var(--apk-accent);
+  background: rgba(var(--apk-accent-rgb), 0.05);
+}
+
+.song-drop-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.song-drop-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+}
+
+.song-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.song-action-btn:hover:not(:disabled) {
+  border-color: var(--apk-accent);
+  background: rgba(var(--apk-accent-rgb), 0.15);
+}
+
+.song-action-btn.primary {
+  background: var(--apk-accent);
+  color: #000;
+  border-color: var(--apk-accent);
+  font-weight: 700;
+}
+
+.song-action-btn.primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.song-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.song-transport-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+}
+
+.song-transport-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.song-scrubber-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.song-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.song-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  cursor: pointer;
+}
+
+.song-progress-banner {
+  padding: 0.5rem 1rem;
+  background: rgba(var(--apk-accent-rgb), 0.15);
+  border: 1px solid var(--apk-accent);
+  color: var(--apk-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.song-sections-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+}
+
+.song-card-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.song-sections-track {
+  display: flex;
+  height: 52px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+}
+
+.song-section-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.2rem;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.song-section-block:last-child {
+  border-right: none;
+}
+
+.song-section-block:hover {
+  filter: brightness(1.3);
+}
+
+.song-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.song-section-key {
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.song-section-energy-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.song-chroma-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+}
+
+.song-chroma-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  height: 120px;
+  align-items: flex-end;
+}
+
+.song-chroma-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.song-chroma-bar-track {
+  flex: 1;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 2px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.song-chroma-bar-fill {
+  width: 100%;
+  background: var(--apk-accent);
+  transition: height 0.2s ease-out;
+}
+
+.song-chroma-bar-fill.root {
+  background: #10b981;
+}
+
+.song-chroma-label {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.song-chroma-label.root {
+  color: #10b981;
+}
+
+.song-assay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.song-table-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.song-metric-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.song-metric-table th {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #64748b);
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}
+
+.song-metric-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.song-metric-name {
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+}
+
+.song-metric-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+}
+
+.song-metric-val {
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--apk-accent);
+  text-align: right;
+}
+
+.song-export-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+}

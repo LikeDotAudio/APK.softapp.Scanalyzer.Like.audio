@@ -19,6 +19,7 @@ import ExtractorTabRaw from './components/ExtractorTab'
 import RenameTabRaw from './components/RenameTab'
 import FaceBallTabRaw from './components/FaceBallTab/FaceBallTab'
 import DevicesTabRaw from './components/DevicesTab'
+import SongTabRaw from './components/SongTab'
 import ScopeBar from './components/ScopeBar'
 import { matchesScope } from './groupColors'
 import { altCategory, altSubcategory } from './ucsIndex'
@@ -34,8 +35,9 @@ const ExtractorTab = lazy(async () => ({ default: ExtractorTabRaw }))
 const RenameTab = lazy(async () => ({ default: RenameTabRaw }))
 const FaceBallTab = lazy(async () => ({ default: FaceBallTabRaw }))
 const DevicesTab = lazy(async () => ({ default: DevicesTabRaw }))
+const SongTab = lazy(async () => ({ default: SongTabRaw }))
 
-const TAB_IDS = ['scanalyze', 'devices', 'cloud', 'faceball', 'stats', 'groups', 'examiner', 'favorites', 'extractor', 'rename'] as const;
+const TAB_IDS = ['scanalyze', 'song', 'devices', 'cloud', 'faceball', 'stats', 'groups', 'examiner', 'favorites', 'extractor', 'rename'] as const;
 
 function tabFromHash(): string {
   const h = window.location.hash.replace(/^#\/?/, '');
@@ -281,7 +283,7 @@ function App() {
   const tabTransportRef = useRef<{ play: () => void; dig: () => void } | null>(null)
   const [tabPlaying, setTabPlaying] = useState(false)
   const [tabDigging, setTabDigging] = useState(false)
-  const tabOwnsAudio = activeTab === 'examiner' || activeTab === 'extractor' || activeTab === 'favorites'
+  const tabOwnsAudio = activeTab === 'examiner' || activeTab === 'extractor' || activeTab === 'favorites' || activeTab === 'song'
 
   // Keep the active tab in sync with the URL hash (linkable / back-forward).
   useEffect(() => {
@@ -770,6 +772,7 @@ function App() {
 
   const tabs = [
     { id: 'scanalyze', label: 'SCANALYZE' },
+    { id: 'song', label: 'SONG' },
     // Beside SCANALYZE rather than among the views: both are the act of finding
     // things — one over a folder, one over the network — and the rest of the
     // strip reads what was found.
@@ -913,6 +916,14 @@ function App() {
         </div>
 
         <Suspense fallback={<div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>Loading tab...</div>}>
+          {activeTab === 'song' && (
+            <SongTab
+              selectedItem={footerItem}
+              audioFiles={audioFiles}
+              onSound={selectSound}
+              analysisResult={analysisResult}
+            />
+          )}
           {activeTab === 'stats' && <StatsTab analysisResult={analysisResult} filteredData={filteredData} audioFiles={audioFiles} onSound={selectSound} selectedItem={footerItem} />}
           {activeTab === 'devices' && <DevicesTab />}
           {activeTab === 'groups' && <GroupsTab filteredData={filteredData} />}

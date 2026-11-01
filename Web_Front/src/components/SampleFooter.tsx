@@ -8,7 +8,7 @@ import ConvertMenu from './ConvertMenu';
 // only shows the controls it actually has. Layout is three groups: file actions (left),
 // transport centred between flex spacers, push-to-tab (right). (The name / length / category
 // readout lives in the header.)
-export type FooterTab = 'extractor' | 'examiner' | 'stats' | 'cloud' | 'favorites';
+export type FooterTab = 'extractor' | 'examiner' | 'stats' | 'cloud' | 'favorites' | 'song';
 
 interface SampleFooterProps {
   item: any | null;
@@ -49,7 +49,7 @@ interface SampleFooterProps {
 const TAB_LABEL: Record<FooterTab, { icon: string; text: string }> = {
   extractor: { icon: '✂', text: 'Extract' }, examiner: { icon: '🔍', text: 'Examine' },
   stats: { icon: '📊', text: '2D' }, cloud: { icon: '🌐', text: '3D' },
-  favorites: { icon: '★', text: 'Favorites' },
+  favorites: { icon: '★', text: 'Favorites' }, song: { icon: '🎵', text: 'Song' },
 };
 
 export default function SampleFooter({
