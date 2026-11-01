@@ -145,7 +145,7 @@ function inspectSchematic(
 
   containerOutput.querySelector('#runSchematicOCRBtn')?.addEventListener('click', async () => {
     if (actionContainer) {
-      await runOCR(fileItem, actionContainer);
+      await runOCR(fileItem, actionContainer).catch(() => { /* runOCR drew the error in the panel */ });
     }
   });
 

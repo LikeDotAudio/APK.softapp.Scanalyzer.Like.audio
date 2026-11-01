@@ -58,6 +58,7 @@ COPY --from=wasm ["/src/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/wasm_an
 COPY --from=wasm ["/src/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/wasm_extractor/pkg", "wasm_extractor/pkg"]
 RUN npm ci --no-audit --no-fund
 COPY ["SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/index.html", "SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/manifest.webmanifest", "SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/vite.config.ts", "SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/tsconfig.json", "SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/tsconfig.app.json", "SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/tsconfig.node.json", "./"]
+COPY ["SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/scripts/ocr-assets.mjs", "scripts/"]
 COPY ["SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/public", "public"]
 COPY ["SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/src", "src"]
 # No tsc gate here, as the root ci.yml decided: a type error is not a reason to

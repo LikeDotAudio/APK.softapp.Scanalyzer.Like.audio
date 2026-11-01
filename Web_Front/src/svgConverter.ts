@@ -169,7 +169,7 @@ function renderSVGDataUI(container: HTMLElement, fileItem: FileItem, svgXml: str
     const ocrOutput = document.getElementById('ocrOutput') as HTMLElement;
     if (ocrOutput) {
       switchTab('ocrTab');
-      await runOCR(fileItem, ocrOutput);
+      await runOCR(fileItem, ocrOutput).catch(() => { /* runOCR drew the error in the panel */ });
     }
   });
 

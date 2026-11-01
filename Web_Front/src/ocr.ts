@@ -1,4 +1,4 @@
-import { createWorker } from 'tesseract.js';
+import type { Worker as TessWorker } from 'tesseract.js';
 import type { FileItem } from './types';
 import { classifyImage, formatConfidence, type ImageClassification } from './imageClassifier';
 import { convertImageToSVG } from './svgConverter';
@@ -6,24 +6,24 @@ import { apiUrl } from './apiBase';
 import { escapeHTML } from './lib/html';
 import { viaBus, ocrApiPath, readingFromOcrResult, type OcrJobOptions } from './graphicsSuiteJob';
 import { connectedClient } from './busLink';
+import { createOcrWorker } from './ocrEngine';
 
-let worker1: any = null; // Engine 1: PSM 11 Sparse Text
-let worker2: any = null; // Engine 2: PSM 3 Auto Block Text
+// Engines 1 and 2 run on this bundle's own Tesseract files (ocrEngine.ts, ROAD-3482):
+// nothing is fetched from a CDN. A worker that fails to start is not kept, so the
+// next run tries again, and the failure reaches runOCR's error panel.
+let worker1: TessWorker | null = null; // Engine 1: PSM 11 Sparse Text
+let worker2: TessWorker | null = null; // Engine 2: PSM 3 Auto Block Text
 
 async function getParallelWorkers() {
-  if (!worker1) {
-    worker1 = await createWorker('eng');
-    try {
-      await worker1.setParameters({ tessedit_pageseg_mode: '11' });
-    } catch {}
-  }
-  if (!worker2) {
-    worker2 = await createWorker('eng');
-    try {
-      await worker2.setParameters({ tessedit_pageseg_mode: '3' });
-    } catch {}
-  }
-  return { worker1, worker2 };
+  const [s1, s2] = await Promise.allSettled([
+    worker1 ?? createOcrWorker('11'),
+    worker2 ?? createOcrWorker('3'),
+  ]);
+  if (s1.status === 'fulfilled') worker1 = s1.value;
+  if (s2.status === 'fulfilled') worker2 = s2.value;
+  if (s1.status === 'rejected') throw s1.reason;
+  if (s2.status === 'rejected') throw s2.reason;
+  return { worker1: s1.value, worker2: s2.value };
 }
 
 interface TextLine {
@@ -459,15 +459,17 @@ export async function runOCR(fileItem: FileItem, container: HTMLElement, ocrOpti
 
     return bestResult.text;
   } catch (err) {
+    // An engine that failed is a failure, never "no text": the panel says so and
+    // the caller gets the error, not an empty reading.
     console.error("Multi-rotation OCR Error:", err);
     container.innerHTML = `
       <div class="inspector-detail">
         <div class="empty-state" style="color: #f87171;">
-          ❌ OCR Scan Error: ${(err as Error).message}
+          ❌ OCR Scan Error: ${escapeHTML(err instanceof Error ? err.message : String(err))}
         </div>
       </div>
     `;
-    return '';
+    throw err;
   }
 }
 
