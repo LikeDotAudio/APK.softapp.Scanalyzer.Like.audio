@@ -235,12 +235,15 @@ pub fn run_job_agent(host: &str, port: u16) {
                 let _ = client.try_subscribe(job_topic.clone(), QoS::AtLeastOnce);
             }
             Ok(Event::Incoming(Packet::Publish(p))) if p.topic == job_topic => {
+                // One job taken off outgoing/job and run: this worker's packet (ROAD-3472).
+                apk_plugin_runner::loopback::packet_received();
                 let answer = handle_job(&p.payload, limits);
                 println!(
                     "🧰 [{MODULE}] job {} op={} → ok={} ({} ms) {}",
                     answer["job_id"], answer["op"], answer["ok"], answer["elapsed_ms"], answer["error"]
                 );
-                let _ = client.try_publish(result_topic.clone(), QoS::AtLeastOnce, retain, answer.to_string());
+                // Counted, never `let _ =` (ROAD-3472): a refused publish is a failure on /telemetry.
+                apk_plugin_runner::loopback::published(client.try_publish(result_topic.clone(), QoS::AtLeastOnce, retain, answer.to_string()).is_ok());
             }
             Ok(_) => {}
             Err(e) => {
@@ -254,6 +257,19 @@ pub fn run_job_agent(host: &str, port: u16) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The manifest the binary compiles in parses, declares the loopback port
+    /// and lists every key of config.ini's [graphics_suite] that code reads (ROAD-3472).
+    #[test]
+    fn the_compiled_in_manifest_parses_and_reads_every_config_key() {
+        let manifest = apkaudio_contracts::embedded_manifest!().expect("agent.toml parses");
+        assert_eq!(manifest.name, MODULE);
+        assert_eq!(manifest.kind, "worker");
+        assert_eq!(manifest.telemetry_port, 8231);
+        let config = apk_plugin_runner::ini_to_json(CONFIG_INI);
+        let keys: Vec<&str> = config[MODULE].as_object().unwrap().keys().map(String::as_str).collect();
+        assert_eq!(manifest.unread_config_keys(keys), Some(0), "a [graphics_suite] key nothing reads");
+    }
 
     const LIMITS: Limits = Limits { max_job_bytes: 1 << 22, max_side_px: 4096, max_result_bytes: 1 << 22 };
 

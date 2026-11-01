@@ -1,0 +1,29 @@
+# Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+# MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+#
+# WHAT THIS AGENT IS, compiled into apk-worker-graphics-suite by
+# `manifest = "agent.toml"` in src/bin/apk-worker-graphics-suite.rs
+# (apkaudio_contracts::embedded_manifest!, ROAD-3472). Not read at run time:
+# the image carries the binary, not this file.
+
+[agent]
+name = "graphics_suite"
+kind = "worker"
+title = "Graphics suite (OCR and raster to SVG)"
+status = "live"
+summary = "Answers outgoing/job with incoming/result: runs OCR or raster-to-SVG vectorization on one image posted as a job, under the job's own job_id."
+
+[telemetry]
+# GET /status and GET /telemetry on 127.0.0.1:8231 — `running` until the first
+# job is taken, `serving` after (a packet is one job taken off outgoing/job and
+# run). The container is bridge-networked, so NODE.BareMetal reads the same
+# counters off the incoming/telemetry tick. APK_TELEMETRY_PORT moves it; 0
+# turns it off.
+port = 8231
+
+[config]
+# Every key of config.ini's [graphics_suite] that code reads: raise and enabled
+# by apk-plugin-runner (module_raise, module_enabled), the three ceilings by
+# src/lib.rs Limits::from_ini. A key added there and not here is counted in
+# `unread_config_keys`.
+reads = ["raise", "enabled", "max_job_bytes", "max_side_px", "max_result_bytes"]
