@@ -1,6 +1,6 @@
 [package]
 name = "wasm_extractor"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2021"
 description = "WASM wrapper for the Extractor cutting engine — region detection, slicing/fades, WAV export, and per-chunk UCS analysis. Mirrors the native path so web and desktop cut identically."
 

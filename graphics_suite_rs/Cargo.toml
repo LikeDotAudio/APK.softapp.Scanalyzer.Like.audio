@@ -1,6 +1,6 @@
 [package]
 name = "apkaudio-graphics-suite"
-version = "0.1.0"
+version = "2.0.0"
 edition = "2021"
 description = "Per-file graphics analysis: OCR, image metrics, vectorization, photo id, format plugins, and the micro-API that serves them"
 

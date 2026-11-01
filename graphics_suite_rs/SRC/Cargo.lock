@@ -87,7 +87,7 @@ dependencies = [
 
 [[package]]
 name = "apk-worker-graphics-suite"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "apk-plugin-runner",
  "apkaudio-contracts",
@@ -109,7 +109,7 @@ dependencies = [
 
 [[package]]
 name = "apkaudio-graphics-suite"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "clap",
  "image",
