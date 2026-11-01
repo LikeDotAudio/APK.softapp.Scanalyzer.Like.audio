@@ -10,6 +10,9 @@ import {
   dbTxt,
   hzTxt
 } from './songAssay';
+import SongWaveform from './SongWaveform';
+import SongLyrics from './SongLyrics';
+import { extractLyricsFromAudioBuffer, type ExtractedLyrics } from './lyricsExtractor';
 import './SongTab.css';
 
 interface SongTabProps {
@@ -33,6 +36,7 @@ export default function SongTab({
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [lyrics, setLyrics] = useState<ExtractedLyrics | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -98,6 +102,11 @@ export default function SongTab({
 
       const resp = await fetch(url);
       const arrayBuf = await resp.arrayBuffer();
+
+      // Extract embedded lyrics from tags if present
+      const foundLyrics = extractLyricsFromAudioBuffer(arrayBuf);
+      setLyrics(foundLyrics);
+
       const audioBuf = await decodeBuffer(arrayBuf);
       const name = selectedItem.name || selectedItem.metadata?.name || 'Selected Song';
       startAnalysis(audioBuf, name);
@@ -116,6 +125,11 @@ export default function SongTab({
       setAudioUrl(url);
 
       const arrayBuf = await file.arrayBuffer();
+
+      // Extract embedded lyrics from tags if present
+      const foundLyrics = extractLyricsFromAudioBuffer(arrayBuf);
+      setLyrics(foundLyrics);
+
       const audioBuf = await decodeBuffer(arrayBuf);
       startAnalysis(audioBuf, file.name);
     } catch (err) {
@@ -154,6 +168,17 @@ export default function SongTab({
         R[i] = val * 0.95; // Slight stereo spread
       }
 
+      setLyrics({
+        source: 'user-loaded',
+        isSynchronized: true,
+        lines: [
+          { time: 0.0, text: '[Intro] F# Major groove initiates' },
+          { time: 2.0, text: 'Hear the pulse, feel the rhythm rise' },
+          { time: 4.0, text: 'Superstition in the synthesizer chords' },
+          { time: 6.0, text: 'Harmonic changes flowing over top' }
+        ],
+        rawText: 'Hear the pulse, feel the rhythm rise\nSuperstition in the synthesizer chords\nHarmonic changes flowing over top'
+      });
       startAnalysis(audioBuf, 'F# Major Synthesized Song Demo');
     } catch (err) {
       console.error('[SongTab] Failed to generate demo song:', err);
@@ -394,7 +419,19 @@ export default function SongTab({
         </div>
       )}
 
-      {/* Audio Playback Scrubber */}
+      {/* Audio Waveform with Overlaid Section Changes & Key Shifts */}
+      {result && result.waveformPeaks && (
+        <SongWaveform
+          waveformPeaks={result.waveformPeaks}
+          waveformMins={result.waveformMins}
+          sections={result.sections}
+          duration={duration || result.dur}
+          currentTime={currentTime}
+          onSeek={seekAudio}
+        />
+      )}
+
+      {/* Audio Playback Transport Bar */}
       {audioUrl && (
         <div className="song-transport-card">
           <div className="song-transport-bar">
@@ -422,6 +459,17 @@ export default function SongTab({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Lyrics & Vocal Transcription Card */}
+      {result && (
+        <SongLyrics
+          lyrics={lyrics}
+          currentTime={currentTime}
+          duration={duration || result.dur}
+          onSeek={seekAudio}
+          onLyricsUpdate={(updated) => setLyrics(updated)}
+        />
       )}
 
       {/* Song Sections & Temporal Structure */}

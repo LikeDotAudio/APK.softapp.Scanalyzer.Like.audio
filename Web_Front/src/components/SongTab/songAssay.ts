@@ -41,6 +41,8 @@ export interface SongAssayResult {
   sampleRate: number;
   channels: number;
   sections: SongSection[];
+  waveformPeaks: Float32Array;
+  waveformMins: Float32Array;
 }
 
 export const PITCH_CLASSES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
@@ -265,6 +267,25 @@ export function analyzeSongBuffer(
   const rms = Math.sqrt(sq / Math.max(1, len));
   const corr = R ? ((sll > 0 && srr > 0) ? slr / Math.sqrt(sll * srr) : 0) : 1;
 
+  // Waveform peak extraction for display (1000 bins across the song)
+  const numWaveformPoints = 1000;
+  const waveformPeaks = new Float32Array(numWaveformPoints);
+  const waveformMins = new Float32Array(numWaveformPoints);
+  const stepPts = Math.max(1, Math.floor(len / numWaveformPoints));
+  for (let p = 0; p < numWaveformPoints; p++) {
+    const startIdx = p * stepPts;
+    const endIdx = Math.min(len, startIdx + stepPts);
+    let maxVal = 0;
+    let minVal = 0;
+    for (let i = startIdx; i < endIdx; i++) {
+      const v = R ? (L[i] + R[i]) * 0.5 : L[i];
+      if (v > maxVal) maxVal = v;
+      if (v < minVal) minVal = v;
+    }
+    waveformPeaks[p] = maxVal;
+    waveformMins[p] = minVal;
+  }
+
   // Pass 2: STFT Spectral Centroid, Flatness, Chromagram & Flux
   let N = ASSAY_N;
   while (N > 256 && N * 2 > len) N >>= 1;
@@ -424,7 +445,9 @@ export function analyzeSongBuffer(
       dur: buf.duration,
       sampleRate: sr,
       channels: buf.numberOfChannels,
-      sections
+      sections,
+      waveformPeaks,
+      waveformMins
     });
   }
 
