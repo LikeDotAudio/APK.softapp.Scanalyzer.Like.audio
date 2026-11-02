@@ -43,6 +43,7 @@ services:
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
     read_only: true
+    mem_reservation: 6m
     # The runner's health file is the only thing written: a job is decoded and
     # read in memory, never staged.
     tmpfs:
