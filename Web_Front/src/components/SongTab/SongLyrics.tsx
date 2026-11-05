@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState, useEffect, useRef } from 'react';
 import { type ExtractedLyrics, type LyricLine, parseLRC } from './lyricsExtractor';
+import { problem } from '../../apkSoftapp';
 
 interface SongLyricsProps {
   lyrics: ExtractedLyrics | null;
@@ -63,7 +64,8 @@ export default function SongLyrics({
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('Web Speech API is not supported in this browser. Please try Chrome, Edge, or Safari.');
+      problem('unsupported_browser', { subject: 'Live transcription', detail: 'This browser has no Web Speech API.',
+        fix: ['Open Scanalyzer in Chrome, Edge or Safari, or load an .lrc / .txt lyrics file instead.'] });
       return;
     }
 
@@ -124,6 +126,7 @@ export default function SongLyrics({
     } catch (err: any) {
       console.error('[SongLyrics] Could not start speech recognition:', err);
       setIsTranscribing(false);
+      problem(err, { subject: 'Live transcription', onRetry: startSpeechRecognition });
     }
   };
 

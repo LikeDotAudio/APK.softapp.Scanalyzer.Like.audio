@@ -15,6 +15,7 @@ import SongLyrics from './SongLyrics';
 import { extractLyricsFromAudioBuffer, type ExtractedLyrics } from './lyricsExtractor';
 import './SongTab.css';
 import { ApkTable, h } from '../common/ApkTable';
+import { problem } from '../../apkSoftapp';
 
 interface SongTabProps {
   selectedItem?: any;
@@ -114,6 +115,9 @@ export default function SongTab({
     } catch (err) {
       console.error('[SongTab] Failed to analyze selected sound:', err);
       setAnalyzing(false);
+      problem('file_unreadable', { subject: selectedItem?.metadata?.name || selectedItem?.name || 'Selected sound',
+        detail: String((err as any)?.message || err),
+        fix: ['Re-link the sample folder (Scanalyze tab) so the audio can be found, or drop the song file here instead.'] });
     }
   }, [selectedItem, audioFiles, decodeBuffer, startAnalysis]);
 
@@ -136,6 +140,8 @@ export default function SongTab({
     } catch (err) {
       console.error('[SongTab] Failed to process song file:', err);
       setAnalyzing(false);
+      problem('file_unreadable', { subject: file.name, detail: String((err as any)?.message || err),
+        fix: ['Try WAV, MP3, FLAC or OGG — or convert the song to WAV and drop it again.'] });
     }
   }, [decodeBuffer, startAnalysis]);
 
@@ -184,6 +190,7 @@ export default function SongTab({
     } catch (err) {
       console.error('[SongTab] Failed to generate demo song:', err);
       setAnalyzing(false);
+      problem(err, { subject: 'Demo song' });
     }
   }, [startAnalysis]);
 

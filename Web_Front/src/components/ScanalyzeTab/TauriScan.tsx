@@ -8,6 +8,7 @@ import { setAudioRoot, getAudioRoot } from '../../audioLinking';
 import { normalizePeakRecords } from '../../peakSchema';
 import { getCloudShare } from '../../cloudShare';
 import CloudShareToggle from './CloudShareToggle';
+import { problem } from '../../apkSoftapp';
 
 /** What survey_directory reports — see src-tauri/src/lib.rs. */
 interface Survey {
@@ -64,14 +65,20 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
     try {
       const baseUrl = 'https://scanalyzer.like.audio';
       const res = await fetch(`${baseUrl}/api/get_peaks.php?t=${Date.now()}`);
-      
+      const retry = () => void loadFromDatabase();
+
       const text = await res.text();
+      if (!res.ok) {
+        problem(res, { subject: 'Cloud database', detail: `get_peaks.php answered HTTP ${res.status}.`, onRetry: retry });
+        setDbLoading(false);
+        return;
+      }
       let data;
       try {
         data = JSON.parse(text);
       } catch (parseErr) {
         console.error("DB Load Error: PHP endpoint did not return valid JSON. Response was:", text.substring(0, 500) + (text.length > 500 ? "..." : ""));
-        alert("Error: Database endpoint returned invalid data. Check browser console.");
+        problem('bad_json', { subject: 'Cloud database', detail: 'get_peaks.php did not answer JSON (the start of its reply is in the console).', onRetry: retry });
         setDbLoading(false);
         return;
       }
@@ -90,11 +97,11 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
         onViewCloud();
       } else {
         console.error("DB Load Error: Expected JSON array, but got:", data);
-        alert("Failed to load from database: " + (data.error || "Invalid format (check console)"));
+        problem('http_server_error', { subject: 'Cloud database', detail: String(data?.error || 'get_peaks.php answered something other than a list of records.'), onRetry: retry });
       }
     } catch (e) {
       console.error("DB Load Exception: Network or server connection failed:", e);
-      alert("Error connecting to database (check console for details).");
+      problem(e, { subject: 'Cloud database', fix: ['Check this machine is online and https://scanalyzer.like.audio opens in a browser.'], onRetry: () => void loadFromDatabase() });
     } finally {
       setDbLoading(false);
     }
@@ -196,7 +203,7 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
         } catch (e) {}
       });
       unlistenErr = await listen('analyzer-error', (event: any) => {
-        alert(event.payload);
+        problem('script_error', { subject: 'Analyzer', detail: String(event.payload) });
         setIsAnalyzing(false);
       });
       unlistenFin = await listen('analyzer-finished', async () => {
@@ -263,7 +270,8 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
       localStorage.setItem('scanalyzer_recent_dir', dir);
       setRecentDir(dir);
     } catch (err) {
-      alert(`Could not read that folder: ${err}`);
+      problem('file_unreadable', { subject: dir, detail: `Could not read that folder: ${err}`,
+        fix: ['Check the folder still exists and this user can read it, then pick it again.'] });
     }
   };
 
@@ -313,7 +321,10 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
       if (!fromManifest) void invoke('build_manifest', { directory: dir }).catch(() => {});
       // Contribute to the shared database only when the person opted in.
       if (getCloudShare()) {
-        void invoke('sync_to_db', { directory: dir }).catch((e) => console.error('DB sync error:', e));
+        void invoke('sync_to_db', { directory: dir }).catch((e) => {
+          console.error('DB sync error:', e);
+          problem('save_failed', { subject: 'Cloud database', detail: `The peaks were not contributed: ${e}` });
+        });
       }
 
       if (all.length) {
@@ -323,7 +334,8 @@ export default function TauriScan({ analysisResult, setAnalysisResult, isAnalyzi
     } catch (err) {
       setLoaded(null);
       console.error('Failed to open sidecars:', err);
-      alert(`Could not open the existing .PEAK sidecars: ${err}`);
+      problem('file_unreadable', { subject: dir, detail: `Could not open the existing .PEAK sidecars: ${err}`,
+        fix: ['Re-analyze the folder instead of opening its sidecars — that rewrites them.'] });
     }
   };
 

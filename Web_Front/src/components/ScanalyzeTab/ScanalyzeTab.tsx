@@ -10,6 +10,7 @@ import { slimForUpload, uploadHeaders, UPLOAD_CHUNK_SIZE } from '../../peakUploa
 import TauriScan from './TauriScan';
 import CloudShareToggle from './CloudShareToggle';
 import { getCloudShare } from '../../cloudShare';
+import { problem } from '../../apkSoftapp';
 
 /** The folder a record is filed under — the file's parent path, or '' at the root.
  *  Never a placeholder word: the UCS classifier reads this field as *text evidence*,
@@ -105,7 +106,11 @@ function WebScan({
         await initWasm(await (await fetch(wasmUrl)).arrayBuffer());
         setWasmReady(true);
         setVersion(analyzer_version());
-    })().catch(console.error);
+    })().catch((err) => {
+        console.error(err);
+        problem(err, { subject: 'Analyzer engine (WASM)', fix: ['Reload the page; if it keeps failing, the server is not serving the .wasm file — rebuild with npm run build.'],
+          onRetry: () => location.reload() });
+    });
   }, []);
 
   // Discover WAV files in the picked folder. everyNth > 1 samples the library
@@ -139,7 +144,8 @@ function WebScan({
     if (everyNth > 1) wavFiles = wavFiles.filter((_, i) => i % everyNth === 0);
 
     if (wavFiles.length === 0) {
-      alert('No audio files found in that folder.');
+      problem('bad_input', { subject: 'Sample folder', detail: 'No audio files found in that folder.',
+        fix: ['Pick the folder that holds the samples themselves (WAV, AIFF, FLAC…), not its parent or a folder of .PEAK files only.'] });
       return;
     }
 
@@ -297,15 +303,23 @@ function WebScan({
     try {
       const baseUrl = isTauri() ? 'https://scanalyzer.like.audio' : '.';
       const res = await fetch(`${baseUrl}/api/get_peaks.php?t=${Date.now()}`);
-      
+      const retry = () => void loadFromDatabase(false);
+
       // Attempt to parse the response text first so we can safely log it on failure
       const text = await res.text();
+      if (!res.ok) {
+        console.error(`DB Load Error: get_peaks.php answered HTTP ${res.status}:`, text.substring(0, 500));
+        if (!silent) problem(res, { subject: 'Cloud database', detail: `get_peaks.php answered HTTP ${res.status}.`, onRetry: retry });
+        setDbLoading(false);
+        return;
+      }
       let data;
       try {
         data = JSON.parse(text);
       } catch (parseErr) {
         console.error("DB Load Error: PHP endpoint did not return valid JSON. Response was:", text.substring(0, 500) + (text.length > 500 ? "..." : ""));
-        if (!silent) alert("Error: Database endpoint returned invalid data. Check browser console.");
+        if (!silent) problem('bad_json', { subject: 'Cloud database', detail: 'get_peaks.php did not answer JSON (the start of its reply is in the browser console).',
+          fix: ['The PHP side is probably printing an error: check the host\'s PHP error log and the settings in public/api/db.php.'], onRetry: retry });
         setDbLoading(false);
         return;
       }
@@ -326,11 +340,12 @@ function WebScan({
         else onViewCloud();
       } else {
         console.error("DB Load Error: Expected JSON array, but got:", data);
-        if (!silent) alert("Failed to load from database: " + (data.error || "Invalid format (check console)"));
+        if (!silent) problem('http_server_error', { subject: 'Cloud database', detail: String(data?.error || 'get_peaks.php answered something other than a list of records.'),
+          onRetry: () => void loadFromDatabase(false) });
       }
     } catch (e) {
       console.error("DB Load Exception: Network or server connection failed:", e);
-      if (!silent) alert("Error connecting to database (check console for details).");
+      if (!silent) problem(e, { subject: 'Cloud database', onRetry: () => void loadFromDatabase(false) });
     } finally {
       setDbLoading(false);
     }

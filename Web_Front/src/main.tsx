@@ -15,6 +15,8 @@ import './index.css'
 import './percent-fill.css'
 import App from './App.tsx'
 import { setupInstallPrompt } from './installPrompt'
+// THE ONE SOFTAPP CLIENT: problem cards + the ? (F1) inputs/outputs/controls panel.
+import { describeScanalyzer } from './apkSoftapp'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -26,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
 // is installable and runs offline. Only on the web build (not the Tauri desktop app, which
 // is already native) and only in a production build (a SW would fight Vite's dev HMR).
 setupInstallPrompt()
+describeScanalyzer()
 if ('serviceWorker' in navigator && import.meta.env.PROD && !(window as any).__TAURI_INTERNALS__) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => { /* install still works without offline caching */ })

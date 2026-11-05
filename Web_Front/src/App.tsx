@@ -27,6 +27,7 @@ import { compileQuery, subKey } from './ucsSynonyms'
 import { UCS_SYNONYMS } from './ucsSynonymData'
 import { SOLO, handOffToWindow, receiveHandOff } from './soloWindow'
 import { lazy, Suspense } from 'react'
+import { problem } from './apkSoftapp'
 
 const StatsTab = lazy(async () => ({ default: StatsTabRaw }))
 const GroupsTab = lazy(async () => ({ default: GroupsTabRaw }))
@@ -635,6 +636,7 @@ function App() {
     let filesProcessed = 0;
     let migrated = 0;
     let skipped = 0;
+    const unreadable: string[] = [];
 
     files.forEach(file => {
       const reader = new FileReader();
@@ -650,15 +652,22 @@ function App() {
             skipped += report.skipped;
           } else {
             console.error("Invalid .peak file format in", file.name);
+            unreadable.push(file.name);
           }
         } catch (err) {
           console.error("Failed to parse .peak file", file.name, err);
+          unreadable.push(file.name);
         }
 
         filesProcessed++;
         if (filesProcessed === files.length) {
            setAnalysisResult(allResults);
            setSchemaNotice(noticeFor(migrated, skipped));
+           if (unreadable.length) {
+             problem('bad_json', { subject: unreadable.length === 1 ? unreadable[0] : `${unreadable.length} .PEAK files`,
+               detail: `Not a .PEAK record list: ${unreadable.slice(0, 5).join(', ')}${unreadable.length > 5 ? ' …' : ''}`,
+               fix: ['Drop the .PEAK sidecars Scanalyzer wrote (a JSON array of records), or re-analyze the folder to write fresh ones.'] });
+           }
            setAudioFiles([]);
            setCurrentSound('');
            
@@ -696,11 +705,14 @@ function App() {
                  }
                }
                if (failed > 0) {
-                 alert(`Contributed ${uploaded} peak(s); ${failed} could not be uploaded (${lastError}).`);
+                 problem('save_failed', { subject: 'Cloud contribution',
+                   detail: `Contributed ${uploaded} peak(s); ${failed} could not be uploaded (${lastError}).`,
+                   fix: ['Drop the same .PEAK files again to retry — records already stored are overwritten, not duplicated.'] });
                } else if (uploaded > 0) {
                  alert(`Successfully contributed ${uploaded} peak(s) to the cloud!`);
                } else {
-                 alert('No peaks were stored — the server accepted the upload but recorded nothing.');
+                 problem('save_failed', { subject: 'Cloud contribution', detail: 'No peaks were stored — the server accepted the upload but recorded nothing.',
+                   fix: ['Check the upload token stored in this browser matches SCAN_UPLOAD_TOKEN on the server.'] });
                }
              })();
            }
