@@ -9,6 +9,7 @@ import type { Taxonomy } from '../groupColors'
 import { adsrNumber } from '../envelopeSlices'
 import { puck, puckFlyable } from '../spaceMouse'
 import { ACCENT } from '../brand';
+import { RECORDING_NUMERIC, RECORDING_CATEGORICAL } from '../recordings'
 
 // The subgroup, but only when it is a CURATED level (Perc -> Conga) rather than
 // the auto "group + length tier" one; '' when the subgroup merely echoes its
@@ -89,6 +90,9 @@ export const CLOUD_FEATURES: Record<string, Feature> = {
   Transients: { get: (it) => it.envelope?.transient_count ?? 0 },
   'Crest Factor': { get: (it) => it.spectral_features?.crest_factor ?? 0 },
   Flatness: { get: (it) => it.spectral_features?.spectral_flatness ?? 0 },
+  // The bench's recordings (recordings.ts): what a device read, as numbers and names.
+  ...Object.fromEntries(Object.entries(RECORDING_CATEGORICAL).map(([k, get]) => [k, { categorical: true, get }])),
+  ...Object.fromEntries(Object.entries(RECORDING_NUMERIC).map(([k, get]) => [k, { get: (it: any) => { const v = get(it); return Number.isFinite(v) ? v : 0; } }])),
 };
 
 export const AXIS_OPTIONS = Object.keys(CLOUD_FEATURES);

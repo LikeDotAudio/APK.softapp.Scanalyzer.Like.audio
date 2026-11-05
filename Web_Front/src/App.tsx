@@ -28,6 +28,8 @@ import { UCS_SYNONYMS } from './ucsSynonymData'
 import { SOLO, handOffToWindow, receiveHandOff } from './soloWindow'
 import { lazy, Suspense } from 'react'
 import { problem } from './apkSoftapp'
+import { fetchRecordings, isRecording, type RecordingsLoad } from './recordings'
+import RecordingPanel from './components/RecordingPanel'
 
 const StatsTab = lazy(async () => ({ default: StatsTabRaw }))
 const GroupsTab = lazy(async () => ({ default: GroupsTabRaw }))
@@ -46,7 +48,30 @@ function tabFromHash(): string {
 }
 
 function App() {
-  const [analysisResult, setAnalysisResult] = useState<any[]>([])
+  // The scanned library — what Scanalyze, reopen, the demo pack and dropped .PEAKs fill,
+  // and the only thing the file-writing tabs (Scanalyze, Extractor, Rename) are handed.
+  const [libraryResult, setAnalysisResult] = useState<any[]>([])
+  // The bench's recordings (recordings.ts) — every device the capture recorder keeps, one
+  // record per leaf. Held apart so a scan or an unload never writes or drops them; the
+  // views read both as one corpus.
+  const [recordings, setRecordings] = useState<RecordingsLoad | null>(null)
+  const [recordingsBusy, setRecordingsBusy] = useState(false)
+  const [recordingPanelOpen, setRecordingPanelOpen] = useState(true)
+  const analysisResult = useMemo(
+    () => (recordings?.records.length ? libraryResult.concat(recordings.records) : libraryResult),
+    [libraryResult, recordings],
+  )
+  const loadRecordings = useCallback(async (every: boolean) => {
+    setRecordingsBusy(true);
+    try {
+      const got = await fetchRecordings(every);
+      if (got) setRecordings(got);
+    } finally {
+      setRecordingsBusy(false);
+    }
+  }, []);
+  // Served by an APK.audio portal: the recordings are part of the corpus from the start.
+  useEffect(() => { void loadRecordings(false); }, [loadRecordings]);
   const [audioFiles, setAudioFiles] = useState<File[]>([])
   // DB Live Status for Web deployment
   const [dbStatus, setDbStatus] = useState<{ online: boolean; records: number; checked: boolean }>({ online: false, records: 0, checked: false });
@@ -82,6 +107,7 @@ function App() {
 
   const selectSound = useCallback((name: string) => {
     setCurrentSound(name);
+    setRecordingPanelOpen(true);
     if (!name) return;
     setHistory((prev) => {
       // Re-picking what is already selected is not a new history entry.
@@ -154,6 +180,11 @@ function App() {
 
   // What every tab renders: the scoped set. (The old Groups hide/show filter was retired.)
   const filteredData = scopedData
+  // …less the recordings, for the tabs that write files: there is no audio behind them.
+  const libraryRows = useMemo(
+    () => (recordings?.records.length ? filteredData.filter(it => !isRecording(it)) : filteredData),
+    [filteredData, recordings],
+  )
 
   // Global footer transport: every tab reports the sample it's playing via onSound
   // (its name), so we can resolve the whole record here and drive one shared footer —
@@ -769,8 +800,8 @@ function App() {
   }
 
   const handleUnloadSounds = async () => {
-    if (analysisResult.length && !window.confirm(
-      `Unload ${analysisResult.length.toLocaleString()} analyzed sample(s)? The 3D cloud, the 2D charts and the file list will be cleared. Your .PEAK sidecars stay on disk, so re-scanning the folder reads them straight back.`
+    if (libraryResult.length && !window.confirm(
+      `Unload ${libraryResult.length.toLocaleString()} analyzed sample(s)? The 3D cloud, the 2D charts and the file list will be cleared. Your .PEAK sidecars stay on disk, so re-scanning the folder reads them straight back.`
     )) return;
 
     setAudioFiles([]);
@@ -824,7 +855,7 @@ function App() {
         </div>
       )}
 
-      {reopenName && !analysisResult.length && (
+      {reopenName && !libraryResult.length && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', background: 'rgba(59,130,246,0.12)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}>
           <span style={{ flex: 1 }}>Reopen previously scanned folder <strong>“{reopenName}”</strong>? Its cached analysis loads without re-scanning.</span>
           <button className="btn primary" disabled={reopening} onClick={reopenFolder} style={{ padding: '0.2rem 0.7rem', fontSize: '0.75rem' }}>{reopening ? 'Opening…' : 'Open'}</button>
@@ -838,7 +869,7 @@ function App() {
       {/* …and never on DEVICES, which has no corpus to be empty: that screen
           reads the network, so an invitation to load samples above it is an
           offer about a different application. */}
-      {!analysisResult.length && activeTab !== 'devices' && (!SOLO || activeTab === 'scanalyze') && (
+      {!libraryResult.length && activeTab !== 'devices' && (!SOLO || activeTab === 'scanalyze') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', background: 'rgba(16,185,129,0.10)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}>
           <span style={{ flex: 1 }}>New here? Load a curated pack of 30 music + 30 sound-effect samples to explore right away — no folder needed.</span>
           <button className="btn primary" disabled={demoLoading} onClick={loadDemoPack} style={{ padding: '0.2rem 0.7rem', fontSize: '0.75rem' }}>{demoLoading ? 'Loading…' : '🎧 Sample samples for sampling'}</button>
@@ -846,6 +877,25 @@ function App() {
       )}
 
 
+
+      {/* The bench's recordings (capture recorder): in the corpus whenever this page is
+          served by an APK.audio portal. Shown where the corpus is loaded from. */}
+      {recordings && activeTab === 'scanalyze' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', background: 'rgba(59,130,246,0.10)', borderBottom: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.8rem' }}>
+          <span style={{ flex: 1 }}>
+            📼 <strong>{recordings.records.length.toLocaleString()}</strong> recorded series from{' '}
+            <strong>{new Set(recordings.records.map((r: any) => r.recording?.device)).size.toLocaleString()}</strong>{' '}
+            {recordings.every ? 'devices (every device the recorder holds)' : 'devices that report data'} are in the corpus — scope chip RECORDING, axes “Rec · …”.
+            {' '}Loaded {new Date(recordings.loadedAt).toLocaleTimeString(undefined, { hour12: false })}.
+          </span>
+          <button className="btn primary" disabled={recordingsBusy} onClick={() => loadRecordings(recordings.every)} style={{ padding: '0.2rem 0.7rem', fontSize: '0.75rem' }}>{recordingsBusy ? 'Reading…' : '↻ Refresh'}</button>
+          <button className="btn" disabled={recordingsBusy} onClick={() => loadRecordings(!recordings.every)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', padding: '0.2rem 0.6rem', fontSize: '0.75rem' }}
+            title={recordings.every ? 'Only the devices that report data — what the Recording page draws' : 'Every device the rigs hold — tens of thousands of leaves'}>
+            {recordings.every ? 'Data devices only' : 'Every device'}
+          </button>
+          <button className="btn" onClick={() => setRecordings({ ...recordings, records: [] })} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', padding: '0.2rem 0.6rem', fontSize: '0.75rem' }}>Leave out</button>
+        </div>
+      )}
 
       {/* Tabs Navigation — the window IS the tab in solo, and the OS drew its
           name on the title bar three pixels above this row. */}
@@ -908,7 +958,7 @@ function App() {
         
         <div style={{ display: activeTab === 'scanalyze' ? 'flex' : 'none', flex: 1, flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
           <ScanalyzeTab 
-            analysisResult={analysisResult} 
+            analysisResult={libraryResult} 
             setAnalysisResult={setAnalysisResult}
             isAnalyzing={isAnalyzing}
             setIsAnalyzing={setIsAnalyzing}
@@ -950,16 +1000,21 @@ function App() {
             autoOpenName={pushedName} onAutoOpened={() => setPushedName('')}
             emptyMessage="No favorites yet — press F while a sample plays, or tap ★ in the footer."
             registerTransport={t => { tabTransportRef.current = t; }} onPlayingChange={setTabPlaying} onDiggingChange={setTabDigging} />}
-          {activeTab === 'extractor' && <ExtractorTab analysisResult={analysisResult} filteredData={filteredData} audioFiles={audioFiles} onSound={selectSound} setAnalysisResult={setAnalysisResult}
+          {activeTab === 'extractor' && <ExtractorTab analysisResult={libraryResult} filteredData={libraryRows} audioFiles={audioFiles} onSound={selectSound} setAnalysisResult={setAnalysisResult}
             favorites={favorites}
             autoOpenName={pushedName} onAutoOpened={() => setPushedName('')}
             registerTransport={t => { tabTransportRef.current = t; }} onPlayingChange={setTabPlaying} />}
           {activeTab === 'faceball' && <FaceBallTab filteredData={scopedData} selectedItem={footerItem} onSound={selectSound}
             audioFiles={audioFiles} eyeAudio={footerAudioEl} onEyePlay={footerPlay} />}
-          {activeTab === 'rename' && <RenameTab analysisResult={analysisResult} filteredData={filteredData} audioFiles={audioFiles} />}
+          {activeTab === 'rename' && <RenameTab analysisResult={libraryResult} filteredData={libraryRows} audioFiles={audioFiles} />}
         </Suspense>
 
       </main>
+
+      {/* A picked recording has no audio for the footer to play: say what it holds. */}
+      {activeTab !== 'devices' && recordingPanelOpen && isRecording(footerItem) && (
+        <RecordingPanel item={footerItem} onClose={() => setRecordingPanelOpen(false)} />
+      )}
 
       {/* Global footer — the selected SAMPLE's transport, so it is not drawn on
           DEVICES: every button on it (download, play, dig, push to a tab) acts on

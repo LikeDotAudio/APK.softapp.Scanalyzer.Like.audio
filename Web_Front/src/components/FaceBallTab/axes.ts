@@ -11,6 +11,7 @@
 //! missing value lands a sample at the centre of the axis rather than at one end.
 
 import { adsrNumber } from '../../envelopeSlices';
+import { RECORDING_NUMERIC } from '../../recordings'
 
 export interface AxisGroup {
   label: string;
@@ -114,6 +115,8 @@ export const AXES: Record<string, Reader> = {
 // list above stays readable.
 for (let i = 1; i <= 6; i++) AXES[`MFCC ${i}`] = mfcc(i);
 for (let i = 0; i < 12; i++) AXES[`Chroma ${NOTE[i]}`] = chroma(i);
+// The bench's recordings (recordings.ts).
+Object.assign(AXES, RECORDING_NUMERIC);
 
 /** Dropdown grouping, so sixty options stay navigable. */
 export const AXIS_GROUPS: AxisGroup[] = [
@@ -126,6 +129,7 @@ export const AXIS_GROUPS: AxisGroup[] = [
   { label: 'Timbre (MFCC)', axes: ['MFCC 1', 'MFCC 2', 'MFCC 3', 'MFCC 4', 'MFCC 5', 'MFCC 6'] },
   { label: 'Pitch class', axes: NOTE.map((n) => `Chroma ${n}`) },
   { label: 'Provenance', axes: ['UCS confidence', 'Cluster', 'Sample rate', 'Bit depth', 'Channels'] },
+  { label: 'Recording', axes: Object.keys(RECORDING_NUMERIC) },
 ];
 
 export const AXIS_NAMES = Object.keys(AXES);

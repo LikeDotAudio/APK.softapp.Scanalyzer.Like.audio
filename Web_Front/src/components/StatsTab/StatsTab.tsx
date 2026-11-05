@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell, PieChart, Pie, Legend, BarChart, Bar, Tooltip } from 'recharts'
 import { ucsColor, ucsSubColor } from '../../groupColors'
 import { useIsNarrow } from '../../useIsNarrow'
+import { RECORDING_PATHS } from '../../recordings'
 import { categoryLabel, subcategoryLabel } from '../../categoryEmoji'
 
 interface StatsTabProps {
@@ -28,6 +29,8 @@ const NUM_FEATURES: Record<string, string> = {
   Flatness: 'spectral_features.spectral_flatness',
   RMS: 'spectral_features.root_mean_square_level',
   ZCR: 'spectral_features.zero_crossings_per_second',
+  // The bench's recordings (recordings.ts).
+  ...RECORDING_PATHS,
 };
 const NUM_LABELS = Object.keys(NUM_FEATURES);
 

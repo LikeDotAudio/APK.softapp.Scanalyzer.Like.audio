@@ -277,6 +277,8 @@ export function hasAudio(files: File[], item: any): boolean {
  *  The caller owns the returned URL and must revokeObjectURL it when done (all our
  *  callers revoke the previous blob: src before assigning the next). */
 export async function resolveAudioUrl(files: File[], item: any): Promise<string | null> {
+  // A bench recording (recordings.ts) is data, not a sound: there is no file to find.
+  if (item?.metadata?.source === 'recording') return null;
   if (isTauri()) {
     const path = String(item?.metadata?.path || '');
     if (!path) return null;
