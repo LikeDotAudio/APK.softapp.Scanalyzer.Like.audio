@@ -3,6 +3,7 @@ import { buildScript, type RenamePlan, type ScriptKind, type Mode, type BitDepth
 import { TOKEN_LABELS, type Slot, getSavedSubfolders, getSavedPrepend, getSavedAppend, tokenValue, generateNewName } from '../../renameConfig';
 import { useIsNarrow } from '../../useIsNarrow';
 import { accentRgba } from '../../brand';
+import { ApkTable, h } from '../common/ApkTable';
 
 interface RenameTabProps {
   analysisResult: any[];
@@ -11,6 +12,13 @@ interface RenameTabProps {
 }
 
 const PREVIEW_ROW_H = 26; // virtualized preview row height (px)
+
+/** One preview cell: one line, clipped, the whole text on hover. */
+const cellNode = (text: string, color: string) => {
+  const s = h('div', { color, height: `${PREVIEW_ROW_H}px`, lineHeight: `${PREVIEW_ROW_H}px`, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }, text);
+  s.title = text;
+  return s;
+};
 
 export default function RenameTab({ analysisResult, filteredData }: RenameTabProps) {
   const isNarrow = useIsNarrow();
@@ -217,42 +225,32 @@ export default function RenameTab({ analysisResult, filteredData }: RenameTabPro
       {/* Preview Table (virtualized) */}
       <div className="glass-panel" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div ref={scrollRef} onScroll={e => setScrollTop(e.currentTarget.scrollTop)} style={{ overflowX: 'auto', overflowY: 'auto', flex: 1 }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', tableLayout: 'fixed' }}>
-            <colgroup><col style={{ width: '32%' }} /><col style={{ width: '25%' }} /><col style={{ width: '43%' }} /></colgroup>
-            <thead style={{ position: 'sticky', top: 0, background: '#1A1D24', zIndex: 1 }}>
-              <tr>
-                <th style={{ padding: '0.4rem 0.5rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>Old Path</th>
-                <th style={{ padding: '0.4rem 0.5rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>New Folder</th>
-                <th style={{ padding: '0.4rem 0.5rem', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>New File Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(() => {
-                const total = data.length;
-                const OVER = 12;
-                const start = Math.max(0, Math.floor(scrollTop / PREVIEW_ROW_H) - OVER);
-                const end = Math.min(total, Math.ceil((scrollTop + viewportH) / PREVIEW_ROW_H) + OVER);
-                const cellS: React.CSSProperties = { padding: '0 0.5rem', height: PREVIEW_ROW_H, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
-                return (
-                  <>
-                    {start > 0 && <tr style={{ height: start * PREVIEW_ROW_H }}><td colSpan={3} style={{ padding: 0 }} /></tr>}
-                    {data.slice(start, end).map((item, i) => {
-                      const folder = folderFor(item);
-                      const name = generateNewName(item, prepend, append);
-                      return (
-                        <tr key={start + i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', height: PREVIEW_ROW_H }}>
-                          <td style={{ ...cellS, color: 'var(--text-secondary)' }} title={item.metadata.path}>{item.metadata.path}</td>
-                          <td style={{ ...cellS, color: 'var(--accent-primary)' }} title={folder}>{folder || '—'}</td>
-                          <td style={{ ...cellS, color: '#FCD34D' }} title={name}>{name}</td>
-                        </tr>
-                      );
-                    })}
-                    {end < total && <tr style={{ height: (total - end) * PREVIEW_ROW_H }}><td colSpan={3} style={{ padding: 0 }} /></tr>}
-                  </>
-                );
-              })()}
-            </tbody>
-          </table>
+          {/* THE ONE TABLE (ROAD-3494): APKTable 'scanalyzer-rename-preview'. Still virtualized:
+              the table holds the rows in view (plus OVER either side) and the padding stands in
+              for the rest, so a 50 000-file library draws ~60 rows. */}
+          {(() => {
+            const total = data.length;
+            const OVER = 12;
+            const start = Math.max(0, Math.floor(scrollTop / PREVIEW_ROW_H) - OVER);
+            const end = Math.min(total, Math.ceil((scrollTop + viewportH) / PREVIEW_ROW_H) + OVER);
+            return (
+              <div style={{ paddingTop: start * PREVIEW_ROW_H, paddingBottom: (total - end) * PREVIEW_ROW_H }}>
+                <ApkTable
+                  id="scanalyzer-rename-preview"
+                  className="scan-fixed"
+                  sortable={false}
+                  style={{ fontSize: '0.85rem' }}
+                  rows={data.slice(start, end).map((item) => ({ path: item.metadata.path as string, folder: folderFor(item), name: generateNewName(item, prepend, append) }))}
+                  rowClass={() => 'scan-row-fixed'}
+                  columns={[
+                    { key: 'path', label: 'Old Path', width: '32%', node: (r) => cellNode(r.path, 'var(--text-secondary)') },
+                    { key: 'folder', label: 'New Folder', width: '25%', node: (r) => cellNode(r.folder || '—', 'var(--accent-primary)') },
+                    { key: 'name', label: 'New File Name', width: '43%', node: (r) => cellNode(r.name, '#FCD34D') },
+                  ]}
+                />
+              </div>
+            );
+          })()}
         </div>
       </div>
 

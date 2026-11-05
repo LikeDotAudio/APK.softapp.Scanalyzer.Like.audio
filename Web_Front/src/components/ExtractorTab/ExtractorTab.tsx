@@ -16,6 +16,7 @@ import WaveCircle from './WaveCircle';
 import { regionColor } from './shared';
 import { staleReason, rescanRegionCounts, applyCounts, type RescanProgress } from './regionRescan';
 import { accentRgba } from '../../brand';
+import { ApkTable, h } from '../common/ApkTable';
 
 interface ExtractorTabProps {
   analysisResult: any[];
@@ -670,23 +671,22 @@ export default function ExtractorTab({ analysisResult, filteredData, audioFiles,
   }, [regions]);
 
   const cell: React.CSSProperties = { padding: '0.2rem 0.4rem', whiteSpace: 'nowrap' };
-  const numInput: React.CSSProperties = { width: 70, background: '#0d1017', color: '#fff', border: '1px solid var(--border-color)', fontSize: '0.72rem', padding: '0.1rem 0.2rem' };
 
   // The UCS result for a chunk row: a spinner while analyzing, the category/subcategory
   // coloured like the cloud once it lands, or a "too short" note the analyzer couldn't score.
-  const ucsResult = (i: number) => {
-    if (examining.has(i)) return <span style={{ color: 'var(--text-secondary)' }}>…</span>;
+  const ucsInfo = (i: number): { text: string; color?: string; title?: string } | null => {
+    if (examining.has(i)) return { text: '…', color: 'var(--text-secondary)' };
     // Prefer a live re-examination; otherwise show the stored offline per-region analysis
     // that shipped in the .PEAK, so the UCS column is filled the instant the file loads.
     const a: ChunkAnalysis | undefined = chunkUcs[i] ?? (regions[i] as any)?.analysis;
     if (!a) return null;
-    if (a.status === 'too_short') return <span style={{ color: '#f59e0b' }} title="Too short for the analyzer to score">too short</span>;
-    if (a.status === 'error') return <span style={{ color: '#ef4444' }} title={a.message}>error</span>;
+    if (a.status === 'too_short') return { text: 'too short', color: '#f59e0b', title: 'Too short for the analyzer to score' };
+    if (a.status === 'error') return { text: 'error', color: '#ef4444', title: a.message };
     const cat = (a as any).ucs?.category || '—';
     const sub = ((a as any).ucs?.subcategory || '').trim();
     // Emoji + name normally; on narrow (column shrunk) just the category emoji.
     const disp = isNarrow ? (categoryEmoji(cat) || cat) : `${categoryLabel(cat)}${sub ? ` / ${subcategoryLabel(cat, sub)}` : ''}`;
-    return <span style={{ color: ucsSubColor(cat, sub) }} title={`${cat}${sub ? ` / ${sub}` : ''}`}>{disp}</span>;
+    return { text: disp, color: ucsSubColor(cat, sub), title: `${cat}${sub ? ` / ${sub}` : ''}` };
   };
 
   // The circular player. Desktop: a fixed right-hand column. Mobile: full-width, tucked
@@ -834,36 +834,60 @@ export default function ExtractorTab({ analysisResult, filteredData, audioFiles,
 
               {/* Region table */}
               <div style={{ flex: isNarrow ? 'none' : 1, overflowY: isNarrow ? 'visible' : 'auto', padding: '0.25rem 0.5rem' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem' }}>
-                  <thead style={{ position: 'sticky', top: 0, background: '#12151c' }}>
-                    <tr style={{ color: 'var(--text-secondary)', textAlign: 'left' }}>
-                      <th style={cell}>#</th><th style={cell}>Name</th><th style={cell}>UCS</th><th style={cell}>In (s)</th><th style={cell}>Out (s)</th><th style={cell}>Dur</th><th style={cell}>Fade in</th><th style={cell}>Fade out</th><th style={cell}></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {regions.map((r, i) => (
-                      <tr key={i} onClick={() => selectRegion(i)}
-                        style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer',
-                          background: selRegion === i ? 'rgba(59,130,246,0.22)' : undefined }}>
-                        <td style={cell}><span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: 2, background: regionColor(i), marginRight: 4 }} />{i + 1}</td>
-                        <td style={cell}><input value={r.name} placeholder={`region_${i + 1}`} onChange={e => updateRegion(i, { name: e.target.value })} list={nameOptions.length ? 'region-name-options' : undefined} style={{ ...numInput, width: 150 }} /></td>
-                        <td style={{ ...cell, fontSize: '0.72rem', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis' }}>{ucsResult(i)}</td>
-                        <td style={cell}><input type="number" step={0.001} value={Number(r.start_seconds.toFixed(3))} onChange={e => updateRegion(i, { start_seconds: Number(e.target.value) })} style={numInput} /></td>
-                        <td style={cell}><input type="number" step={0.001} value={Number(r.end_seconds.toFixed(3))} onChange={e => updateRegion(i, { end_seconds: Number(e.target.value) })} style={numInput} /></td>
-                        <td style={{ ...cell, color: 'var(--text-secondary)' }}>{fmt(r.duration_seconds)}</td>
-                        <td style={cell}><input type="number" min={0} step={0.005} value={Number((r.fade_in_seconds || 0).toFixed(3))} onChange={e => updateRegion(i, { fade_in_seconds: Math.max(0, Number(e.target.value)) })} style={numInput} /></td>
-                        <td style={cell}><input type="number" min={0} step={0.005} value={Number((r.fade_out_seconds || 0).toFixed(3))} onChange={e => updateRegion(i, { fade_out_seconds: Math.max(0, Number(e.target.value)) })} style={numInput} /></td>
-                        <td style={cell}>
-                          <button className="btn secondary" style={{ padding: '0 0.35rem', fontSize: '0.72rem' }} onClick={(e) => { e.stopPropagation(); examineChunk(i); }} disabled={examining.has(i)} title="Analyze this chunk through the full UCS analyzer">🔬</button>
-                          <button className="btn secondary" style={{ padding: '0 0.35rem', fontSize: '0.72rem', marginLeft: 4 }} onClick={(e) => { e.stopPropagation(); deleteRegion(i); }} title="Delete region">✕</button>
-                        </td>
-                      </tr>
-                    ))}
-                    {regions.length === 0 && !decoding && (
-                      <tr><td colSpan={9} style={{ ...cell, color: 'var(--text-secondary)', padding: '1rem' }}>No regions at these settings — lower the threshold or the minimums.</td></tr>
-                    )}
-                  </tbody>
-                </table>
+                {/* THE ONE TABLE (ROAD-3494): APKTable 'scanalyzer-regions'. Name, in, out and the fades
+                    are edited in the cell (Enter or leaving it commits); a row click selects the region. */}
+                <ApkTable
+                  id="scanalyzer-regions"
+                  sortable={false}
+                  style={{ fontSize: '0.74rem' }}
+                  rows={regions.map((r, i) => ({ r, i }))}
+                  rowClass={({ i }) => (selRegion === i ? 'scan-row-on' : '')}
+                  onRowClick={({ i }) => selectRegion(i)}
+                  onEdit={({ i }, _row, key, value) => {
+                    const n = Number(value);
+                    if (key === 'name') updateRegion(i, { name: String(value) });
+                    else if (!Number.isFinite(n)) return;
+                    else if (key === 'start') updateRegion(i, { start_seconds: n });
+                    else if (key === 'end') updateRegion(i, { end_seconds: n });
+                    else if (key === 'fadeIn') updateRegion(i, { fade_in_seconds: Math.max(0, n) });
+                    else if (key === 'fadeOut') updateRegion(i, { fade_out_seconds: Math.max(0, n) });
+                  }}
+                  columns={[
+                    { key: 'n', label: '#', value: ({ i }) => i + 1, node: ({ i }) => {
+                      const box = h('span', { whiteSpace: 'nowrap' });
+                      box.appendChild(h('span', { display: 'inline-block', width: '10px', height: '10px', borderRadius: '2px', background: regionColor(i), marginRight: '4px' }));
+                      box.appendChild(document.createTextNode(String(i + 1)));
+                      return box;
+                    } },
+                    { key: 'name', label: 'Name', editable: true, value: ({ r }) => r.name, placeholder: 'region_n' },
+                    { key: 'ucs', label: 'UCS', value: ({ i }) => ucsInfo(i)?.text ?? '', node: ({ i }) => {
+                      const u = ucsInfo(i);
+                      const e = h('span', { color: u?.color, fontSize: '0.72rem', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', whiteSpace: 'nowrap' }, u?.text ?? '');
+                      if (u?.title) e.title = u.title;
+                      return e;
+                    } },
+                    { key: 'start', label: 'In (s)', editable: true, type: 'number', value: ({ r }) => Number(r.start_seconds.toFixed(3)) },
+                    { key: 'end', label: 'Out (s)', editable: true, type: 'number', value: ({ r }) => Number(r.end_seconds.toFixed(3)) },
+                    { key: 'dur', label: 'Dur', value: ({ r }) => fmt(r.duration_seconds), style: () => ({ color: 'var(--text-secondary)' }) },
+                    { key: 'fadeIn', label: 'Fade in', editable: true, type: 'number', value: ({ r }) => Number((r.fade_in_seconds || 0).toFixed(3)) },
+                    { key: 'fadeOut', label: 'Fade out', editable: true, type: 'number', value: ({ r }) => Number((r.fade_out_seconds || 0).toFixed(3)) },
+                    { key: 'act', label: '', value: () => '', node: ({ i }) => {
+                      const box = h('span', { whiteSpace: 'nowrap' });
+                      const btn = (label: string, title: string, fn: () => void, disabled = false) => {
+                        const b = h('button', { padding: '0 0.35rem', fontSize: '0.72rem', marginLeft: box.childNodes.length ? '4px' : '0' }, label, 'btn secondary') as HTMLButtonElement;
+                        b.type = 'button'; b.title = title; b.disabled = disabled;
+                        b.onclick = (e) => { e.stopPropagation(); fn(); };
+                        return b;
+                      };
+                      box.appendChild(btn('🔬', 'Analyze this chunk through the full UCS analyzer', () => examineChunk(i), examining.has(i)));
+                      box.appendChild(btn('✕', 'Delete region', () => deleteRegion(i)));
+                      return box;
+                    } },
+                  ]}
+                />
+                {regions.length === 0 && !decoding && (
+                  <div style={{ ...cell, color: 'var(--text-secondary)', padding: '1rem' }}>No regions at these settings — lower the threshold or the minimums.</div>
+                )}
               </div>
             </>
           )}

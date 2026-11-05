@@ -14,6 +14,7 @@ import SongWaveform from './SongWaveform';
 import SongLyrics from './SongLyrics';
 import { extractLyricsFromAudioBuffer, type ExtractedLyrics } from './lyricsExtractor';
 import './SongTab.css';
+import { ApkTable, h } from '../common/ApkTable';
 
 interface SongTabProps {
   selectedItem?: any;
@@ -536,60 +537,16 @@ export default function SongTab({
         <div className="song-assay-grid">
           <div className="song-table-card">
             <span className="song-card-title">Spectral & Dynamics Assay</span>
-            <table className="song-metric-table">
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Reading</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Peak Level</div>
-                    <div className="song-metric-desc">Maximum sample excursion</div>
-                  </td>
-                  <td className="song-metric-val">{dbTxt(result.peak)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">RMS Energy</div>
-                    <div className="song-metric-desc">Integrated continuous loudness</div>
-                  </td>
-                  <td className="song-metric-val">{dbTxt(result.rms)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Crest Factor</div>
-                    <div className="song-metric-desc">Dynamic range (Peak - RMS)</div>
-                  </td>
-                  <td className="song-metric-val">{result.crest.toFixed(1)} dB</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Spectral Centroid</div>
-                    <div className="song-metric-desc">Centre of spectral gravity / brightness</div>
-                  </td>
-                  <td className="song-metric-val">{hzTxt(result.cent)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Spectral Flatness</div>
-                    <div className="song-metric-desc">Wiener entropy (tonal vs noise ratio)</div>
-                  </td>
-                  <td className="song-metric-val">{result.flat.toFixed(4)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Stereo Correlation</div>
-                    <div className="song-metric-desc">Phase coherence between L and R</div>
-                  </td>
-                  <td className="song-metric-val">
-                    {result.stereo ? (result.corr >= 0 ? `+${result.corr.toFixed(2)}` : result.corr.toFixed(2)) : 'Mono (+1.00)'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            {/* THE ONE TABLE (ROAD-3494): APKTable 'scanalyzer-song-assay'. */}
+            <MetricTable id="scanalyzer-song-assay" rows={[
+              ['Peak Level', 'Maximum sample excursion', dbTxt(result.peak)],
+              ['RMS Energy', 'Integrated continuous loudness', dbTxt(result.rms)],
+              ['Crest Factor', 'Dynamic range (Peak - RMS)', `${result.crest.toFixed(1)} dB`],
+              ['Spectral Centroid', 'Centre of spectral gravity / brightness', hzTxt(result.cent)],
+              ['Spectral Flatness', 'Wiener entropy (tonal vs noise ratio)', result.flat.toFixed(4)],
+              ['Stereo Correlation', 'Phase coherence between L and R',
+                result.stereo ? (result.corr >= 0 ? `+${result.corr.toFixed(2)}` : result.corr.toFixed(2)) : 'Mono (+1.00)'],
+            ]} />
 
             <div className="song-export-row">
               <button type="button" className="song-action-btn" onClick={exportCsv}>
@@ -603,54 +560,38 @@ export default function SongTab({
 
           <div className="song-table-card">
             <span className="song-card-title">Analysis Methodology & Facts</span>
-            <table className="song-metric-table">
-              <tbody>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Key Template Model</div>
-                    <div className="song-metric-desc">Krumhansl-Schmuckler 24-key profile</div>
-                  </td>
-                  <td className="song-metric-val">
-                    {result.key ? `${(result.key.conf * 100).toFixed(0)}% fit` : '—'}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Onset Tempo Detector</div>
-                    <div className="song-metric-desc">Autocorrelation of half-wave rectified spectral flux</div>
-                  </td>
-                  <td className="song-metric-val">
-                    {result.tempo ? `${result.tempo.bpm.toFixed(1)} BPM` : '—'}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">STFT FFT Frame Size</div>
-                    <div className="song-metric-desc">Cooley-Tukey radix-2 transform</div>
-                  </td>
-                  <td className="song-metric-val">2048 bins</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Spectral Resolution</div>
-                    <div className="song-metric-desc">Bin width at sample rate</div>
-                  </td>
-                  <td className="song-metric-val">
-                    {(result.sampleRate / 2048).toFixed(1)} Hz
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div className="song-metric-name">Analysis Frames</div>
-                    <div className="song-metric-desc">Total processed time slices</div>
-                  </td>
-                  <td className="song-metric-val">{result.frames} frames</td>
-                </tr>
-              </tbody>
-            </table>
+            {/* THE ONE TABLE (ROAD-3494): APKTable 'scanalyzer-song-method'. */}
+            <MetricTable id="scanalyzer-song-method" rows={[
+              ['Key Template Model', 'Krumhansl-Schmuckler 24-key profile', result.key ? `${(result.key.conf * 100).toFixed(0)}% fit` : '—'],
+              ['Onset Tempo Detector', 'Autocorrelation of half-wave rectified spectral flux', result.tempo ? `${result.tempo.bpm.toFixed(1)} BPM` : '—'],
+              ['STFT FFT Frame Size', 'Cooley-Tukey radix-2 transform', '2048 bins'],
+              ['Spectral Resolution', 'Bin width at sample rate', `${(result.sampleRate / 2048).toFixed(1)} Hz`],
+              ['Analysis Frames', 'Total processed time slices', `${result.frames} frames`],
+            ]} />
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+/** A metric / reading table in the song card's look (song-metric-*), as an APKTable. */
+function MetricTable({ id, rows }: { id: string; rows: [string, string, string][] }) {
+  return (
+    <ApkTable
+      id={id}
+      className="song-metric-table"
+      sortable={false}
+      rows={rows.map(([name, desc, val]) => ({ name, desc, val }))}
+      columns={[
+        { key: 'name', label: 'Metric', node: (r) => {
+          const box = h('div');
+          box.appendChild(h('div', undefined, r.name, 'song-metric-name'));
+          box.appendChild(h('div', undefined, r.desc, 'song-metric-desc'));
+          return box;
+        } },
+        { key: 'val', label: 'Reading', node: (r) => h('span', undefined, r.val, 'song-metric-val') },
+      ]}
+    />
   );
 }

@@ -65,10 +65,13 @@ describe('the percent-fill rule', () => {
 
 describe('the hosts', () => {
     test('SliceTable draws its two shares through the chip, not through `?? 0`', () => {
+        // ROAD-3494: SliceTable is an APKTable, so the chip is drawn as a DOM node by
+        // common/pctNode.ts — the same markup, the clamp still percentFill.ts's.
         const source = read('components/examiner/SliceTable.tsx');
-        assert.match(source, /from '\.\.\/Pct'/, 'SliceTable no longer imports the chip');
+        assert.match(source, /from '\.\.\/common\/pctNode'/, 'SliceTable no longer imports the chip');
+        assert.match(read('components/common/pctNode.ts'), /ratioChip\(arg\.ratio\)/, 'pctNode no longer uses percentFill.ts');
         for (const field of ['relative_level', 'envelope_sustain_level']) {
-            assert.match(source, new RegExp(`<Pct ratio=\\{s\\.${field}\\}`),
+            assert.match(source, new RegExp(`pctNode\\(\\{ ratio: s\\.${field} \\}\\)`),
                 `${field} is no longer drawn through the chip`);
             assert.doesNotMatch(source, new RegExp(`Math\\.round\\(\\(s\\.${field} \\?\\? 0\\) \\* 100\\)`),
                 `${field} is back to claiming 0% for a slice that has no value`);

@@ -1,4 +1,5 @@
-import { Fragment, useMemo } from 'react';
+import { useMemo } from 'react';
+import { ApkTable, h } from '../common/ApkTable';
 import { taxonomyKeys, ucsColor, ucsSubColor } from '../../groupColors';
 import { categoryLabel, subcategoryLabel } from '../../categoryEmoji';
 
@@ -47,39 +48,35 @@ export default function GroupsTab({ filteredData }: GroupsTabProps) {
       <div className="text-secondary" style={{ fontSize: '0.8rem', marginBottom: '0.75rem' }}>
         {groups.length} categories · {total.toLocaleString()} samples in view
       </div>
-      <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', color: 'var(--text-primary)' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-            <th style={{ padding: '0.5rem' }}>UCS Category</th>
-            <th style={{ padding: '0.5rem' }}>Subcategory</th>
-            <th style={{ padding: '0.5rem', textAlign: 'right' }}>Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {groups.map(({ group, count, subs }) => (
-            <Fragment key={group}>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <td style={{ padding: '0.5rem', fontWeight: 600 }}>
-                  <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: '50%', background: ucsColor(group), marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                  {categoryLabel(group)}
-                </td>
-                <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>—</td>
-                <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 600 }}>{count.toLocaleString()}</td>
-              </tr>
-              {subs.map(sg => (
-                <tr key={`${group}${sg.name}`} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                  <td style={{ padding: '0.3rem 0.5rem' }} />
-                  <td style={{ padding: '0.3rem 0.5rem 0.3rem 1.5rem', color: 'var(--text-secondary)' }}>
-                    <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: ucsSubColor(group, sg.name), marginRight: '0.5rem', verticalAlign: 'middle' }} />
-                    {subcategoryLabel(group, sg.name)}
-                  </td>
-                  <td style={{ padding: '0.3rem 0.5rem', textAlign: 'right', color: 'var(--text-secondary)' }}>{sg.count.toLocaleString()}</td>
-                </tr>
-              ))}
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
+      {/* THE ONE TABLE (ROAD-3494): APKTable 'scanalyzer-groups' — a category row, then its subcategories. */}
+      <ApkTable
+        id="scanalyzer-groups"
+        toolbar
+        sortable={false}
+        rows={groups.flatMap(({ group, count, subs }) => [
+          { group, sub: null as string | null, count },
+          ...subs.map(sg => ({ group, sub: sg.name as string | null, count: sg.count })),
+        ])}
+        rowClass={(r) => (r.sub === null ? 'scan-row-group' : '')}
+        columns={[
+          { key: 'category', label: 'UCS Category', value: (r) => (r.sub === null ? categoryLabel(r.group) : ''), node: (r) => {
+            if (r.sub !== null) return h('span');
+            const box = h('span', { fontWeight: '600' });
+            box.appendChild(h('span', { display: 'inline-block', width: '9px', height: '9px', borderRadius: '50%', background: ucsColor(r.group), marginRight: '0.5rem', verticalAlign: 'middle' }));
+            box.appendChild(document.createTextNode(categoryLabel(r.group)));
+            return box;
+          } },
+          { key: 'subcategory', label: 'Subcategory', value: (r) => (r.sub === null ? '—' : subcategoryLabel(r.group, r.sub)), node: (r) => {
+            if (r.sub === null) return h('span', { color: 'var(--text-secondary)' }, '—');
+            const box = h('span', { color: 'var(--text-secondary)', paddingLeft: '1rem' });
+            box.appendChild(h('span', { display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', background: ucsSubColor(r.group, r.sub), marginRight: '0.5rem', verticalAlign: 'middle' }));
+            box.appendChild(document.createTextNode(subcategoryLabel(r.group, r.sub)));
+            return box;
+          } },
+          { key: 'count', label: 'Count', align: 'right', text: (r) => r.count.toLocaleString(),
+            style: (r) => (r.sub === null ? { fontWeight: '600' } : { color: 'var(--text-secondary)' }) },
+        ]}
+      />
     </div>
   );
 }

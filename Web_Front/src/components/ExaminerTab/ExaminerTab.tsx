@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useSyncExternalStore } from 'react';
+import '../common/ApkTable';   // loads the vendored apk-table (window.APKTable) this list registers with
 import { hasAudio, isTauri } from '../../audioLinking';
 import { computeSpectrum, toMono, noteToFreq } from '../examiner/audioAnalysis';
 import { complementColor, ucsColor, ucsSubColor } from '../../groupColors';
@@ -194,6 +195,27 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
 
   const toggleSort = (key: string) =>
     setSort(prev => prev?.key === key ? { key, dir: (prev.dir === 1 ? -1 : 1) } : { key, dir: 1 });
+
+  // THE ONE TABLE (ROAD-3494): the sample list draws itself — virtualized, resizable,
+  // sorted over every row, not only the ones in view — so it REGISTERS with APKTable
+  // as 'scanalyzer-samples' rather than being drawn by it. Any script reaches it the
+  // way it reaches every other table: columns(), rows() (all of them, by column key),
+  // sort(key, dir), select(i), toCsv().
+  const tableRef = useRef<HTMLTableElement>(null);
+  const scriptView = useRef({ rows: rows as any[], columns: activeColumns, select: (_item: any) => {} });
+  scriptView.current = { rows, columns: activeColumns, select: (item: any) => handleSelect(item) };
+  useEffect(() => {
+    const T = (globalThis as any).APKTable;
+    if (!T || typeof T.register !== 'function') return;
+    const handle: any = T.register('scanalyzer-samples', {
+      get el() { return tableRef.current; },
+      columns: () => scriptView.current.columns.map(c => ({ key: c.key, label: c.label })),
+      rows: () => scriptView.current.rows.map((item: any) => Object.fromEntries(scriptView.current.columns.map(c => [c.key, c.get(item)]))),
+      sort: (key: string | null, dir?: string) => { setSort(key ? { key, dir: dir === 'desc' ? -1 : 1 } : null); return handle; },
+      select: (i: number) => { const it = scriptView.current.rows[i]; if (it) scriptView.current.select(it); return handle; },
+    });
+    return () => handle.unregister();
+  }, []);
 
   const maxBpm = useMemo(() => analysisResult.reduce((max, it) => Math.max(max, it.musicality?.beats_per_minute || 0), 1), [analysisResult]);
   const maxBrightness = useMemo(() => analysisResult.reduce((max, it) => Math.max(max, it.spectral_features?.spectral_centroid_hz || 0), 1), [analysisResult]);
@@ -742,7 +764,7 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
                   {emptyMessage}
                 </div>
               )}
-              <table style={{ minWidth: '100%', width: 'max-content', borderCollapse: 'collapse', fontSize: '0.8rem', tableLayout: 'fixed' }}>
+              <table ref={tableRef} data-apk-table="scanalyzer-samples" style={{ minWidth: '100%', width: 'max-content', borderCollapse: 'collapse', fontSize: '0.8rem', tableLayout: 'fixed' }}>
                   <colgroup>
                       {activeColumns.map(c => <col key={c.key} style={{ width: `${widthOf(c.key)}px` }} />)}
                   </colgroup>

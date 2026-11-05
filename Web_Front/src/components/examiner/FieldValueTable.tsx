@@ -1,4 +1,5 @@
-import { useState, Fragment } from 'react';
+import { useState } from 'react';
+import { ApkTable } from '../common/ApkTable';
 
 // The bottom-left field/value explorer for the selected sample. A COMPLETE, dynamic dump:
 // it walks the record recursively, so every field at every depth shows — nested objects
@@ -8,10 +9,6 @@ import { useState, Fragment } from 'react';
 interface Props {
   item: any;
 }
-
-const cell = (color: string): React.CSSProperties => ({
-  padding: '0.2rem 0.4rem', color, wordBreak: 'break-word',
-});
 
 const isObj = (v: any) => typeof v === 'object' && v !== null;
 const isPlainObj = (v: any) => isObj(v) && !Array.isArray(v);
@@ -35,30 +32,14 @@ function format(v: any): string {
 const childEntries = (v: any): [string, any][] =>
   Array.isArray(v) ? v.map((e, i) => [`#${i + 1}`, e] as [string, any]) : Object.entries(v);
 
-/** Recursively render rows for one (label, value). Depth drives the indent. */
-function renderNode(label: string, value: any, depth: number, keyPath: string): React.ReactNode[] {
-  const indent = { paddingLeft: `${0.4 + depth * 0.85}rem` };
+/** One explorer row: a field and its value, a group heading, or a not-analyzed note. */
+interface FieldRow { field: string; value: string; depth: number; kind: 'leaf' | 'heading' | 'empty' }
 
-  if (!isExpandable(value)) {
-    return [
-      <tr key={keyPath} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', verticalAlign: 'top' }}>
-        <td style={{ ...cell('#3B82F6'), ...indent }}>{label}</td>
-        <td style={cell('#FCD34D')}>{format(value)}</td>
-      </tr>,
-    ];
-  }
-
-  const heading = (
-    <tr key={`${keyPath}::h`} style={{ background: depth === 0 ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)' }}>
-      <td colSpan={2} style={{ ...indent, padding: '0.25rem 0.4rem', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.03em' }}>
-        {label}
-      </td>
-    </tr>
-  );
-
-  const entries = childEntries(value);
-  const children = entries.flatMap(([k, cv]) => renderNode(k, cv, depth + 1, `${keyPath}.${k}`));
-  return [heading, ...children];
+/** Recursively flatten one (label, value) into rows. Depth drives the indent. */
+function flatten(label: string, value: any, depth: number): FieldRow[] {
+  if (!isExpandable(value)) return [{ field: label, value: format(value), depth, kind: 'leaf' }];
+  return [{ field: label, value: '', depth, kind: 'heading' },
+    ...childEntries(value).flatMap(([k, cv]) => flatten(k, cv, depth + 1))];
 }
 
 export default function FieldValueTable({ item }: Props) {
@@ -88,39 +69,28 @@ export default function FieldValueTable({ item }: Props) {
           ))}
         </div>
       )}
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', tableLayout: 'fixed' }}>
-        <colgroup>
-          <col style={{ width: '38%' }} />
-          <col />
-        </colgroup>
-        <tbody>
-          {!item && (
-            <tr><td colSpan={2} style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Select a sample</td></tr>
-          )}
-
-          {shownGroups.map(([group, fields]) => (
-            <Fragment key={group}>
-              {isPlainObj(fields) && Object.keys(fields).length === 0
-                ? [
-                    <tr key={`${group}::h`} style={{ background: 'rgba(255,255,255,0.05)' }}>
-                      <td colSpan={2} style={{ padding: '0.25rem 0.4rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{group}</td>
-                    </tr>,
-                    <tr key={`${group}::empty`} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td colSpan={2} style={{ ...cell('var(--text-secondary)'), paddingLeft: '1.25rem', fontStyle: 'italic' }}>not analyzed — re-scan to fill in</td>
-                    </tr>,
-                  ]
-                : renderNode(group, fields, 0, group)}
-            </Fragment>
-          ))}
-
-          {!activeOnly && loose.map(([k, v]) => (
-            <tr key={k} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', verticalAlign: 'top' }}>
-              <td style={cell('#3B82F6')}>{k}</td>
-              <td style={cell('#FCD34D')}>{format(v)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* THE ONE TABLE (ROAD-3494): APKTable 'scanalyzer-fields', the record walked to rows. */}
+      <ApkTable
+        id="scanalyzer-fields"
+        toolbar
+        sortable={false}
+        style={{ fontSize: '0.75rem' }}
+        rows={[
+          ...shownGroups.flatMap(([group, fields]): FieldRow[] => (isPlainObj(fields) && Object.keys(fields).length === 0
+            ? [{ field: group, value: '', depth: 0, kind: 'heading' }, { field: '', value: 'not analyzed — re-scan to fill in', depth: 1, kind: 'empty' }]
+            : flatten(group, fields, 0))),
+          ...(activeOnly ? [] : loose.map(([k, v]): FieldRow => ({ field: k, value: format(v), depth: 0, kind: 'leaf' }))),
+        ]}
+        rowClass={(r) => (r.kind === 'heading' ? 'scan-row-group' : '')}
+        columns={[
+          { key: 'field', label: 'Field', width: '38%', style: (r) => (r.kind === 'heading'
+            ? { color: 'var(--text-secondary)', fontWeight: '600', letterSpacing: '0.03em', paddingLeft: `${r.depth * 0.85}rem` }
+            : { color: '#3B82F6', wordBreak: 'break-word', paddingLeft: `${r.depth * 0.85}rem` }) },
+          { key: 'value', label: 'Value', style: (r) => (r.kind === 'empty'
+            ? { color: 'var(--text-secondary)', fontStyle: 'italic' } : { color: '#FCD34D', wordBreak: 'break-word' }) },
+        ]}
+      />
+      {!item && <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Select a sample</div>}
     </>
   );
 }

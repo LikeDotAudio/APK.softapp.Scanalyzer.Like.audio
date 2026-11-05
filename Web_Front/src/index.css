@@ -277,3 +277,12 @@ h1, h2, h3, h4 {
 ::-webkit-scrollbar-corner {
   background: var(--bg-main);
 }
+
+/* THE ONE TABLE (ROAD-3494): every table is an APKTable (components/common/ApkTable.tsx). */
+.apk-table-host { display: flex; flex-direction: column; }
+.apk-table-host tr.apk-row-click { cursor: pointer; }
+.apk-table-host tr.scan-row-loudest { background: rgba(245, 158, 11, 0.12); }
+.apk-table-host tr.scan-row-on { background: rgba(var(--apk-accent-rgb), 0.12); }
+.apk-table-host tr.scan-row-group { font-weight: 600; }
+.apk-table-host tr.scan-row-fixed td { padding-top: 0; padding-bottom: 0; }
+.scan-fixed table.apk-table { table-layout: fixed; }

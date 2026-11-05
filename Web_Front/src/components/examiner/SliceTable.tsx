@@ -15,7 +15,8 @@ import { envelopeSlices, isMultiEvent, type EnvelopeSlice } from '../../envelope
 // hard 0%, which is the "no data is not zero" claim the primitive exists to
 // stop. The fill sits behind digits that were already there, so the column is
 // no wider than it was. PLAN-924.02 step 3.
-import Pct from '../Pct';
+import { ApkTable } from '../common/ApkTable';
+import { pctNode } from '../common/pctNode';
 
 interface Props {
   item: any;
@@ -26,21 +27,6 @@ function dur(v: number | null | undefined): string {
   if (v == null || !Number.isFinite(v)) return '—';
   return v >= 1 ? `${v.toFixed(2)} s` : `${Math.round(v * 1000)} ms`;
 }
-
-const cell: React.CSSProperties = {
-  padding: '2px 4px',
-  fontFamily: 'ui-monospace, monospace',
-  fontSize: '0.66rem',
-  whiteSpace: 'nowrap',
-};
-const head: React.CSSProperties = {
-  ...cell,
-  color: 'var(--text-secondary)',
-  fontWeight: 600,
-  position: 'sticky',
-  top: 0,
-  background: '#0B0E14',
-};
 
 export default function SliceTable({ item }: Props) {
   const slices = envelopeSlices(item);
@@ -69,54 +55,23 @@ export default function SliceTable({ item }: Props) {
           <>One-shot: this slice spans the whole file, so the file-level ADSR is this row.</>
         )}
       </div>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-          <thead>
-            <tr>
-              <th style={{ ...head, textAlign: 'left' }}>#</th>
-              <th style={{ ...head, textAlign: 'left' }}>start</th>
-              <th style={{ ...head, textAlign: 'right' }}>lvl</th>
-              <th style={{ ...head, textAlign: 'right' }}>A</th>
-              <th style={{ ...head, textAlign: 'right' }}>D</th>
-              <th style={{ ...head, textAlign: 'right' }}>S</th>
-              <th style={{ ...head, textAlign: 'right' }}>R</th>
-              <th style={{ ...head, textAlign: 'left' }}>shape</th>
-              <th style={{ ...head, textAlign: 'right' }}>ring</th>
-            </tr>
-          </thead>
-          <tbody>
-            {slices.map((s: EnvelopeSlice) => {
-              const isLoudest = s === loudest;
-              return (
-                <tr
-                  key={s.index}
-                  style={{
-                    background: isLoudest ? 'rgba(245,158,11,0.12)' : undefined,
-                    borderTop: '1px solid rgba(255,255,255,0.05)',
-                  }}
-                  title={isLoudest ? 'Loudest slice — the file-level representative reading' : undefined}
-                >
-                  <td style={{ ...cell, color: '#F59E0B' }}>{s.index + 1}</td>
-                  <td style={cell}>{s.start_seconds.toFixed(2)}s</td>
-                  <td style={{ ...cell, textAlign: 'right' }}>
-                    <Pct ratio={s.relative_level} />
-                  </td>
-                  <td style={{ ...cell, textAlign: 'right' }}>{dur(s.envelope_attack_seconds)}</td>
-                  <td style={{ ...cell, textAlign: 'right' }}>{dur(s.envelope_decay_seconds)}</td>
-                  <td style={{ ...cell, textAlign: 'right' }}>
-                    <Pct ratio={s.envelope_sustain_level} />
-                  </td>
-                  <td style={{ ...cell, textAlign: 'right' }}>{dur(s.envelope_release_seconds)}</td>
-                  <td style={{ ...cell, color: 'var(--text-secondary)' }}>{s.envelope_shape}</td>
-                  <td style={{ ...cell, textAlign: 'right', color: 'var(--text-secondary)' }}>
-                    {dur(s.decay_time_seconds_60db)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <ApkTable
+        id="scanalyzer-envelope-slices"
+        style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.66rem' }}
+        rows={slices as EnvelopeSlice[]}
+        rowClass={(s) => (s === loudest ? 'scan-row-loudest' : '')}
+        columns={[
+          { key: 'index', label: '#', value: (s) => s.index + 1, style: () => ({ color: '#F59E0B' }) },
+          { key: 'start', label: 'start', value: (s) => s.start_seconds, text: (s) => `${s.start_seconds.toFixed(2)}s` },
+          { key: 'lvl', label: 'lvl', align: 'right', value: (s) => s.relative_level ?? '', node: (s) => pctNode({ ratio: s.relative_level }) },
+          { key: 'a', label: 'A', align: 'right', value: (s) => s.envelope_attack_seconds ?? '', text: (s) => dur(s.envelope_attack_seconds) },
+          { key: 'd', label: 'D', align: 'right', value: (s) => s.envelope_decay_seconds ?? '', text: (s) => dur(s.envelope_decay_seconds) },
+          { key: 's', label: 'S', align: 'right', value: (s) => s.envelope_sustain_level ?? '', node: (s) => pctNode({ ratio: s.envelope_sustain_level }) },
+          { key: 'r', label: 'R', align: 'right', value: (s) => s.envelope_release_seconds ?? '', text: (s) => dur(s.envelope_release_seconds) },
+          { key: 'shape', label: 'shape', value: (s) => s.envelope_shape, style: () => ({ color: 'var(--text-secondary)' }) },
+          { key: 'ring', label: 'ring', align: 'right', value: (s) => s.decay_time_seconds_60db ?? '', text: (s) => dur(s.decay_time_seconds_60db), style: () => ({ color: 'var(--text-secondary)' }) },
+        ]}
+      />
     </div>
   );
 }
