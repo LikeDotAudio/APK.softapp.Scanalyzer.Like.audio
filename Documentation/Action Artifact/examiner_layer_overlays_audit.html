@@ -124,8 +124,7 @@ th{font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--m
 <p><code>renderPreview</code> (<code>ExaminerTab.tsx:367-513</code>) is a ~150-line monolith inside a 966-line component. It always draws everything: spectrum fill+trace (Welch-averaged FFT → 360 log bands, <code>y = bottom − clamp((dB+90)/90)·h</code>), stereo min/max waveforms, windowed-RMS loudness (<code>clamp((dB+60)/60)</code>, floor −60), stereo correlation phase (<code>corr = ΣLR/√(ΣL²·ΣR²)</code>), the ADSR envelope, beat grid, regions bar, and a <b>hard-coded three-entry legend</b>. The good news: each draw helper is already a pure <code>(ctx, data, geo, colour)</code> function — the SV <code>paint()</code> contract in miniature. The migration is a formalisation, not a rewrite. And the dropdown pattern already exists: the ⚙ Columns menu with its persisted Set (<code>COLS_KEY</code>).</p>
 
 <h2>3 · The mapping — every toggle, its file, its math</h2>
-<div class="tablewrap"><table>
-<tr><th>Toggle</th><th>File (one layer per file)</th><th>Math source</th></tr>
+<div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-examiner-layer-overlays-1" data-apk-opts='{"id":"scanalyzer-doc-examiner-layer-overlays-1"}'><template data-apk-part="head"><tr><th>Toggle</th><th>File (one layer per file)</th><th>Math source</th></tr></template><template data-apk-part="body">
 <tr><td>spectrum</td><td><code>layers/SpectrumLayer.tsx</code> <i>(extract)</i></td><td>existing averaged FFT · SV SpectrumLayer §5</td></tr>
 <tr><td>volume</td><td><code>layers/LoudnessLayer.tsx</code> <i>(extract)</i></td><td>existing RMS dBFS · SV dB/meter scales §2 as upgrade path</td></tr>
 <tr><td>phase</td><td><code>layers/PhaseLayer.tsx</code> <i>(extract)</i></td><td>existing correlation (SV's FFT-bin phase = later variant)</td></tr>
@@ -134,7 +133,7 @@ th{font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--m
 <tr><td>slices</td><td><code>layers/SlicesLayer.tsx</code> <b>new</b></td><td>SV SliceLayer: log-x 0.8-shift, dB energy, nearest/mean/peak</td></tr>
 <tr><td>waterfall frequency view</td><td><code>layers/SpectrogramLayer.tsx</code> <b>new</b></td><td>SV SpectrogramLayer §3: f = bin·sr/fftSize, dB² option, max-aggregate</td></tr>
 <tr><td>3d spectrum</td><td><code>layers/Spectrogram3DLayer.tsx</code> <b>new</b></td><td>SV Colour3DPlot bin math as a back-to-front ridgeline</td></tr>
-</table></div>
+</template></div></div>
 
 <pre class="filetree">src/components/examiner/layers/
   types.ts          <span class="new">new</span>   ExaminerLayer contract (SV Layer::paint, in TS)
@@ -178,6 +177,9 @@ LayerStack.tsx      <span class="new">new</span>   dropdown + overlay/rows compo
 <div class="footer">Companion audits: <code>layers_rendering_audit.md</code> (the Sonic Visualiser prototype math) ↔ <code>examiner_layer_overlays_audit.md</code> (this migration) · Examiner sources read in full at commit 198a320</div>
 </main>
 
+<!-- THE ONE TABLE (ROAD-3494): every table above is an APKTable host, stood in by
+     the app's vendored apk-table (Web_Front/src/vendor/apk-table, check.sh webshared). -->
+<script src="../../Web_Front/src/vendor/apk-table/apk-table.js"></script>
 <script>
 (function(){
 "use strict";

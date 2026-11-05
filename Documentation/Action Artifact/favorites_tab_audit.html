@@ -157,48 +157,48 @@ td.good{color:var(--good)} td.bad{color:var(--bad)}
   field names, version-stamped — house rules.</p>
 
   <h2>The tab: reuse the Examiner, don't fork it</h2>
-  <div class="tablewrap"><table>
-    <tr><th>Option</th><th>Shape</th><th>Verdict</th></tr>
-    <tr><td><b>A · Fork</b> — copy ExaminerTab → FavoritesTab</td><td>~950 duplicated lines</td>
+  <div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-favorites-tab-1" data-apk-opts='{"id":"scanalyzer-doc-favorites-tab-1"}'><template data-apk-part="head"><tr><th>Option</th><th>Shape</th><th>Verdict</th></tr></template><template data-apk-part="body">
+<tr><td><b>A · Fork</b> — copy ExaminerTab → FavoritesTab</td><td>~950 duplicated lines</td>
       <td class="bad"><span class="pill no">rejected</span> two Examiners to fix every bug in</td></tr>
-    <tr><td><b>B · Reuse</b> — mount <code>&lt;ExaminerTab&gt;</code> again under <code>#/favorites</code>, rows pre-filtered</td>
+<tr><td><b>B · Reuse</b> — mount <code>&lt;ExaminerTab&gt;</code> again under <code>#/favorites</code>, rows pre-filtered</td>
       <td><code>filteredData.filter(it =&gt; favorites.has(keyOf(it)))</code></td>
       <td class="good"><span class="pill rec">recommended</span> DIG, columns, eye, meters inherited free</td></tr>
-    <tr><td><b>C · Filter chip</b> — "★ only" in the scope bar, no tab</td><td>one checkbox</td>
+<tr><td><b>C · Filter chip</b> — "★ only" in the scope bar, no tab</td><td>one checkbox</td>
       <td>composes with B later; alone it fails the ask</td></tr>
-  </table></div>
+</template></div></div>
   <p>Because only the active tab mounts (the <code>Suspense</code> block), the transport
   registration and shared column prefs don't collide — the second mount <i>is</i> an Examiner.
   DIG inside Favorites digs favorites only, because DIG walks the rows it was given. The scope
   bar composes: category chips narrow the favorites like every other tab.</p>
 
   <h2>The two gaps to close</h2>
-  <div class="tablewrap"><table>
-    <tr><th>Gap</th><th>Closure</th></tr>
-    <tr><td>Web folder handles are requested <code>mode:'read'</code> (App.tsx:122, 203); writing needs readwrite</td>
+  <div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-favorites-tab-2" data-apk-opts='{"id":"scanalyzer-doc-favorites-tab-2"}'><template data-apk-part="head"><tr><th>Gap</th><th>Closure</th></tr></template><template data-apk-part="body">
+<tr><td>Web folder handles are requested <code>mode:'read'</code> (App.tsx:122, 203); writing needs readwrite</td>
       <td>the first F press is a user activation → lazily <code>requestPermission({mode:'readwrite'})</code>;
       denied → in-memory + localStorage mirror + one banner</td></tr>
-    <tr><td>Desktop has no generic root-file write — the Tauri surface is manifest-specific</td>
+<tr><td>Desktop has no generic root-file write — the Tauri surface is manifest-specific</td>
       <td>two ~10-line commands mirroring the manifest pattern: <code>read_root_text</code>, <code>write_root_text</code></td></tr>
-  </table></div>
+</template></div></div>
 
   <h2>Edge rulings</h2>
-  <div class="tablewrap"><table>
-    <tr><th>Case</th><th>Ruling</th></tr>
-    <tr><td>F while typing in a text field / F held down</td><td>ignored (target guard / <code>e.repeat</code> guard)</td></tr>
-    <tr><td>Rename tab renames a favorited file</td><td>re-key the entry in the same pass that rewrites the sidecar</td></tr>
-    <tr><td>Favorite's file missing at load</td><td>keep + render dimmed — never auto-prune user data</td></tr>
-    <tr><td>Re-scan / manifest rebuild</td><td><code>favorites.json</code> untouched by design</td></tr>
-    <tr><td>3D cloud colouring</td><td>unchanged — point hue is UCS taxonomy; favorites there would need a <i>shape</i> treatment, out of scope</td></tr>
-    <tr><td>Demo pack (no folder root)</td><td>in-memory + localStorage; banner says nothing is written</td></tr>
-    <tr><td>Two sessions, one folder</td><td>last write wins — acceptable for a single-user library tool</td></tr>
-  </table></div>
+  <div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-favorites-tab-3" data-apk-opts='{"id":"scanalyzer-doc-favorites-tab-3"}'><template data-apk-part="head"><tr><th>Case</th><th>Ruling</th></tr></template><template data-apk-part="body">
+<tr><td>F while typing in a text field / F held down</td><td>ignored (target guard / <code>e.repeat</code> guard)</td></tr>
+<tr><td>Rename tab renames a favorited file</td><td>re-key the entry in the same pass that rewrites the sidecar</td></tr>
+<tr><td>Favorite's file missing at load</td><td>keep + render dimmed — never auto-prune user data</td></tr>
+<tr><td>Re-scan / manifest rebuild</td><td><code>favorites.json</code> untouched by design</td></tr>
+<tr><td>3D cloud colouring</td><td>unchanged — point hue is UCS taxonomy; favorites there would need a <i>shape</i> treatment, out of scope</td></tr>
+<tr><td>Demo pack (no folder root)</td><td>in-memory + localStorage; banner says nothing is written</td></tr>
+<tr><td>Two sessions, one folder</td><td>last write wins — acceptable for a single-user library tool</td></tr>
+</template></div></div>
 
   <p class="meta" style="margin-top:3rem">Implementation estimate ~170 lines across
   <code>favorites.ts</code> (new), <code>App.tsx</code>, <code>ExaminerTab.tsx</code>,
   <code>SampleFooter.tsx</code>, <code>FileGroups.tsx</code>, <code>audioLinking.ts</code>,
   <code>lib.rs</code> — the full map is in the markdown audit.</p>
 </main>
+<!-- THE ONE TABLE (ROAD-3494): every table above is an APKTable host, stood in by
+     the app's vendored apk-table (Web_Front/src/vendor/apk-table, check.sh webshared). -->
+<script src="../../Web_Front/src/vendor/apk-table/apk-table.js"></script>
 <script>
 (() => {
   const SAMPLES = [

@@ -127,8 +127,7 @@ td code{white-space:nowrap}
              ├── SpectrogramLayer
              └── Colour3DPlotLayer</pre></div>
 
-<div class="tablewrap"><table>
-<tr><th>Model type</th><th>What it holds</th><th>Layers</th></tr>
+<div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-layers-rendering-1" data-apk-opts='{"id":"scanalyzer-doc-layers-rendering-1"}'><template data-apk-part="head"><tr><th>Model type</th><th>What it holds</th><th>Layers</th></tr></template><template data-apk-part="body">
 <tr><td><code>RangeSummarisableTimeValueModel</code></td><td>audio + min/max/absmean peak caches</td><td>Waveform</td></tr>
 <tr><td><code>DenseTimeValueModel</code></td><td>raw audio samples</td><td>Spectrogram ×3, Spectrum</td></tr>
 <tr><td><code>DenseThreeDimensionalModel</code></td><td>time × bin × value grid</td><td>Colour3DPlot, Slice</td></tr>
@@ -136,7 +135,7 @@ td code{white-space:nowrap}
 <tr><td><code>NoteModel / RegionModel / BoxModel</code></td><td>pitched notes · labelled spans · time×value boxes</td><td>Notes, FlexiNotes, Regions, Boxes</td></tr>
 <tr><td><code>SparseOneDimensionalModel</code></td><td>bare time instants</td><td>TimeInstants</td></tr>
 <tr><td>any model</td><td>sample rate only</td><td>TimeRuler</td></tr>
-</table></div>
+</template></div></div>
 
 <p>Two disjoint colour systems: single-colour layers pick from <code>ColourDatabase</code> (each colour flagged for dark or light backgrounds); heat-map layers push <em>values</em> through <code>ColourScale → ColourMapper</code>. Painting is time-budgeted by <code>RenderTimer</code>: 0.1&nbsp;s soft / 0.2&nbsp;s hard, never bailing before 15% done, pushing to the hard limit once ≥65% complete.</p>
 
@@ -249,6 +248,9 @@ y     = h − h·(point − min)/(max − min)     — log scales interpolate li
 <div class="footer">Audit of 75 files at commit 198a320 · five parallel deep-reads · formulas quoted from source with file:line references · full text in <code>Documentation/🔍Audits/layers_rendering_audit.md</code></div>
 </main>
 
+<!-- THE ONE TABLE (ROAD-3494): every table above is an APKTable host, stood in by
+     the app's vendored apk-table (Web_Front/src/vendor/apk-table, check.sh webshared). -->
+<script src="../../Web_Front/src/vendor/apk-table/apk-table.js"></script>
 <script>
 (function(){
 "use strict";

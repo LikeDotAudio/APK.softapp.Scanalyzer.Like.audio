@@ -100,24 +100,22 @@ td.good{color:var(--good)} td.bad{color:var(--bad)}
   </div>
 
   <h2>Why it stalls now</h2>
-  <div class="tablewrap"><table>
-    <tr><th>Chokepoint</th><th>Where</th><th>Cost on long files</th></tr>
-    <tr><td><code>if length &gt; max_len {{ return None }}</code> — 600 s hardcoded, both engines</td><td><code>analyze.rs:38</code> · <code>src-tauri/lib.rs:268</code> · <code>wasm_analyzer/lib.rs:28</code></td><td class="bad">file invisible to the library</td></tr>
-    <tr><td>Full DSP (STFT · MFCC · pitch) is O(minutes) on hour-long PCM</td><td><code>analyze_core</code></td><td class="bad">the reason the cap exists</td></tr>
-    <tr><td>Select → decode <b>whole file</b> → <code>toMono</code> → draw</td><td><code>ExaminerTab</code> · <code>ExtractorTab</code> · <code>AudioEye</code></td><td class="bad">seconds of freeze to draw 1000 px</td></tr>
-  </table></div>
+  <div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-binary-peak-preview-1" data-apk-opts='{"id":"scanalyzer-doc-binary-peak-preview-1"}'><template data-apk-part="head"><tr><th>Chokepoint</th><th>Where</th><th>Cost on long files</th></tr></template><template data-apk-part="body">
+<tr><td><code>if length &gt; max_len {{ return None }}</code> — 600 s hardcoded, both engines</td><td><code>analyze.rs:38</code> · <code>src-tauri/lib.rs:268</code> · <code>wasm_analyzer/lib.rs:28</code></td><td class="bad">file invisible to the library</td></tr>
+<tr><td>Full DSP (STFT · MFCC · pitch) is O(minutes) on hour-long PCM</td><td><code>analyze_core</code></td><td class="bad">the reason the cap exists</td></tr>
+<tr><td>Select → decode <b>whole file</b> → <code>toMono</code> → draw</td><td><code>ExaminerTab</code> · <code>ExtractorTab</code> · <code>AudioEye</code></td><td class="bad">seconds of freeze to draw 1000 px</td></tr>
+</template></div></div>
   <div class="callout"><p><b>The unlock:</b> playback never needed the decode — the
   <code>&lt;audio&gt;</code> element streams. The whole-file decode exists only to <i>draw</i>.
   Precompute the drawing.</p></div>
 
   <h2>Prior art converges</h2>
-  <div class="tablewrap"><table>
-    <tr><th>System</th><th>Shape</th><th>Lesson</th></tr>
-    <tr><td>BWF <code>levl</code> chunk (EBU Tech 3285 s3)</td><td>binary min/max pairs, fixed block size, stored with the asset</td><td>the broadcast standard is exactly this shape</td></tr>
-    <tr><td>BBC <code>audiowaveform</code> / Peaks.js</td><td>signed <b>8-bit</b> min/max pairs, samples-per-pixel header</td><td>8-bit is the accepted UI fidelity</td></tr>
-    <tr><td>Audacity summaries</td><td>per-256 + per-65536 sample mip levels</td><td>a finer level only matters for deep zoom — we get that from real PCM later</td></tr>
-    <tr><td>wavesurfer.js peaks JSON</td><td>plain number arrays</td><td>works, but 4–6× the bytes and the slowest parse — avoid</td></tr>
-  </table></div>
+  <div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-binary-peak-preview-2" data-apk-opts='{"id":"scanalyzer-doc-binary-peak-preview-2"}'><template data-apk-part="head"><tr><th>System</th><th>Shape</th><th>Lesson</th></tr></template><template data-apk-part="body">
+<tr><td>BWF <code>levl</code> chunk (EBU Tech 3285 s3)</td><td>binary min/max pairs, fixed block size, stored with the asset</td><td>the broadcast standard is exactly this shape</td></tr>
+<tr><td>BBC <code>audiowaveform</code> / Peaks.js</td><td>signed <b>8-bit</b> min/max pairs, samples-per-pixel header</td><td>8-bit is the accepted UI fidelity</td></tr>
+<tr><td>Audacity summaries</td><td>per-256 + per-65536 sample mip levels</td><td>a finer level only matters for deep zoom — we get that from real PCM later</td></tr>
+<tr><td>wavesurfer.js peaks JSON</td><td>plain number arrays</td><td>works, but 4–6× the bytes and the slowest parse — avoid</td></tr>
+</template></div></div>
 
   <h2>The schema</h2>
   <pre><code>"preview": {
@@ -165,20 +163,22 @@ td.good{color:var(--good)} td.bad{color:var(--bad)}
                      ──▶ swaps in for deep zoom / spectrogram / region detect when ready</div>
 
   <h2>The ledger</h2>
-  <div class="tablewrap"><table>
-    <tr><th>Cost</th><th>Today</th><th>With preview</th></tr>
-    <tr><td>Extra file opens</td><td>—</td><td class="good">zero</td></tr>
-    <tr><td>Startup (manifest)</td><td>slim</td><td class="good">unchanged — preview excluded from slim rows</td></tr>
-    <tr><td>Paint after select, 1 h file</td><td class="bad">seconds (whole-file decode)</td><td class="good">~1 frame</td></tr>
-    <tr><td>Memory to draw, 1 h file</td><td class="bad">~690 MB transient</td><td class="good">≤ 32 KB</td></tr>
-    <tr><td>Long files in the library</td><td class="bad">skipped entirely</td><td class="good">listed, playable, drawn — tagged <code>analysis_depth: "preview_only"</code></td></tr>
-    <tr><td>Old sidecars / foreign records</td><td>—</td><td class="good">no preview → exactly today's decode path; purely additive</td></tr>
-  </table></div>
+  <div class="tablewrap"><div class="apk-table-host" data-apk-table-host="scanalyzer-doc-binary-peak-preview-3" data-apk-opts='{"id":"scanalyzer-doc-binary-peak-preview-3"}'><template data-apk-part="head"><tr><th>Cost</th><th>Today</th><th>With preview</th></tr></template><template data-apk-part="body">
+<tr><td>Extra file opens</td><td>—</td><td class="good">zero</td></tr>
+<tr><td>Startup (manifest)</td><td>slim</td><td class="good">unchanged — preview excluded from slim rows</td></tr>
+<tr><td>Paint after select, 1 h file</td><td class="bad">seconds (whole-file decode)</td><td class="good">~1 frame</td></tr>
+<tr><td>Memory to draw, 1 h file</td><td class="bad">~690 MB transient</td><td class="good">≤ 32 KB</td></tr>
+<tr><td>Long files in the library</td><td class="bad">skipped entirely</td><td class="good">listed, playable, drawn — tagged <code>analysis_depth: "preview_only"</code></td></tr>
+<tr><td>Old sidecars / foreign records</td><td>—</td><td class="good">no preview → exactly today's decode path; purely additive</td></tr>
+</template></div></div>
   <p class="meta" style="margin-top:2.5rem">Two principles carry the whole design:
   <b>piggyback small data on reads you already pay for</b> — the expensive unit is the file open,
   not the bytes — and <b>store at the fidelity of the consumer</b>: a ≤ 400 px canvas can show
   8 bits; everything above that is decode time, not information.</p>
 </main>
+<!-- THE ONE TABLE (ROAD-3494): every table above is an APKTable host, stood in by
+     the app's vendored apk-table (Web_Front/src/vendor/apk-table, check.sh webshared). -->
+<script src="../../Web_Front/src/vendor/apk-table/apk-table.js"></script>
 <script>
 (() => {
   const SR = 48000, CAP = 16384, FLOOR = 256;
