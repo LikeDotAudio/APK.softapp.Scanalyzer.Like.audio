@@ -118,7 +118,7 @@ for (let i = 0; i < 12; i++) AXES[`Chroma ${NOTE[i]}`] = chroma(i);
 // The bench's recordings (recordings.ts).
 Object.assign(AXES, RECORDING_NUMERIC);
 
-/** Dropdown grouping, so sixty options stay navigable. */
+/** Dropdown grouping, so sixty options stay navigable: sent as each field's `group` hint. */
 export const AXIS_GROUPS: AxisGroup[] = [
   { label: 'Time', axes: ['Length', 'Transients', 'Onset rate', 'Onset periodicity', 'Attack', 'Decay', 'Sustain', 'Release', 'Temporal centroid', 'Envelope skew', 'Envelope kurtosis', 'Sustain ratio', 'Decay to −60 dB', 'Trailing silence'] },
   { label: 'Frequency', axes: ['Brightness', 'Brightness drift', 'Brightness spread', 'Rolloff', 'Flatness', 'Spectral entropy', 'Spectral tilt', 'Band limit', 'Complexity', 'Spectral flux', 'Low band', 'Mid band', 'High band', 'Zero crossings'] },
@@ -132,7 +132,6 @@ export const AXIS_GROUPS: AxisGroup[] = [
   { label: 'Recording', axes: Object.keys(RECORDING_NUMERIC) },
 ];
 
-export const AXIS_NAMES = Object.keys(AXES);
 
 /**
  * Which features weight a face's CORNERS.
@@ -157,39 +156,6 @@ export const CORNER_SCHEMES: Record<string, string[]> = {
   'Pitch class': ['Chroma C', 'Chroma D', 'Chroma E', 'Chroma G', 'Chroma A', 'Chroma B'],
 };
 
-export const CORNER_SCHEME_NAMES = Object.keys(CORNER_SCHEMES);
 
-/**
- * Normalize a feature across the loaded set to [-1, 1].
- *
- * Robust to outliers on purpose: a single 20 kHz band-limit or a −70 LUFS silent
- * file would otherwise compress every other sample into a sliver at one end, so
- * the range is taken from the 2nd/98th percentile and values beyond it clamp.
- *
- * `sign` of -1 flips the axis. A feature only has a direction by convention —
- * "bright at the top" is a choice, not a fact — and being able to invert one is
- * how you get a scatter to open up instead of piling into a corner.
- *
- * An unmeasurable value reads as 0, the centre: absent is not "lowest".
- */
-export function normalizer(data: any[], name: string, sign: 1 | -1 = 1): (it: any) => number {
-  const get = AXES[name] ?? (() => NaN);
-  const values: number[] = [];
-  for (const it of data) {
-    const v = get(it);
-    if (Number.isFinite(v)) values.push(v);
-  }
-  if (values.length < 2) return () => 0;
-  values.sort((a, b) => a - b);
-  const at = (q: number) => values[Math.min(values.length - 1, Math.max(0, Math.round((values.length - 1) * q)))];
-  let lo = at(0.02);
-  let hi = at(0.98);
-  if (!(hi > lo)) { lo = values[0]; hi = values[values.length - 1]; }
-  const range = hi - lo || 1;
-  return (it) => {
-    const v = get(it);
-    if (!Number.isFinite(v)) return 0;
-    const t = ((v - lo) / range) * 2 - 1;
-    return sign * Math.max(-1, Math.min(1, t));
-  };
-}
+// Normalising a feature to the ball (2nd–98th percentile, clamped; absent at the
+// centre) is the viewer's now: VISUALIZER.Like.audio scale.mjs axisScale(robust).

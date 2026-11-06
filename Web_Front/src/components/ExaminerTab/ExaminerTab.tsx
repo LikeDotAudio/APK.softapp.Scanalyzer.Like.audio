@@ -10,7 +10,8 @@ import { renderLayerStack } from '../examiner/renderLayerStack';
 import { getLayerSettings, settingsNeedSpectrogram, subscribeLayerSettings } from '../examiner/layers/registry';
 import { computeSpectrogramFrames, type SpectrogramFrames } from '../examiner/layers/stft';
 import type { LayerData } from '../examiner/layers/types';
-import PropertyBars from '../examiner/PropertyBars';
+import { VizFrame } from '../../vizHost';
+import { cloudRecords, cloudSchema, sampleId } from '../CloudTab/cloudRecords';
 import FieldValueTable from '../examiner/FieldValueTable';
 import SliceTable from '../examiner/SliceTable';
 import RadialWaveform from '../examiner/RadialWaveform';
@@ -239,7 +240,11 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
   const loadTimerRef = useRef(0);
 
   // Per-feature min/max across the dataset, so each property bar fills relative
-  // (property-bar scaling lives in the PropertyBars component)
+  // The library as the Analyzer reads it, and the sample it is looking at.
+  const libraryRecords = useMemo(() => cloudRecords(analysisResult), [analysisResult]);
+  const librarySchema = useMemo(() => ({ ...cloudSchema(libraryRecords, {}), view: { focus: 'UCS Category' } }), [libraryRecords]);
+  const analyzerItem = detailItem || selectedItem;
+  const analyzerIds = useMemo(() => (analyzerItem ? [sampleId(analyzerItem)] : []), [analyzerItem]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -934,8 +939,13 @@ export default function ExaminerTab({ analysisResult, filteredData, audioFiles, 
                       <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textAlign: 'center' }}>Audio Eye</div>
                   )}
               </div>
-              <div style={{ flex: isNarrow ? 'none' : 1, minHeight: 0, padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: isNarrow ? 'visible' : 'auto' }}>
-                  <PropertyBars item={detailItem || selectedItem} analysisResult={analysisResult} />
+              {/* This sample against the library, every field: VISUALIZER.Like.audio's
+                  Analyzer (ROAD-3571), framed and sent the library as flat records, with
+                  this sample selected. It replaced PropertyBars, which did the same for
+                  sixteen hand-picked fields. */}
+              <div style={{ flex: isNarrow ? 'none' : 1, height: isNarrow ? 520 : undefined, minHeight: 0 }}>
+                  <VizFrame page="analyzer" records={libraryRecords} schema={librarySchema} title="Library"
+                    selectedIds={analyzerIds} onPick={(id) => onSound?.(String(id))} />
               </div>
           </div>
 

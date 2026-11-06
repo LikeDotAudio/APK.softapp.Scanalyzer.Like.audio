@@ -82,10 +82,11 @@ describe('the hosts', () => {
         // Step 4's whole point. A track is allowed; an UNEXPLAINED track is not,
         // because the next reader cannot tell it from a conversion nobody got to.
         // Header.tsx left this list when 382f068 reduced the header to `return null`:
-        // it draws no fill any more, so it has nothing to explain.
+        // it draws no fill any more, so it has nothing to explain. PropertyBars.tsx
+        // left it when ROAD-3571 replaced it with VISUALIZER's Analyzer (its
+        // percentile bars are the viewer's, outside this bundle).
         const hosts = [
             'components/ScanalyzeTab/ScanalyzeTab.tsx',
-            'components/examiner/PropertyBars.tsx',
         ];
         for (const host of hosts) {
             const source = read(host);

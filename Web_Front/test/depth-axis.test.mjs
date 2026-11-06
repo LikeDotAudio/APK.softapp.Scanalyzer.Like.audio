@@ -12,8 +12,11 @@
 //
 // WHY THE SOURCE IS READ RATHER THAN IMPORTED
 //
-// `SampleCloud.tsx` is TSX and pulls in three/react-three-fiber at module load,
-// so importing it needs a bundler and a DOM. Extracting the two things under
+// The rule lives in `CloudTab/cloudRecords.ts` since the cloud itself moved to
+// VISUALIZER.Like.audio (ROAD-3571): Scanalyzer builds the Depth field and sends
+// its order, the viewer only draws it. It was `SampleCloud.tsx`, which pulled in
+// three/react-three-fiber at module load, so importing it needed a bundler and a
+// DOM; the file is still read rather than imported, for the reason below. Extracting the two things under
 // test by regex keeps this a `node --test` file with no dependency and no build
 // step — and, more importantly, it tests THE SHIPPED SOURCE. A retyped copy of
 // `deeperSub` here would pass forever while the component drifted.
@@ -28,7 +31,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const COMPONENT = join(HERE, '..', 'src', 'components', 'SampleCloud.tsx');
+const COMPONENT = join(HERE, '..', 'src', 'components', 'CloudTab', 'cloudRecords.ts');
 const GOLDEN = join(HERE, 'depth-axis.golden.json');
 
 const source = readFileSync(COMPONENT, 'utf8');

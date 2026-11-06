@@ -100,15 +100,19 @@ test('no source outside spaceMouse.ts acts on `puck.moving` by itself', () => {
 });
 
 test('the surface that flies the puck goes through the helper', () => {
-  const flyer = join(SRC, 'components', 'SampleCloud.tsx');
+  // The camera is VISUALIZER.Like.audio's 3D viewer now (ROAD-3571), which flies
+  // whatever `fly` frames it is sent and stops when they stop. So the decision
+  // whether a frame is fit to fly is made HERE, by the host that forwards them:
+  // CloudTab's relay loop, and it must make it through the helper.
+  const flyer = join(SRC, 'components', 'CloudTab', 'CloudTab.tsx');
   const text = readFileSync(flyer, 'utf8');
   assert.match(
-    text, /import \{[^}]*\bpuckFlyable\b[^}]*\} from '\.\.\/spaceMouse'/,
-    'puck-flyable.test.mjs cannot find the `puckFlyable` import in SampleCloud.tsx. ' +
+    text, /import \{[^}]*\bpuckFlyable\b[^}]*\} from '\.\.\/\.\.\/spaceMouse'/,
+    'puck-flyable.test.mjs cannot find the `puckFlyable` import in CloudTab.tsx. ' +
     'PLAN-501.01 is the standing warning against exporting a helper nothing calls: if the ' +
     'one flying surface stops using it, this helper is dead code and the gate above is ' +
     'guarding a rule nobody follows.');
   assert.match(
     code(text), /if \(!puckFlyable\(\)\) return;/,
-    'SpaceMouseFly no longer guards on `puckFlyable()`');
+    'the fly relay no longer guards on `puckFlyable()` before it forwards a frame');
 });

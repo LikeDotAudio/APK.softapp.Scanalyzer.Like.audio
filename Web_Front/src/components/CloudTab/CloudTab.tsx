@@ -1,16 +1,14 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { Suspense, useState, useEffect, useMemo } from 'react';
-import SampleCloud from '../SampleCloud';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import AudioEye from '../AudioEye';
-import { isTauri, resolveAudioUrl } from '../../audioLinking';
+import { resolveAudioUrl } from '../../audioLinking';
 import { ucsColor } from '../../groupColors';
 import { decodePreview, previewShimSamples } from '../../peakPreview';
-import GraphOptionsMenu from './GraphOptionsMenu';
-import ShapesMenu from './ShapesMenu';
-import { WebGLBoundary, webglAvailable } from './WebGLBoundary';
+import { VizFrame } from '../../vizHost';
+import { cloudRecords, cloudSchema, savedCloudView, saveCloudView, sampleId } from './cloudRecords';
 import {
-  receivePuck, senseWarning, stallWarning, puckAbsent, puckStale,
+  puck, puckFlyable, receivePuck, senseWarning, stallWarning, puckAbsent, puckStale,
   staleWindowFor, stallPollMs, SENSE_CONFIRM_COMMAND, type PuckStatus,
 } from '../../spaceMouse';
 
@@ -31,13 +29,6 @@ interface CloudTabProps {
   // The footer's play/pause action, reused by the EYE's centre button.
   onEyePlay?: () => void;
 }
-
-// v2: the saved prefs are from the old taxonomy. A stored colorBy of 'Group' would
-// override the new UCS default (so the 3D scope bar would keep listing roles), and a
-// stored 'God Category' is now a dead option that no longer exists in the select.
-// Bumping the prefix retires both in one go.
-const PREF = 'scanalyzer_cloud_v2_';
-const getPref = (key: string, def: string) => localStorage.getItem(PREF + key) || def;
 
 /* THE AMBER A QUALIFIER IS DRAWN IN, and it is the token's, read rather than
    copied. `contracts/tokens/state.json` is where the three tones are DECIDED;
@@ -66,43 +57,6 @@ const getPref = (key: string, def: string) => localStorage.getItem(PREF + key) |
    there and a puck that is gone are drawn in the shell's own text tones, not in
    the state tones. */
 const STATE_KINDA = 'var(--apk-state-kinda)';
-
-// Shown when the 3D subtree threw a real rendering error (caught by WebGLBoundary) —
-// distinct from WebGL being unavailable, so a plain bug never masquerades as a GPU
-// problem. Names the actual error and offers a retry.
-function CloudCrashed({ error, onRetry }: { error: Error; onRetry: () => void }) {
-  return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-      <div style={{ fontSize: '2rem' }}>💥</div>
-      <div style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: 600 }}>The 3D view hit an error</div>
-      <div style={{ fontSize: '0.85rem', maxWidth: 460, lineHeight: 1.5 }}>
-        The cloud crashed while rendering this selection — an app bug, not your GPU. Changing
-        the scope retries automatically, or:
-      </div>
-      <code style={{ fontSize: '0.75rem', maxWidth: 520, padding: '0.3rem 0.6rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '4px', overflowWrap: 'anywhere' }}>
-        {error.message}
-      </code>
-      <button className="btn primary" onClick={onRetry} style={{ padding: '0.25rem 0.9rem', fontSize: '0.8rem' }}>Try again</button>
-    </div>
-  );
-}
-
-// Shown in place of the 3D cloud when WebGL can't start. The rest of the app (the 2D view,
-// Stats, Examiner, Extractor) doesn't need the GPU and keeps working.
-function WebGLUnavailable() {
-  return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-      <div style={{ fontSize: '2rem' }}>🧊</div>
-      <div style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: 600 }}>3D view unavailable</div>
-      <div style={{ fontSize: '0.85rem', maxWidth: 460, lineHeight: 1.5 }}>
-        WebGL couldn't start in this environment (GPU disabled, a sandboxed webview, or
-        hardware acceleration turned off). Everything else — the 2D view, Stats, Examiner and
-        Extractor — works without it. Enable hardware acceleration / GPU access to restore the
-        3D cloud.
-      </div>
-    </div>
-  );
-}
 
 // A qualifier on the puck badge — something true about the frames that is NOT a
 // change of state. There are two (`sense unverified`, `not reporting`) and they
@@ -135,49 +89,33 @@ function PuckQualifier({ glyph, text }: { glyph: string; text: string }) {
 export default function CloudTab({
   filteredData, audioFiles, onSound, selectedItem, playing, eyeAudio, onEyePlay
 }: CloudTabProps) {
-  const [xAxis, setXAxis] = useState(() => getPref('xAxis', 'Pitch'));
-  const [yAxis, setYAxis] = useState(() => getPref('yAxis', 'Group'));
-  const [zAxis, setZAxis] = useState(() => getPref('zAxis', 'Complexity'));
-  const [sizeAxis, setSizeAxis] = useState(() => getPref('sizeAxis', 'Length'));
-  // UCS is the only taxonomy now, so a stored colour of 'Group'/'Music Production'/
-  // 'Subgroup' from the old switch is retired to the UCS default rather than honoured.
-  const [colorBy, setColorBy] = useState(() => {
-    const c = getPref('colorBy', 'UCS Category');
-    return c.startsWith('UCS') ? c : 'UCS Category';
-  });
-  const [shapeBy, setShapeBy] = useState(() => getPref('shapeBy', 'Instrument'));
+  // THE CLOUD IS A VIEWER NOW (ROAD-3571): VISUALIZER.Like.audio's 3d.html, framed
+  // below and fed one flat record per sample (cloudRecords.ts says what a sample
+  // is). Its own bar picks the axes, colour, size and shape; what the user picks
+  // comes back as `view` and is remembered here, so the cloud reopens as it was left.
+  const records = useMemo(() => cloudRecords(filteredData), [filteredData]);
+  const [initialView] = useState(savedCloudView);
+  const schema = useMemo(() => cloudSchema(records, initialView), [records, initialView]);
 
-  const data = filteredData;
+  const handlePick = (id: string | number) => onSound?.(String(id));
+  const selectedIds = useMemo(() => (selectedItem ? [sampleId(selectedItem)] : []), [selectedItem]);
 
+  // THE PUCK FLIES THE VIEWER, and this is the only place that decides whether a
+  // frame is fit to fly: `puckFlyable()` (spaceMouse.ts) — moving AND not stale.
+  // The viewer flies what it is sent and stops when frames stop coming, so a
+  // frame this loop declines is a camera that stops, never one that runs on.
+  const fly = useRef<((f: { x: number; y: number; z: number; yaw: number; pitch: number; roll: number }) => void) | null>(null);
   useEffect(() => {
-    localStorage.setItem(PREF + 'xAxis', xAxis);
-    localStorage.setItem(PREF + 'yAxis', yAxis);
-    localStorage.setItem(PREF + 'zAxis', zAxis);
-    localStorage.setItem(PREF + 'sizeAxis', sizeAxis);
-    localStorage.setItem(PREF + 'colorBy', colorBy);
-    localStorage.setItem(PREF + 'shapeBy', shapeBy);
-  }, [xAxis, yAxis, zAxis, sizeAxis, colorBy, shapeBy]);
-  const [showAxes, setShowAxes] = useState(true);
-
-  // Hidden on first view — the cloud shows unobstructed, and the ⚙ button opens the
-  // options overlay when wanted (on any screen size).
-  const [showGraphOptions, setShowGraphOptions] = useState(false);
-  const [showShapes, setShowShapes] = useState(false);
-  // Checked once: if WebGL can't start (GPU disabled / sandboxed webview / headless), the
-  // 3D view shows a message instead of throwing an uncaught three.js error.
-  const [glOk] = useState(webglAvailable);
-
-  const handlePick = async (index: number) => {
-    const item = data[index];
-    if (!item) return;
-    onSound?.(item.metadata.name || '');
-  };
-
-  const selectedIndex = useMemo(() => {
-    if (!selectedItem) return null;
-    const idx = data.findIndex(it => it.metadata?.name === selectedItem.metadata?.name);
-    return idx === -1 ? null : idx;
-  }, [selectedItem, data]);
+    let raf = 0;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      if (!puckFlyable()) return;
+      const f = puck.frame;
+      fly.current?.({ x: f.x, y: f.y, z: f.z, yaw: f.yaw, pitch: f.pitch, roll: f.roll });
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   // The selected record's stored peak map — the EYE ring paints it the instant a point
   // is picked, before (or without) any audio decode.
@@ -302,20 +240,17 @@ export default function CloudTab({
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
 
       <section className="main-view glass-panel" style={{ margin: 0, padding: 0, overflow: 'hidden', flex: 1, position: 'relative' }}>
-        {glOk ? (
-          <WebGLBoundary resetKey={data} fallback={(error, retry) => <CloudCrashed error={error} onRetry={retry} />}>
-            <Suspense fallback={<div style={{ color: 'white', padding: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>Initializing 3D Engine...</div>}>
-              <SampleCloud
-                data={data} xAxis={xAxis} yAxis={yAxis} zAxis={zAxis}
-                sizeAxis={sizeAxis} colorBy={colorBy} shapeBy={shapeBy}
-                selectedIndex={selectedIndex} onPick={handlePick} showAxes={showAxes}
-                playing={playing}
-              />
-            </Suspense>
-          </WebGLBoundary>
-        ) : (
-          <WebGLUnavailable />
-        )}
+        <VizFrame
+          page="3d"
+          records={records}
+          schema={schema}
+          title="Scanalyzer — scoped samples"
+          selectedIds={selectedIds}
+          pulse={!!playing}
+          onPick={handlePick}
+          onView={saveCloudView}
+          flyRef={fly}
+        />
 
 
 
@@ -326,7 +261,7 @@ export default function CloudTab({
             relay never started. PLAN-393.03. */}
         <div
           style={{
-            position: 'absolute', top: '1rem', left: '1rem', zIndex: 20,
+            position: 'absolute', top: '4.4rem', left: '1rem', zIndex: 20,
             display: 'flex', alignItems: 'center', gap: '0.4rem',
             padding: '0.25rem 0.6rem', borderRadius: 4, fontSize: '0.75rem',
             border: `1px solid ${qualified ? STATE_KINDA : 'var(--border-color)'}`,
@@ -380,27 +315,6 @@ export default function CloudTab({
           {senseNotice && <PuckQualifier glyph="⚠" text={senseNotice} />}
           {stallNotice && <PuckQualifier glyph="⏸" text={stallNotice} />}
         </div>
-
-        {/* Overlay Toggles (Top Right) */}
-        <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 20, display: 'flex', gap: '0.5rem' }}>
-          <button className={`btn ${showShapes ? 'primary' : 'secondary'}`} onClick={() => { setShowShapes(!showShapes); setShowGraphOptions(false); }}>🔺 Shapes</button>
-          <button className={`btn ${showGraphOptions ? 'primary' : 'secondary'}`} onClick={() => { setShowGraphOptions(!showGraphOptions); setShowShapes(false); }}>⚙ Graph Options</button>
-        </div>
-
-        {/* Graph Options Overlay */}
-        {showGraphOptions && (
-          <GraphOptionsMenu
-            xAxis={xAxis} setXAxis={setXAxis} yAxis={yAxis} setYAxis={setYAxis}
-            zAxis={zAxis} setZAxis={setZAxis} sizeAxis={sizeAxis} setSizeAxis={setSizeAxis}
-            colorBy={colorBy} setColorBy={setColorBy} showAxes={showAxes} setShowAxes={setShowAxes}
-            audioFilesLength={isTauri() ? 1 : audioFiles.length}
-          />
-        )}
-
-        {/* Shapes Overlay */}
-        {showShapes && (
-          <ShapesMenu shapeBy={shapeBy} setShapeBy={setShapeBy} />
-        )}
 
         {/* EYE player — the selected sample's scrubbable radial waveform, overlaid
             bottom-right. Drives the shared footer audio, so ring, playhead and sound

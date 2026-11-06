@@ -5,15 +5,21 @@
 //! response does over time for the selected sound — and that timeline is driven
 //! by the per-transient ADSR slices, one trigger per hit, because a single
 //! file-level envelope would make a 15-round burst wince once, slowly.
+//!
+//! THE BALL IS A VIEWER NOW (ROAD-3571, 2026-11-06): VISUALIZER.Like.audio's
+//! 4d.html, framed here and fed one flat record per sample (faceRecords.ts says
+//! what a sample is to it: its features, its Response face, its Family colour).
+//! Its own bars carry the axes, the A–H views, the pull sliders, the faces list
+//! and the corner weighting; this tab keeps what only Scanalyzer knows — the
+//! selected sound's response and its blendshape timeline — and the EYE.
 import { useEffect, useMemo, useState } from 'react';
-import FaceBall, { COLOR_MODES, type ColorMode } from './FaceBall';
-import { AXIS_GROUPS, CORNER_SCHEME_NAMES } from './axes';
-import { WebGLBoundary, webglAvailable } from '../CloudTab/WebGLBoundary';
-import { RESPONSES, faceOfItem, blendshapeTimeline } from '../../facialResponse';
+import { blendshapeTimeline } from '../../facialResponse';
 import AudioEye from '../AudioEye';
 import { resolveAudioUrl } from '../../audioLinking';
 import { ucsColor } from '../../groupColors';
 import { decodePreview, previewShimSamples } from '../../peakPreview';
+import { VizFrame } from '../../vizHost';
+import { faceRecords, faceSchema, savedFaceView, saveFaceView } from './faceRecords';
 
 interface Props {
   filteredData: any[];
@@ -27,38 +33,6 @@ interface Props {
   onEyePlay?: () => void;
 }
 
-const PREF = 'scanalyzer_faceball_';
-const getPref = (k: string, d: string) => localStorage.getItem(PREF + k) || d;
-const setPref = (k: string, v: string) => localStorage.setItem(PREF + k, v);
-
-/** A–H view presets: three axes (with directions), a corner scheme and its pull.
- *  Each is a different question to ask of the same library — the point of eight
- *  buttons rather than one default is that no single projection answers them all. */
-type Preset = {
-  key: string; name: string;
-  x: string; y: string; z: string;
-  signs: [1 | -1, 1 | -1, 1 | -1];
-  corners: string; cornerPull: number; pull: number;
-};
-const PRESETS: Preset[] = [
-  { key: 'A', name: 'Classic — brightness / harmonicity / transients',
-    x: 'Brightness', y: 'Harmonicity', z: 'Transients', signs: [1, 1, 1], corners: 'Off', cornerPull: 0, pull: 0.85 },
-  { key: 'B', name: 'Envelope shape — attack / sustain / release',
-    x: 'Attack', y: 'Sustain', z: 'Release', signs: [1, 1, 1], corners: 'Envelope', cornerPull: 0.7, pull: 0.9 },
-  { key: 'C', name: 'Spectral balance — low / high / flatness',
-    x: 'Low band', y: 'High band', z: 'Flatness', signs: [1, 1, 1], corners: 'Spectral balance', cornerPull: 0.8, pull: 0.9 },
-  { key: 'D', name: 'Timbre fingerprint — the MFCC space',
-    x: 'MFCC 1', y: 'MFCC 2', z: 'MFCC 3', signs: [1, 1, 1], corners: 'Timbre (MFCC)', cornerPull: 0.8, pull: 0.85 },
-  { key: 'E', name: 'Material — harmonicity / inharmonicity / stationarity',
-    x: 'Harmonicity', y: 'Inharmonicity', z: 'Stationarity', signs: [1, 1, 1], corners: 'Material', cornerPull: 0.7, pull: 0.9 },
-  { key: 'F', name: 'Sequence — slices / vocabulary / determinism',
-    x: 'Slices', y: 'Vocabulary size', z: 'Determinism', signs: [1, 1, 1], corners: 'Sequence', cornerPull: 0.75, pull: 0.9 },
-  { key: 'G', name: 'Loudness & space — LUFS / crest / stereo width',
-    x: 'LUFS', y: 'Crest factor', z: 'Stereo width', signs: [1, 1, 1], corners: 'Off', cornerPull: 0, pull: 0.8 },
-  { key: 'H', name: 'Free scatter — no category pull, pure acoustics',
-    x: 'Brightness', y: 'Length', z: 'Pitch', signs: [1, -1, 1], corners: 'Off', cornerPull: 0, pull: 0 },
-];
-
 const panel: React.CSSProperties = {
   background: 'rgba(255,255,255,0.04)',
   border: '1px solid var(--border-color)',
@@ -69,53 +43,14 @@ const panel: React.CSSProperties = {
 export default function FaceBallTab({
   filteredData, selectedItem, onSound, audioFiles = [], eyeAudio, onEyePlay,
 }: Props) {
-  const [pull, setPull] = useState(() => Number(getPref('pull', '0.85')));
-  // Wireframe brightness. 1 is the cage's natural look; the range runs to 2 so it
-  // can be pushed brighter than default, and to 0 to hide it entirely.
-  const [outline, setOutline] = useState(() => Number(getPref('outline', '0.75')));
-  // How loudly the category patches read, independent of the cage.
-  const [categoryIntensity, setCategoryIntensity] = useState(() => Number(getPref('cat', '1')));
-  // Corner placement: which features weight the face's 5 or 6 corners, and how
-  // far the sample is pulled toward them.
-  const [cornerScheme, setCornerScheme] = useState(() => getPref('corners', 'Off'));
-  const [cornerPull, setCornerPull] = useState(() => Number(getPref('cornerPull', '0.6')));
-  const [signX, setSignX] = useState<1 | -1>(() => (getPref('sx', '1') === '-1' ? -1 : 1));
-  const [signY, setSignY] = useState<1 | -1>(() => (getPref('sy', '1') === '-1' ? -1 : 1));
-  const [signZ, setSignZ] = useState<1 | -1>(() => (getPref('sz', '1') === '-1' ? -1 : 1));
-  const [axisX, setAxisX] = useState(() => getPref('x', 'Brightness'));
-  const [axisY, setAxisY] = useState(() => getPref('y', 'Harmonicity'));
-  const [axisZ, setAxisZ] = useState(() => getPref('z', 'Transients'));
-  const [colorBy, setColorBy] = useState<ColorMode>(
-    () => (getPref('color', 'UCS Subcategory') as ColorMode),
-  );
-  const [soloFace, setSoloFace] = useState<number | null>(null);
   const [picked, setPicked] = useState<any>(null);
-
-  const applyPreset = (p: Preset) => {
-    setAxisX(p.x); setPref('x', p.x);
-    setAxisY(p.y); setPref('y', p.y);
-    setAxisZ(p.z); setPref('z', p.z);
-    setSignX(p.signs[0]); setPref('sx', String(p.signs[0]));
-    setSignY(p.signs[1]); setPref('sy', String(p.signs[1]));
-    setSignZ(p.signs[2]); setPref('sz', String(p.signs[2]));
-    setCornerScheme(p.corners); setPref('corners', p.corners);
-    setCornerPull(p.cornerPull); setPref('cornerPull', String(p.cornerPull));
-    setPull(p.pull); setPref('pull', String(p.pull));
-  };
+  const records = useMemo(() => faceRecords(filteredData), [filteredData]);
+  const [initialView] = useState(savedFaceView);
+  const schema = useMemo(() => faceSchema(initialView), [initialView]);
+  const byName = useMemo(() => new Map(filteredData.map((it) => [it?.metadata?.name || '', it])), [filteredData]);
 
   const item = picked ?? selectedItem;
-  const visibleFaces = useMemo(
-    () => (soloFace == null ? new Set<number>() : new Set([soloFace])),
-    [soloFace],
-  );
-
-  // How many samples land on each face — the population of each response class.
-  const counts = useMemo(() => {
-    const c = new Array(RESPONSES.length).fill(0);
-    for (const it of filteredData) c[faceOfItem(it)]++;
-    return c;
-  }, [filteredData]);
-
+  const selectedIds = useMemo(() => (item?.metadata?.name ? [item.metadata.name] : []), [item]);
   const timeline = useMemo(() => (item ? blendshapeTimeline(item) : null), [item]);
 
   // ---- the EYE overlay, wired exactly as the 3D cloud wires it.
@@ -146,201 +81,40 @@ export default function FaceBallTab({
     return () => { cancelled = true; };
   }, [item, audioFiles]);
 
-  // One axis: a grouped picker plus a ± that flips its direction. Sixty options
-  // are only navigable grouped, and the flip is what un-squashes a scatter that
-  // has piled into one corner.
-  const axisSelect = (
-    value: string, set: (v: string) => void, prefKey: string, label: string,
-    sign: 1 | -1, setSign: (v: 1 | -1) => void, signKey: string,
-  ) => (
-    <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {label}
-      <div style={{ display: 'flex', gap: 2 }}>
-        <select
-          className="btn"
-          value={value}
-          onChange={(e) => { set(e.target.value); setPref(prefKey, e.target.value); }}
-          style={{ fontSize: '0.75rem', padding: '0.15rem 0.3rem', maxWidth: 150 }}
-        >
-          {AXIS_GROUPS.map((g) => (
-            <optgroup key={g.label} label={g.label}>
-              {g.axes.map((n) => <option key={n} value={n}>{n}</option>)}
-            </optgroup>
-          ))}
-        </select>
-        <button
-          className="btn"
-          onClick={() => { const v = sign === 1 ? -1 : 1; setSign(v); setPref(signKey, String(v)); }}
-          title={sign === 1 ? 'Ascending — click to invert' : 'Inverted — click to restore'}
-          style={{ fontSize: '0.75rem', padding: '0.15rem 0.35rem', minWidth: 26,
-            color: sign === -1 ? 'var(--accent-primary)' : undefined }}
-        >
-          {sign === 1 ? '+' : '−'}
-        </button>
-      </div>
-    </label>
-  );
-
-  if (!webglAvailable()) {
-    return (
-      <div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
-        The 4D view needs WebGL, which this browser or webview can't start.
-      </div>
-    );
-  }
-
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: 0, height: '100%' }}>
-      {/* ---- the ball */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', gap: '0.7rem', alignItems: 'flex-end', padding: '0.4rem 0.6rem', borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-          {axisSelect(axisX, setAxisX, 'x', 'Across face', signX, setSignX, 'sx')}
-          {axisSelect(axisY, setAxisY, 'y', 'Up face', signY, setSignY, 'sy')}
-          {axisSelect(axisZ, setAxisZ, 'z', 'Off face', signZ, setSignZ, 'sz')}
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            Colour
-            <select
-              className="btn"
-              value={colorBy}
-              onChange={(e) => { setColorBy(e.target.value as ColorMode); setPref('color', e.target.value); }}
-              style={{ fontSize: '0.75rem', padding: '0.15rem 0.3rem' }}
-            >
-              {COLOR_MODES.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </label>
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2, minWidth: 190 }}>
-            Category pull — {(pull * 100).toFixed(0)}%
-            <input
-              type="range" min={0} max={2} step={0.01} value={pull}
-              onChange={(e) => { const v = Number(e.target.value); setPull(v); setPref('pull', String(v)); }}
+      <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+        <VizFrame
+          page="4d"
+          records={records}
+          schema={schema}
+          title="Scanalyzer — response ball"
+          selectedIds={selectedIds}
+          onPick={(id) => { const it = byName.get(String(id)); setPicked(it ?? null); onSound?.(String(id)); }}
+          onView={saveFaceView}
+        />
+        {/* EYE player — the picked sample's scrubbable radial waveform, overlaid
+            bottom-left (the viewer's faces list is on its right). Drives the shared
+            footer audio, so ring, playhead and sound are one transport. */}
+        {eyeSrc && item && (
+          <div style={{ position: 'absolute', bottom: '0.75rem', right: '17.5rem', zIndex: 15 }}>
+            <AudioEye
+              src={eyeSrc}
+              name={item.metadata?.name || ''}
+              color={ucsColor(item.ucs?.category || '')}
+              size={150}
+              audioEl={eyeAudio}
+              onTogglePlay={onEyePlay}
+              autoPlay={false}
+              previewSamples={eyePreview}
             />
-          </label>
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2, minWidth: 170 }}>
-            Outline intensity — {(outline * 100).toFixed(0)}%
-            <input
-              type="range" min={0} max={2} step={0.01} value={outline}
-              onChange={(e) => { const v = Number(e.target.value); setOutline(v); setPref('outline', String(v)); }}
-            />
-          </label>
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2, minWidth: 170 }}>
-            Category intensity — {(categoryIntensity * 100).toFixed(0)}%
-            <input
-              type="range" min={0} max={2} step={0.01} value={categoryIntensity}
-              onChange={(e) => { const v = Number(e.target.value); setCategoryIntensity(v); setPref('cat', String(v)); }}
-            />
-          </label>
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            Corner weighting
-            <select
-              className="btn"
-              value={cornerScheme}
-              onChange={(e) => { setCornerScheme(e.target.value); setPref('corners', e.target.value); }}
-              style={{ fontSize: '0.75rem', padding: '0.15rem 0.3rem' }}
-            >
-              {CORNER_SCHEME_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
-            </select>
-          </label>
-          {cornerScheme !== 'Off' && (
-            <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 2, minWidth: 170 }}>
-              Corner pull — {(cornerPull * 100).toFixed(0)}%
-              <input
-                type="range" min={0} max={1} step={0.01} value={cornerPull}
-                onChange={(e) => { const v = Number(e.target.value); setCornerPull(v); setPref('cornerPull', String(v)); }}
-              />
-            </label>
-          )}
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', maxWidth: 300, lineHeight: 1.35 }}>
-            0 % is the plain 3-feature scatter. 100 % seats every sample on its
-            response face. Past 100 % the samples overshoot outward, which pulls
-            crowded neighbouring faces apart. A sample that resists the pull is one
-            whose sound disagrees with its category.
           </div>
-          {soloFace != null && (
-            <button className="btn" onClick={() => setSoloFace(null)} style={{ fontSize: '0.72rem' }}>
-              Show all 32 faces
-            </button>
-          )}
-        </div>
-        {/* A–H: eight ways to ask the library a different question. */}
-        <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', padding: '0.3rem 0.6rem',
-          borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginRight: '0.2rem' }}>Views</span>
-          {PRESETS.map((p) => {
-            const active = axisX === p.x && axisY === p.y && axisZ === p.z && cornerScheme === p.corners;
-            return (
-              <button
-                key={p.key}
-                className={`btn ${active ? 'primary' : 'secondary'}`}
-                onClick={() => applyPreset(p)}
-                title={p.name}
-                style={{ fontSize: '0.72rem', padding: '0.15rem 0.55rem', fontWeight: 700 }}
-              >
-                {p.key}
-              </button>
-            );
-          })}
-        </div>
-        {/* position: relative so the EYE can be pinned inside the ball's own
-            area rather than the whole tab — otherwise it would sit over the
-            32-faces panel on the right. */}
-        <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
-          <WebGLBoundary
-            resetKey={`${filteredData.length}:${soloFace}`}
-            fallback={(err, retry) => (
-              <div style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
-                The 4D view hit an error: <code>{err.message}</code>{' '}
-                <button className="btn" onClick={retry}>Try again</button>
-              </div>
-            )}
-          >
-            <FaceBall
-              data={filteredData}
-              selectedItem={item}
-              onSelect={(it) => { setPicked(it); onSound?.(it?.metadata?.name); }}
-              pull={pull}
-              outline={outline}
-              categoryIntensity={categoryIntensity}
-              axisSigns={[signX, signY, signZ]}
-              cornerScheme={cornerScheme}
-              cornerPull={cornerPull}
-              axes={[axisX, axisY, axisZ]}
-              visibleFaces={visibleFaces}
-              colorBy={colorBy}
-            />
-          </WebGLBoundary>
-
-          {/* EYE player — the picked sample's scrubbable radial waveform,
-              overlaid bottom-right. Drives the shared footer audio, so ring,
-              playhead and sound are one transport. Same placement and wiring as
-              the 3D cloud, so the control means the same thing on both views. */}
-          {eyeSrc && item && (
-            <div style={{ position: 'absolute', bottom: '0.75rem', right: '0.75rem', zIndex: 15 }}>
-              <AudioEye
-                src={eyeSrc}
-                name={item.metadata?.name || ''}
-                color={ucsColor(item.ucs?.category || '')}
-                size={150}
-                audioEl={eyeAudio}
-                onTogglePlay={onEyePlay}
-                autoPlay={false}
-                previewSamples={eyePreview}
-              />
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* ---- the response side panel */}
-      <aside style={{ width: 300, borderLeft: '1px solid var(--border-color)', overflowY: 'auto', padding: '0.6rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-        <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-          32 response faces
-        </div>
-        <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-          12 pentagons carry the primary reactions, 20 hexagons the secondary and
-          ambient ones. Click one to isolate it.
-        </div>
-
-        {timeline && item && (
+      {/* ---- the selected sound's response, over time */}
+      {timeline && item && (
+        <aside style={{ width: 280, borderLeft: '1px solid var(--border-color)', overflowY: 'auto', padding: '0.6rem' }}>
           <div style={{ ...panel, borderColor: '#4dd0e1' }}>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Selected</div>
             <div style={{ fontSize: '0.82rem', fontWeight: 600, overflowWrap: 'anywhere' }}>
@@ -363,34 +137,8 @@ export default function FaceBallTab({
             </div>
             <BlendshapeStrip keys={timeline.keys} duration={item?.metadata?.length_seconds ?? 0} />
           </div>
-        )}
-
-        {RESPONSES.map((r, i) => (
-          <button
-            key={r.id}
-            className="btn"
-            onClick={() => setSoloFace(soloFace === i ? null : i)}
-            style={{
-              ...panel,
-              textAlign: 'left',
-              cursor: 'pointer',
-              opacity: counts[i] ? 1 : 0.4,
-              outline: soloFace === i ? '1px solid var(--accent-primary)' : 'none',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
-              <span style={{ fontSize: '0.76rem', fontWeight: 600 }}>{r.name}</span>
-              <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{counts[i]}</span>
-            </div>
-            <div style={{ fontSize: '0.64rem', color: 'var(--text-secondary)', marginTop: 2 }}>
-              {i < 12 ? 'pentagon' : 'hexagon'} · {r.family}
-            </div>
-            <div style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', marginTop: 2, overflowWrap: 'anywhere' }}>
-              {r.categories.join(' · ')}
-            </div>
-          </button>
-        ))}
-      </aside>
+        </aside>
+      )}
     </div>
   );
 }

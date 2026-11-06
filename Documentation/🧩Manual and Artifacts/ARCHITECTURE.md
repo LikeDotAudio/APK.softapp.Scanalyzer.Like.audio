@@ -30,7 +30,8 @@ Web_Front/
   src/soloWindow.ts       ?solo=1 contract with the OS shell
   src/components/ConvertMenu.tsx   footer ⚙ Convert: the selected sample → Worker-SAMPLE_CONVERSION
   src/sampleConversion.ts, sampleConversionJob.ts   its MQTT client; its job/result rules (tested)
-  src/spaceMouse.ts       SpaceMouse puck frames, sense/stall rules (CloudTab, SampleCloud)
+  src/spaceMouse.ts       SpaceMouse puck frames, sense/stall rules (CloudTab relays fit frames to the 3D viewer)
+  src/vizHost.tsx         host end of viz.like.audio/host@1: frames VISUALIZER.Like.audio's viewers
   src/ucsIndex.ts, categoryEmoji.ts, ucsSynonyms*.ts   UCS mirrors (generated tables)
   (no OCR here)           the legacy vanilla-DOM shell (src/shell/) and the modules only it
                           reached — browser OCR (tesseract.js), vectorize, image/document
@@ -71,7 +72,7 @@ SCANNER.Scanalyze/, Crawler.Like.Audio/   submodules
 ## Screens
 
 `TAB_IDS` in `App.tsx`: `scanalyze` (pick a folder, scan), `devices` (bench devices,
-`DevicesTab`), `cloud` (3D, `CloudTab` + `SampleCloud`), `faceball` (4D), `stats` (2D),
+`DevicesTab`), `cloud` (3D, `CloudTab` hosting VISUALIZER.Like.audio `3d.html`, records from `CloudTab/cloudRecords.ts`), `faceball` (4D), `stats` (2D),
 `groups`, `examiner`, `favorites`, `extractor`, `rename`. `scripts/check-mount-reach.mjs`
 fails if a screen component exists that none of these can reach.
 
