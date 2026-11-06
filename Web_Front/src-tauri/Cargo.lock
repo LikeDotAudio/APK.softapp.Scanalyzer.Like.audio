@@ -644,7 +644,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.59.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1995,7 +1995,7 @@ dependencies = [
 [[package]]
 name = "oa-sample-analyzer"
 version = "2.0.0"
-source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=eaa53036415f609b67eecabc354dfd910246ecdb#eaa53036415f609b67eecabc354dfd910246ecdb"
+source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=f7fa01eba78273906d4e70c103d1368dd68339b3#f7fa01eba78273906d4e70c103d1368dd68339b3"
 dependencies = [
  "apk-ucs-bundle",
  "ebur128",
@@ -4496,7 +4496,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]

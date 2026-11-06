@@ -21,4 +21,4 @@ console_error_panic_hook = "0.1.7"
 # extractor_engine packages with two Region types. In the monorepo the locally excluded
 # Web_Front/.cargo/config.toml patches both URLs back to the sibling folders.
 extractor_engine = { git = "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor-Engine", rev = "5c55ca5518462d68d9fcbd828465fffbf0c5d79e" }
-oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "eaa53036415f609b67eecabc354dfd910246ecdb" }
+oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "f7fa01eba78273906d4e70c103d1368dd68339b3" }
