@@ -27,6 +27,12 @@ COPY ["contracts/rust",   "./PODS/POD.THICK/NODE.BareMetal/SRC/contracts/rust"]
 COPY ["contracts/tokens", "./PODS/POD.THICK/NODE.BareMetal/SRC/contracts/tokens"]
 # problems.rs include_str!s ../../problems/problems.json — the errors-and-fixes catalogue.
 COPY ["contracts/problems", "./PODS/POD.THICK/NODE.BareMetal/SRC/contracts/problems"]
+# contracts 2.2.0+ (capture_rule, unit gate) include_str!s these too: the topic grammar the
+# Python package ships, the rig schema and the vectors — the same three DISCOVERY.Engine's
+# image copies (ROAD-3565 there, ROAD-3602 here).
+COPY ["contracts/python/apkaudio_contracts/topic_grammar.json", "./PODS/POD.THICK/NODE.BareMetal/SRC/contracts/python/apkaudio_contracts/topic_grammar.json"]
+COPY ["contracts/proto", "./PODS/POD.THICK/NODE.BareMetal/SRC/contracts/proto"]
+COPY ["contracts/vectors", "./PODS/POD.THICK/NODE.BareMetal/SRC/contracts/vectors"]
 COPY ["PODS/POD.THICK/DISCOVERY.Engine/SRC/Cargo.toml", "./PODS/POD.THICK/DISCOVERY.Engine/SRC/Cargo.toml"]
 COPY ["PODS/POD.THICK/DISCOVERY.Engine/SRC/RUNNER",     "./PODS/POD.THICK/DISCOVERY.Engine/SRC/RUNNER"]
 # The tool: the graphics-suite crate (its library is the OCR and the tracer)
@@ -36,13 +42,19 @@ COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_su
 COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/lib",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/lib"]
 COPY ["PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/SRC",        "./PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/graphics_suite_rs/SRC"]
 
+# NOT --locked (ROAD-3602): the committed Cargo.lock resolves the patched
+# crates from GitHub (the SDK tag, the engine/UCS rev), which is what CI and a
+# clone build. Patching them to the copied paths makes cargo rewrite those
+# lock entries, and --locked refuses that. The rewrite happens in this build
+# stage only, touching just the patched packages: every other crate keeps its
+# committed pin, and the lock in the repository is never changed.
 ARG SDK=https://github.com/LikeDotAudio/APK.plugin.SDK
 RUN set -e; \
     P1="patch.\"$SDK\".apk-plugin-runner.path=\"PODS/POD.THICK/DISCOVERY.Engine/SRC/RUNNER\""; \
     P2="patch.\"$SDK\".apkaudio-contracts.path=\"PODS/POD.THICK/NODE.BareMetal/SRC/contracts/rust\""; \
-    cargo build --release --locked --config "$P1" --config "$P2" \
+    cargo build --release --config "$P1" --config "$P2" \
         --manifest-path "$TOOL/SRC/Cargo.toml" --bin apk-worker-graphics-suite; \
-    cargo build --release --locked --config "$P1" --config "$P2" \
+    cargo build --release --config "$P1" --config "$P2" \
         --manifest-path "$TOOL/SRC/Cargo.toml" -p apk-plugin-runner --bin apk-plugin-health; \
     mkdir -p /out \
  && cp target/release/apk-worker-graphics-suite target/release/apk-plugin-health /out/
