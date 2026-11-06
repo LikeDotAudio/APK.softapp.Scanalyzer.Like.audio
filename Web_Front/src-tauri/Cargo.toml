@@ -37,4 +37,4 @@ tauri-plugin-fs = "2"
 # extractor_engine packages with two Region types. In the monorepo the locally excluded
 # Web_Front/.cargo/config.toml patches both URLs back to the sibling folders.
 extractor_engine = { git = "https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor-Engine", rev = "5c55ca5518462d68d9fcbd828465fffbf0c5d79e" }
-oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "f7fa01eba78273906d4e70c103d1368dd68339b3" }
+oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "238e13df2504b97d9aa49380c896b9875bbfe677" }

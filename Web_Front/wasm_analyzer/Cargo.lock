@@ -432,7 +432,7 @@ dependencies = [
 [[package]]
 name = "oa-sample-analyzer"
 version = "2.0.0"
-source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=f7fa01eba78273906d4e70c103d1368dd68339b3#f7fa01eba78273906d4e70c103d1368dd68339b3"
+source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=238e13df2504b97d9aa49380c896b9875bbfe677#238e13df2504b97d9aa49380c896b9875bbfe677"
 dependencies = [
  "apk-ucs-bundle",
  "ebur128",

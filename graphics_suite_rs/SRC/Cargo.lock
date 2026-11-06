@@ -78,7 +78,7 @@ dependencies = [
 [[package]]
 name = "apk-plugin-runner"
 version = "2.0.0"
-source = "git+https://github.com/LikeDotAudio/APK.plugin.SDK?tag=sdk-v2.2#6d117bb6f578483a93d820e367ea4471d14849b2"
+source = "git+https://github.com/LikeDotAudio/APK.plugin.SDK?tag=sdk-v2.3#46bba0ac561f91d4ba4fbbd8cbb8620f650b41ef"
 dependencies = [
  "apkaudio-contracts",
  "libc",
@@ -101,8 +101,8 @@ dependencies = [
 
 [[package]]
 name = "apkaudio-contracts"
-version = "2.2.0"
-source = "git+https://github.com/LikeDotAudio/APK.plugin.SDK?tag=sdk-v2.2#6d117bb6f578483a93d820e367ea4471d14849b2"
+version = "2.3.0"
+source = "git+https://github.com/LikeDotAudio/APK.plugin.SDK?tag=sdk-v2.3#46bba0ac561f91d4ba4fbbd8cbb8620f650b41ef"
 dependencies = [
  "regress",
  "serde",
