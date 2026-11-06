@@ -644,7 +644,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -1895,7 +1895,7 @@ dependencies = [
  "png 0.18.1",
  "serde",
  "thiserror 2.0.18",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1995,7 +1995,7 @@ dependencies = [
 [[package]]
 name = "oa-sample-analyzer"
 version = "2.0.0"
-source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=60df61f36ba50ffaca6d15a47f0f926792cca91e#60df61f36ba50ffaca6d15a47f0f926792cca91e"
+source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=eaa53036415f609b67eecabc354dfd910246ecdb#eaa53036415f609b67eecabc354dfd910246ecdb"
 dependencies = [
  "apk-ucs-bundle",
  "ebur128",
@@ -3036,7 +3036,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4079,7 +4079,7 @@ dependencies = [
  "png 0.18.1",
  "serde",
  "thiserror 2.0.18",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4496,7 +4496,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

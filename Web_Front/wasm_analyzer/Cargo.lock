@@ -171,6 +171,7 @@ checksum = "af9673d8203fcb076b19dfd17e38b3d4ae9f44959416ea532ce72415a6020365"
 [[package]]
 name = "extractor_engine"
 version = "2.0.0"
+source = "git+https://github.com/LikeDotAudio/APK.softapp.CAPTURE.Extractor-Engine?rev=5c55ca5518462d68d9fcbd828465fffbf0c5d79e#5c55ca5518462d68d9fcbd828465fffbf0c5d79e"
 dependencies = [
  "serde",
 ]
@@ -431,6 +432,7 @@ dependencies = [
 [[package]]
 name = "oa-sample-analyzer"
 version = "2.0.0"
+source = "git+https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer?rev=eaa53036415f609b67eecabc354dfd910246ecdb#eaa53036415f609b67eecabc354dfd910246ecdb"
 dependencies = [
  "apk-ucs-bundle",
  "ebur128",
