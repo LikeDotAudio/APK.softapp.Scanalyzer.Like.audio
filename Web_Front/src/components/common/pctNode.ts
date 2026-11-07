@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-// The percent-fill chip (../Pct.tsx) as a DOM node, for an APKTable cell: the
+// The percent-fill chip as a DOM node, for an APKTable cell: the
 // same markup percent-fill.css defines, the clamp still percentFill.ts's.
 import { percentChip, ratioChip } from '../../percentFill'
 

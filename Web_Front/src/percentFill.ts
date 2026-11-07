@@ -9,7 +9,7 @@
  * strips TypeScript natively, so `test/*.test.mjs` can import THIS FILE and
  * call the rule under test with nothing installed — which is the rung-1 shape
  * the whole `Web_Front/test` tree is built on, and JSX would put it out of
- * reach of it. `Pct.tsx` beside this is the markup and nothing else.
+ * reach of it. `components/common/pctNode.ts` is the markup and nothing else.
  *
  * - CLAMPED FOR THE FILL, HONEST IN THE TEXT. A value outside 0..100 still
  *   prints the number it was given; only the fill is clamped, because a track
