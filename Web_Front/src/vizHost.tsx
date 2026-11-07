@@ -15,28 +15,18 @@
  *   view   → onView(patch) — the tab remembers the user's axes
  *   fly    → sendFly(frame) — the tab decides whether a frame is fit to fly
  *
- * WHERE THE VIEWERS ARE. Both bundles are served from the Softapps tree
- * (/APK:Softapps/… on the bench and apk.audio), so the default is the relative
- * path from this bundle's dist/ to the viewers' dist/. `?viz=<base url>`
- * overrides it, and the dev server is pointed at the checkout (vite.config.ts).
+ * WHERE THE VIEWERS ARE: vizBase.ts. In a browser, the relative path between
+ * the two dist/ folders in the Softapps tree; in the desktop (Tauri) app, the
+ * copy bundled at ./viz/; failing either, the published viewers on apk.audio.
+ * `?viz=<base url>` overrides it, and the dev server is pointed at the checkout.
  */
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { resolveVizBase, vizBase } from './vizBase';
 
 export const VIZ_PROTOCOL = 'viz.like.audio/host@1';
 export type VizPage = '2d' | '3d' | '4d' | 'analyzer';
 export type VizView = Record<string, unknown>;
 export interface VizSchema { id?: string; label?: string; fields?: Record<string, unknown>; view?: VizView; presets?: { key?: string; name: string; view: VizView }[] }
-
-declare const __VIZ_DEV_BASE__: string | undefined;
-
-/** The folder holding the viewers' pages, ending in '/'. */
-export function vizBase(): string {
-  const q = new URLSearchParams(globalThis.location?.search ?? '').get('viz');
-  if (q) return q.endsWith('/') ? q : q + '/';
-  if (typeof __VIZ_DEV_BASE__ === 'string' && __VIZ_DEV_BASE__) return __VIZ_DEV_BASE__;
-  // dist/ → Web_Front → SCANALYZER.Like.audio → SCANALYZER_SUITE → Softapps
-  return '../../../../VISUALIZER/VISUALIZER.Like.audio/dist/';
-}
 
 interface Props {
   page: VizPage;
@@ -59,6 +49,9 @@ export function VizFrame({ page, records, schema, title, selectedIds = [], pulse
   const frame = useRef<HTMLIFrameElement>(null);
   // Counts the viewer's `ready`s: a reloaded frame says ready again, and its data must follow it.
   const [ready, setReady] = useState(0);
+  // The first guess frames at once; the probe may move it (bundled copy absent → apk.audio).
+  const [base, setBase] = useState(vizBase);
+  useEffect(() => { let live = true; resolveVizBase().then((b) => { if (live) setBase(b); }); return () => { live = false; }; }, []);
   const cb = useRef({ onPick, onSelect, onView });
   cb.current = { onPick, onSelect, onView };
 
@@ -93,7 +86,7 @@ export function VizFrame({ page, records, schema, title, selectedIds = [], pulse
     <iframe
       ref={frame}
       title={`${page} viewer`}
-      src={`${vizBase()}${page}.html`}
+      src={`${base}${page}.html`}
       style={{ border: 0, width: '100%', height: '100%', display: 'block', background: '#0B0E14', ...style }}
     />
   );
