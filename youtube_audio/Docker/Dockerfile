@@ -15,7 +15,7 @@
 
 FROM debian:bookworm-slim AS sdk
 ARG SDK=https://github.com/LikeDotAudio/APK.plugin.SDK
-ARG SDK_TAG=sdk-v2.4
+ARG SDK_TAG=sdk-v2.5
 ARG SDK_COMMIT=24496d9ecfd4376c404b71ceb6e05bee8ad805b0
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
  && rm -rf /var/lib/apt/lists/* \

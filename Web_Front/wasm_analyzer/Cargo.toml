@@ -17,5 +17,5 @@ js-sys = "0.3"
 # wasm_analyzer and src-tauri (and the analyzer's own pin of the engine), or cargo builds two
 # extractor_engine packages with two Region types. In the monorepo the locally excluded
 # Web_Front/.cargo/config.toml patches both URLs back to the sibling folders.
-oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "66e47117ea59a29b9f89856539a8713e7ad11012" }
+oa-sample-analyzer = { git = "https://github.com/LikeDotAudio/APK.softapp.PROCESSOR.SampleAnalyzer", rev = "6c81f82174ad3dd05908161dbdc6b031ab8c60f5" }
 console_error_panic_hook = "0.1.7"
