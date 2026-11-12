@@ -4,13 +4,12 @@ Is `SCANALYZER.Like.audio` deployed? Written by `.apk.scripts/smoke.py` from the
 
 ← [Wiki home](../README.md)
 
-**❌ FAIL** — 13/15 checks, since 2026-11-12 00:16 EST
+**✅ PASS** — 14/14 checks, since 2026-11-12 00:40 EST
 
 | Check | Target | Result | Detail |
 |---|---|---|---|
-| pushed | [APK.softapp.Scanalyzer.Like.audio](https://github.com/LikeDotAudio/APK.softapp.Scanalyzer.Like.audio.git) | ❌ | 1 commit(s) not pushed |
+| pushed | [APK.softapp.Scanalyzer.Like.audio](https://github.com/LikeDotAudio/APK.softapp.Scanalyzer.Like.audio.git) | ✅ | HEAD is on origin |
 | container | `Scanalyzer-API` | ✅ | running, healthy |
-| web | [Web_Front/desktop.py](https://apk.audio/APK%3ASoftapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/desktop.py) | ❌ | HTTPError: HTTP Error 404: Not Found |
 | app | `OS/Capture Extractor` → `PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/index.html` | ✅ | present |
 | app | `OS/Capture Extractor Engine` → `PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/index.html` | ✅ | present |
 | app | `OS/Scanalyzer` → `PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio/Web_Front/dist/index.html` | ✅ | present |
@@ -26,4 +25,4 @@ Is `SCANALYZER.Like.audio` deployed? Written by `.apk.scripts/smoke.py` from the
 
 Re-run: `python3 .apk.scripts/smoke.py PODS/POD.THIN/Softapps/SCANALYZER_SUITE/SCANALYZER.Like.audio`
 
-<!-- smoke:sig a4188fa06f08 since 2026-11-12 00:16 EST -->
+<!-- smoke:sig e388339bbb13 since 2026-11-12 00:40 EST -->
