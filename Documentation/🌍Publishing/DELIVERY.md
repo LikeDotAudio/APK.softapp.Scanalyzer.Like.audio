@@ -102,5 +102,21 @@ The repo's smoke result is in [SMOKE.md](../🧩Manual%20and%20Artifacts/SMOKE.m
 - **Convert by URL (SampleConversion schema 2)** (P08 handoff) — `convertSample` PUTs the sample to `/api/files/sample_conversion/<job_id>/<filename>` on the page's own origin, publishes the job with `source_url` / `result_url` (paths, so page and worker reach the same Storage-Portal file), reads `result.url` from `…/incoming/result` and GETs it; `ConvertMenu.tsx` plays/saves that file. While `/api/files` answers 404/405/501 (or is unreachable) it falls back to the one-release inline job (base64 in/out). Tests: `test/sample-conversion-job.test.mjs` (job paths, schema-2 and inline answers, a refusal); the live inline round trip still passes. `Docker/check.sh` green (78 node tests).
 - **Worker-GRAPHICS_SUITE on `sdk-v0.9`** (PLAN-3432.01) — `graphics_suite_rs/SRC/Cargo.toml` takes runner and contracts at `tag = "sdk-v0.9"`. `graphics_suite_rs/SRC/Cargo.lock` stays in the form `Docker/Dockerfile` builds with (`--locked` plus the two `--config` path patches from the repo root): runner and contracts are path packages, contracts now 0.3.0 (it said 0.2.0, which the image's `--locked` build refused), one `apkaudio-contracts`. A clone alone re-resolves them against GitHub without `--locked`. Verified 2026-10-31: the Dockerfile's two commands as `cargo check --locked` with the same patches pass.
 
+## Delivered 2026-11-11 – 2026-11-12
+
+From this repository's own commits (the commit message is the record):
+
+- ROAD-3613: Scanalyzer's Tauri app is audio.like.scanalyzer, not the template's com.tauri.dev (`efc8da5`)
+- vendor: apk-contracts web bundle refreshed from contracts/generated/web (report.ts: LogLine + ProblemRecord, System/Problems family) (`6b01c9e`)
+- bump: apk-contracts re-vendored in nested repos (report.ts: LogLine + ProblemRecord) (`31ce9f2`)
+- vendor/apk-softapp: re-vendored — every problem card is reported through the SDK (ROAD-3695 step 2) (`1b1ee53`)
+- bump: apk-softapp re-vendored in nested repos (every problem card reported through the SDK, ROAD-3695 step 2) (`f390c5a`)
+- vendor: apk-contracts web bundle refreshed from contracts/generated/web (five report codes, ROAD-3695; unit-gate, ROAD-3684) (`0ea16c9`)
+- bump: apk-contracts re-vendored in nested repos (five report codes, ROAD-3695) (`c39ec86`)
+- Song Glide: chords, gliding note lines and the rhythm (beats, downbeats, onsets) over the song's waveform in the Song Analyzer (`73cc0f0`)
+- re-vendor apk-contracts web bundle: contracts 2.4.0 retires APK.audio/Tests/{suite} (ROAD-3729) (`59a65e4`)
+- bump 1 submodule(s): apk-contracts web bundle re-vendored, contracts 2.4.0 retires APK.audio/Tests/{suite} (ROAD-3729) (`9742538`)
+- pin sdk-v2.4 and the providers re-released on it (ROAD-3731: contracts 2.4.0 published) (`91c8045`)
+
 ## Releases
 - **Released `2.0.0`, tag `v2.0.0`** (2026-11-01, ROAD-3452, the owner's V2) — on `sdk-v2.0` (contracts 2.0.0); every manifest says 2.0.0; GitHub release `v2.0.0`.
