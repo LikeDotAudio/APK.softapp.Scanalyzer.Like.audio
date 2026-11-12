@@ -1,0 +1,53 @@
+# Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+# MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+#
+# Worker-YOUTUBE_AUDIO — included by PODS/POD.workers/Docker/docker-compose.yml.
+#   docker compose -f 'PODS/POD.workers/Docker/docker-compose.yml' up -d --build youtube-audio
+name: workers
+
+services:
+  youtube-audio:
+    build:
+      # youtube_audio/; its own .dockerignore trims it to worker/.
+      context: ".."
+      dockerfile: "Docker/Dockerfile"
+    image: worker-youtube-audio:local
+    container_name: Worker-YOUTUBE_AUDIO
+    restart: unless-stopped
+    labels:
+      audio.apk.purpose: "worker: fetches the audio of a YouTube link posted as a job on youtube_audio/outgoing/job and stores it on the file store for the Song Analyzer"
+    # Nothing to ask for: no port, no device, no raw socket. It reaches out to
+    # YouTube and in to Storage-Portal, nothing else.
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    mem_reservation: 64m
+    # The song lands here before it is PUT (max_audio_bytes ≤ 120 MiB), plus
+    # deno's and yt-dlp's caches and the runner's health file.
+    tmpfs:
+      - /tmp:size=320m
+    environment:
+      # THE POD incoming/api reports: every POD.workers service says POD.workers.
+      APK_POD: POD.workers
+      # THE BROKER BY NAME on Broker-Mosquitto's network, as every worker.
+      MQTT_HOST: ${APK_WORKER_MQTT_HOST:-broker}
+      MQTT_PORT: ${APK_WORKER_MQTT_PORT:-1883}
+      APK_MQTT_USERNAME: ${APK_MQTT_USERNAME:-}
+      APK_MQTT_PASSWORD: ${APK_MQTT_PASSWORD:-}
+      APK_NODE: ${APK_NODE:-}
+      APK_IMAGE_REV: ${APK_IMAGE_REV:-unstamped}
+    networks: [default, bus]
+    healthcheck:
+      test: ["CMD", "apk-plugin-health"]
+      interval: 60s
+      start_interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  default:
+    name: workers
+  bus:
+    external: true
+    name: apk-audio_default

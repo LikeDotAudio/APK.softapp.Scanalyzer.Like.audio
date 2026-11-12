@@ -1,0 +1,26 @@
+# Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+# MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+#
+# WHAT THIS AGENT IS, read by the Python runner at start
+# (`runner.main(..., manifest="agent.toml")` in apk_worker_youtube_audio.py, read
+# beside config.ini). Docker/Dockerfile copies it into
+# /opt/apk/youtube_audio/worker/ with config.ini.
+
+[agent]
+name = "youtube_audio"
+kind = "worker"
+title = "YouTube audio (a song from a link, for the Song Analyzer)"
+status = "live"
+summary = "Answers outgoing/job with incoming/result: op fetch takes a YouTube link, downloads its best audio-only stream with yt-dlp, PUTs it to the Storage-Portal file store and answers its url with the title and duration, under the job's own job_id."
+
+[telemetry]
+# GET /status and GET /telemetry on 127.0.0.1:8243 — `running` until the first
+# job is taken, `serving` after. APK_TELEMETRY_PORT moves it; 0 turns it off.
+port = 8243
+
+[config]
+# Every key of config.ini's [youtube_audio] that code reads: raise and enabled by
+# apk_plugin_runner, the rest by youtube_job.settings.
+reads = ["raise", "enabled", "allowed_hosts", "max_job_bytes", "max_url_chars", "audio_format",
+         "max_duration_s", "max_audio_bytes", "fetch_timeout_s", "work_dir",
+         "file_store_origin", "file_store_path", "put_timeout_s"]

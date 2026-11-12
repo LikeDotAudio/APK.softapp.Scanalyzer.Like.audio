@@ -17,6 +17,8 @@ import { extractLyricsFromAudioBuffer, type ExtractedLyrics } from './lyricsExtr
 import './SongTab.css';
 import { ApkTable, h } from '../common/ApkTable';
 import { problem } from '../../apkSoftapp';
+import { connectedClient } from '../../busLink';
+import { looksLikeYoutube, requestYoutubeAudio } from '../../youtubeAudioJob';
 
 interface SongTabProps {
   selectedItem?: any;
@@ -40,6 +42,8 @@ export default function SongTab({
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [lyrics, setLyrics] = useState<ExtractedLyrics | null>(null);
+  const [link, setLink] = useState<string>('');
+  const [linkStatus, setLinkStatus] = useState<string>('');
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -143,6 +147,50 @@ export default function SongTab({
       setAnalyzing(false);
       problem('file_unreadable', { subject: file.name, detail: String((err as any)?.message || err),
         fix: ['Try WAV, MP3, FLAC or OGG — or convert the song to WAV and drop it again.'] });
+    }
+  }, [decodeBuffer, startAnalysis]);
+
+  // A YouTube link: the bench's Worker-YOUTUBE_AUDIO fetches the audio-only
+  // stream onto the file store and answers its URL; from there it is analysed
+  // exactly like a dropped file (youtubeAudioJob.ts).
+  const analyzeLink = useCallback(async (raw: string) => {
+    const url = raw.trim();
+    if (!url) return;
+    if (!looksLikeYoutube(url)) {
+      problem('youtube_audio_refused_link', { subject: url.slice(0, 120),
+        detail: 'Only YouTube links (youtube.com, youtu.be, music.youtube.com) are fetched.' });
+      return;
+    }
+    try {
+      setAnalyzing(true);
+      setProgress(0.02);
+      setLinkStatus('Asking the bench to fetch the audio…');
+      const client = await connectedClient();
+      const answer = await requestYoutubeAudio(client, url);
+      if (!answer.ok || !answer.result) {
+        setAnalyzing(false);
+        setLinkStatus('');
+        problem(answer.problem || 'youtube_audio_failed', { subject: url.slice(0, 120), detail: answer.error || '' });
+        return;
+      }
+      const song = answer.result;
+      const name = song.uploader ? `${song.title} — ${song.uploader}` : (song.title || url);
+      setLinkStatus(`Fetched ${(song.bytes / 1048576).toFixed(1)} MB · decoding…`);
+      setProgress(0.05);
+      setAudioUrl(song.url);
+      const resp = await fetch(song.url);
+      if (!resp.ok) throw new Error(`GET ${song.url}: HTTP ${resp.status}`);
+      const arrayBuf = await resp.arrayBuffer();
+      setLyrics(extractLyricsFromAudioBuffer(arrayBuf));
+      const audioBuf = await decodeBuffer(arrayBuf);
+      setLinkStatus('');
+      startAnalysis(audioBuf, name);
+    } catch (err) {
+      console.error('[SongTab] Failed to analyze link:', err);
+      setAnalyzing(false);
+      setLinkStatus('');
+      problem('youtube_audio_failed', { subject: url.slice(0, 120), detail: String((err as any)?.message || err),
+        fix: ['Open the Song Analyzer from the bench (:8080) so it can reach the bus, and check Worker-YOUTUBE_AUDIO is running in DockTor.'] });
     }
   }, [decodeBuffer, startAnalysis]);
 
@@ -394,11 +442,15 @@ export default function SongTab({
             e.preventDefault();
             if (e.dataTransfer.files?.[0]) {
               handleFileUpload(e.dataTransfer.files[0]);
+              return;
             }
+            // A link dragged out of the browser's address bar or a page.
+            const dropped = (e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain') || '').split(/\s+/)[0];
+            if (dropped) { setLink(dropped); analyzeLink(dropped); }
           }}
         >
           <span className="song-drop-title">📂 Drag & Drop Song File or Click to Load</span>
-          <span className="song-drop-hint">WAV, MP3, FLAC, M4A, OGG • Local client-side processing</span>
+          <span className="song-drop-hint">WAV, MP3, FLAC, M4A, OGG • or drop a YouTube link</span>
           <input
             ref={fileInputRef}
             type="file"
@@ -409,6 +461,28 @@ export default function SongTab({
             }}
           />
         </div>
+
+        <form
+          className="song-link-form"
+          onSubmit={(e) => { e.preventDefault(); analyzeLink(link); }}
+        >
+          <input
+            type="url"
+            className="song-link-input"
+            placeholder="▶ Paste a YouTube link…"
+            value={link}
+            disabled={analyzing}
+            onChange={(e) => setLink(e.target.value)}
+            onPaste={(e) => {
+              const pasted = e.clipboardData.getData('text').trim();
+              if (looksLikeYoutube(pasted)) { e.preventDefault(); setLink(pasted); analyzeLink(pasted); }
+            }}
+          />
+          <button type="submit" className="song-action-btn primary" disabled={analyzing || !link.trim()}>
+            Analyze link
+          </button>
+          {linkStatus && <span className="song-link-status">{linkStatus}</span>}
+        </form>
 
         <button
           type="button"

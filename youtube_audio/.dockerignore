@@ -1,0 +1,4 @@
+# Only the worker goes into the image.
+*
+!worker/
+worker/__pycache__

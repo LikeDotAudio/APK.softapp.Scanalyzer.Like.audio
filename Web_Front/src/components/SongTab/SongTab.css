@@ -698,3 +698,33 @@
   border-radius: 3px;
   cursor: pointer;
 }
+
+/* A YouTube link: pasted (analysed at once) or typed and submitted. */
+.song-link-form {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.song-link-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-primary, #fff);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+  border-radius: 4px;
+  color-scheme: dark;
+}
+.song-link-input:focus {
+  outline: none;
+  border-color: var(--apk-accent);
+}
+.song-link-status {
+  flex-basis: 100%;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #aaa);
+}
