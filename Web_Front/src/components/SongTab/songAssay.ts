@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { createGlideAnalyzer, GLIDE_N, type GlideResult } from './songGlide';
 
 export interface KeyResult {
   pc: number;
@@ -43,6 +44,7 @@ export interface SongAssayResult {
   sections: SongSection[];
   waveformPeaks: Float32Array;
   waveformMins: Float32Array;
+  glide: GlideResult | null;     // Song Glide: voices, chords, onsets, beat grid
 }
 
 export const PITCH_CLASSES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
@@ -386,12 +388,34 @@ export function analyzeSongBuffer(
     }
 
     if (fi < nf) {
-      onProgress(fi / nf);
+      onProgress(0.7 * (fi / nf));
       requestAnimationFrame(step);
       return;
     }
+    finish();
+  }
 
-    const tempo = detectTempo(flux, frameRate);
+  // Pass 3 (Song Glide): long-frame pitch lines + chords, chunked like pass 2
+  const glide = createGlideAnalyzer(L, R, sr, new FastFourierTransform(GLIDE_N));
+  function glideStep() {
+    if (canceled) return;
+    const done = glide.step(14, () => performance.now());
+    if (!done) {
+      onProgress(0.7 + 0.3 * (glide.done() / glide.windows()));
+      requestAnimationFrame(glideStep);
+      return;
+    }
+    complete();
+  }
+
+  let tempo: TempoResult | null = null;
+  function finish() {
+    tempo = detectTempo(flux, frameRate);
+    requestAnimationFrame(glideStep);
+  }
+
+  function complete() {
+    const tempoR = tempo;
     const key = detectKey(chroma);
 
     // Build Song Sections
@@ -436,7 +460,7 @@ export function analyzeSongBuffer(
       flat: flatW > 0 ? flatS / flatW : NaN,
       corr,
       stereo: !!R,
-      tempo,
+      tempo: tempoR,
       key,
       chroma,
       frames: nf,
@@ -447,7 +471,8 @@ export function analyzeSongBuffer(
       channels: buf.numberOfChannels,
       sections,
       waveformPeaks,
-      waveformMins
+      waveformMins,
+      glide: glide.result(flux, frameRate, tempoR ? tempoR.bpm : null)
     });
   }
 

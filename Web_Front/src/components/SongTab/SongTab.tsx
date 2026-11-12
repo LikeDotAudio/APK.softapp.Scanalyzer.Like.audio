@@ -11,6 +11,7 @@ import {
   hzTxt
 } from './songAssay';
 import SongWaveform from './SongWaveform';
+import SongGlide from './SongGlide';
 import SongLyrics from './SongLyrics';
 import { extractLyricsFromAudioBuffer, type ExtractedLyrics } from './lyricsExtractor';
 import './SongTab.css';
@@ -425,6 +426,17 @@ export default function SongTab({
           <span>Analyzing song spectrum, pitch-classes and beats…</span>
           <span>{Math.round(progress * 100)}%</span>
         </div>
+      )}
+
+      {/* Song Glide — chords, note lines and rhythm; the song's waveform sits right under it */}
+      {result && result.glide && (
+        <SongGlide
+          glide={result.glide}
+          duration={duration || result.dur}
+          currentTime={currentTime}
+          isPlaying={isPlaying}
+          onSeek={seekAudio}
+        />
       )}
 
       {/* Audio Waveform with Overlaid Section Changes & Key Shifts */}

@@ -679,3 +679,22 @@
   justify-content: flex-end;
   gap: 0.75rem;
 }
+
+/* Song Glide — chords, gliding note lines and the rhythm strip */
+.song-glide-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+}
+
+.song-glide-canvas {
+  display: block;
+  width: 100%;
+  height: 380px;
+  border-radius: 3px;
+  cursor: pointer;
+}
