@@ -18,8 +18,8 @@ interface SongGlideProps {
 
 // lowest line → highest line
 const VOICE_COLOURS = ['#f5c542', '#ece27a', '#d6ec8c', '#7fe3f0', '#f4f4ef'];
-const BG_TOP = '#14473d';
-const BG_BOT = '#0c2f29';
+const BG_TOP = '#5c3610'; // rgb(244,144,44) at 38 %, a dark orange
+const BG_BOT = '#3a220a'; // rgb(244,144,44) at 24 %
 const CHORD_BAND = 28;
 const RHYTHM_BAND = 44;
 const PLAY_AT = 0.4;      // playhead sits 40 % across once the song is under way
@@ -170,7 +170,7 @@ export default function SongGlide({ glide, duration, currentTime, isPlaying, onS
       ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.stroke();
       const label = noteName(m);
       const lw = ctx.measureText(label).width;
-      ctx.fillStyle = 'rgba(12,47,41,0.85)'; ctx.fillRect(px + 10, vy - 8, lw + 8, 16);
+      ctx.fillStyle = 'rgba(58,34,10,0.85)'; ctx.fillRect(px + 10, vy - 8, lw + 8, 16);
       ctx.fillStyle = col; ctx.fillText(label, px + 14, vy);
     });
     ctx.restore();
