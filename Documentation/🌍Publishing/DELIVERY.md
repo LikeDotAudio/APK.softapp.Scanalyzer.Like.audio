@@ -117,6 +117,17 @@ From this repository's own commits (the commit message is the record):
 - re-vendor apk-contracts web bundle: contracts 2.4.0 retires APK.audio/Tests/{suite} (ROAD-3729) (`59a65e4`)
 - bump 1 submodule(s): apk-contracts web bundle re-vendored, contracts 2.4.0 retires APK.audio/Tests/{suite} (ROAD-3729) (`9742538`)
 - pin sdk-v2.4 and the providers re-released on it (ROAD-3731: contracts 2.4.0 published) (`91c8045`)
+- wiki: lanes, README and smoke result refreshed (wiki.py + smoke.py) (`c8aa145`)
+- docs(smoke): pass — results in the wiki (`94ffd69`)
+- Song Glide: dark orange background (rgb 244,144,44 darkened) in place of the green (`5b81858`)
+- Song Analyzer takes a YouTube link: Worker-YOUTUBE_AUDIO fetches the audio, the page analyses it (`cd36072`)
+- youtube_audio: pin SDK tag sdk-v2.3, the tag SDK_COMMIT 46bba0a actually is (sdk-v2.4 is 24496d9; the clone check failed) (`d84dfe9`)
+- Dockerfile: SDK_COMMIT is sdk-v2.4's own (24496d9) — it pinned v2.3's 46bba0a under the v2.4 tag, so the sdk stage's clone check failed every rebuild (`eb25eef`)
+- vendor: apk-contracts re-vendored (contracts gained the youtube_audio problem codes, root f013ba68a) (`d8fae36`)
+- vendor/apk-contracts: refresh to contracts/generated/web after ROAD-3759 (contracts split; CHAT_TOPIC origin note) (`a36d0ef`)
+- vendor: apk-softapp / apk-table re-joined from their parts (one GENERATED banner line; ROAD-3762) (`3275eab`)
+- ROAD-3769: Scanalyzer App.tsx split — the library, footer and favorites actions out of App (`74e5dd0`)
+- Dockerfile: take the runner as the SDK tag holds it — module or package — staged in /out/runner (ROAD-3775) (`0ce5200`)
 
 ## Releases
 - **Released `2.0.0`, tag `v2.0.0`** (2026-11-01, ROAD-3452, the owner's V2) — on `sdk-v2.0` (contracts 2.0.0); every manifest says 2.0.0; GitHub release `v2.0.0`.
