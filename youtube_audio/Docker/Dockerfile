@@ -22,8 +22,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends git ca-certific
  && git clone --quiet --depth 1 --branch "$SDK_TAG" "$SDK" /sdk \
  && test "$(git -C /sdk rev-parse HEAD)" = "$SDK_COMMIT" \
  && mkdir -p /out \
- && cp /sdk/runner/python/apk_plugin_runner.py /sdk/runner/python/apk_plugin_api.py \
-       /sdk/runner/python/apk_plugin_panels.py /sdk/runner/python/apk_plugin_health.py /out/ \
+ && mkdir -p /out/runner \
+ && for m in apk_plugin_runner apk_plugin_api apk_plugin_panels; do \
+      if [ -d "/sdk/runner/python/$m" ]; then cp -r "/sdk/runner/python/$m" /out/runner/; \
+      else cp "/sdk/runner/python/$m.py" /out/runner/; fi; done \
+ && find /out/runner -name __pycache__ -prune -exec rm -rf {} + \
+ && cp /sdk/runner/python/apk_plugin_health.py /out/ \
  && cp -r /sdk/contracts/python/apkaudio_contracts /out/apkaudio_contracts \
  && rm -rf /out/apkaudio_contracts/__pycache__
 
@@ -31,7 +35,9 @@ FROM python:3.12-slim-bookworm
 RUN pip install --no-cache-dir --disable-pip-version-check --upgrade \
         "yt-dlp[default]" deno paho-mqtt==2.1.0 \
  && useradd --uid 10001 --no-create-home --shell /usr/sbin/nologin worker
-COPY --from=sdk /out/apk_plugin_runner.py /out/apk_plugin_api.py /out/apk_plugin_panels.py /opt/apk/runner/
+# The runner as the tag holds it: a module (≤ sdk-v2.4) or the package it became in
+# the RUNNER split (DISCOVERY.Engine c6ee212, ROAD-3775) — staged in /out/runner either way.
+COPY --from=sdk /out/runner/ /opt/apk/runner/
 COPY --from=sdk /out/apkaudio_contracts /opt/apk/runner/apkaudio_contracts
 COPY --from=sdk /out/apk_plugin_health.py /usr/local/bin/apk-plugin-health
 RUN chmod 755 /usr/local/bin/apk-plugin-health
